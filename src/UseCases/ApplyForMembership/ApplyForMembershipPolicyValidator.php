@@ -29,7 +29,7 @@ class ApplyForMembershipPolicyValidator {
 	}
 
 	public function isAutoDeleted( Application $application ): bool {
-		foreach( $this->emailAddressBlacklist as $blacklistEntry ) {
+		foreach ( $this->emailAddressBlacklist as $blacklistEntry ) {
 			if ( preg_match( $blacklistEntry, $application->getApplicant()->getEmailAddress()->getFullAddress() ) ) {
 				return true;
 			}

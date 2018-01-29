@@ -8,7 +8,6 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationVa
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
 use WMDE\FunValidators\ConstraintViolation;
-use WMDE\Fundraising\Frontend\Validation\MembershipFeeValidator as FeeValidator;
 use WMDE\FunValidators\Validators\EmailValidator;
 
 /**
@@ -46,7 +45,7 @@ class MembershipApplicationValidator {
 		Result::SOURCE_BIC => 32,
 	];
 
-	public function __construct( FeeValidator $feeValidator, BankDataValidator $bankDataValidator,
+	public function __construct( MembershipFeeValidator $feeValidator, BankDataValidator $bankDataValidator,
 		EmailValidator $emailValidator ) {
 
 		$this->feeValidator = $feeValidator;
@@ -82,7 +81,7 @@ class MembershipApplicationValidator {
 
 	private function getApplicantType(): string {
 		return $this->request->isCompanyApplication() ?
-			FeeValidator::APPLICANT_TYPE_COMPANY : FeeValidator::APPLICANT_TYPE_PERSON;
+			MembershipFeeValidator::APPLICANT_TYPE_COMPANY : MembershipFeeValidator::APPLICANT_TYPE_PERSON;
 	}
 
 	private function addViolations( array $violations ): void {
@@ -221,7 +220,7 @@ class MembershipApplicationValidator {
 	}
 
 	private function validateFieldLength( string $value, string $fieldName ): void {
-		if ( strlen( $value ) > $this->maximumFieldLengths[$fieldName] )  {
+		if ( strlen( $value ) > $this->maximumFieldLengths[$fieldName] ) {
 			$this->violations[$fieldName] = Result::VIOLATION_WRONG_LENGTH;
 		}
 	}

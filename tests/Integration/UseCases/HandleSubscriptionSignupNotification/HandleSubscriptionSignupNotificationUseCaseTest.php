@@ -5,15 +5,15 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\HandleSubscriptionSignupNotification;
 
 use Psr\Log\NullLogger;
-use WMDE\Fundraising\Frontend\Infrastructure\TemplateBasedMailer;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FailingAuthorizer;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FakeApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\SucceedingAuthorizer;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TemplateBasedMailerSpy;
 use WMDE\Fundraising\MembershipContext\UseCases\HandleSubscriptionSignupNotification\HandleSubscriptionSignupNotificationUseCase;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
-use WMDE\Fundraising\PaymentContext\Tests\Data\ValidSubscriptionSignupRequest;
-use WMDE\Fundraising\Frontend\Tests\Fixtures\TemplateBasedMailerSpy;
+use WMDE\Fundraising\MembershipContext\Tests\Data\ValidSubscriptionSignupRequest;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ThrowingEntityManager;
 
 /**
@@ -153,10 +153,10 @@ class HandleSubscriptionSignupNotificationUseCaseTest extends \PHPUnit\Framework
 	}
 
 	/**
-	 * @return TemplateBasedMailer|\PHPUnit_Framework_MockObject_MockObject
+	 * @return TemplateMailerInterface|\PHPUnit_Framework_MockObject_MockObject
 	 */
-	private function getMailer(): TemplateBasedMailer {
-		return $this->getMockBuilder( TemplateBasedMailer::class )->disableOriginalConstructor()->getMock();
+	private function getMailer(): TemplateMailerInterface {
+		return $this->createMock( TemplateMailerInterface::class );
 	}
 
 }

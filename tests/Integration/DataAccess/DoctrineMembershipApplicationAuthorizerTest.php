@@ -10,7 +10,7 @@ use Doctrine\ORM\ORMException;
 use WMDE\Fundraising\Entities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationAuthorizer;
-use WMDE\Fundraising\Frontend\Tests\TestEnvironment;
+use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\Store\MembershipApplicationData;
 
 /**
