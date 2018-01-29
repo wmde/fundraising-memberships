@@ -9,6 +9,8 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 
 /**
+ * TODO: move outside this UC directory as it is used by things other than the UC (a route in FF app)
+ *
  * @license GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Kai Nissen < kai.nissen@wikimedia.de >
