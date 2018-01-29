@@ -7,12 +7,12 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ApplyFor
 use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
-use WMDE\Fundraising\MembershipContext\Authorization\FixedMembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedApplicationTokenFetcher;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedMembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedPaymentDelayCalculator;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\InMemoryApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TemplateBasedMailerSpy;

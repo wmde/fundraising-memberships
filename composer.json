@@ -33,7 +33,9 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"WMDE\\Fundraising\\MembershipContext\\": "src/"
+			"WMDE\\Fundraising\\MembershipContext\\": "src/",
+			"WMDE\\Fundraising\\MembershipContext\\Tests\\Data\\": "tests/Data/",
+			"WMDE\\Fundraising\\MembershipContext\\Tests\\Fixtures\\": "tests/Fixtures/"
 		}
 	},
 	"autoload-dev": {
