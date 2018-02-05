@@ -4,8 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\HandleSubscriptionPaymentNotification;
 
-use WMDE\Fundraising\DonationContext\Tests\Data\ValidPayPalNotificationRequest;
-use WMDE\Fundraising\Frontend\Infrastructure\TemplateBasedMailer;
+use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
+use WMDE\Fundraising\MembershipContext\Tests\Data\ValidPayPalNotificationRequest;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FailingAuthorizer;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FakeApplicationRepository;
@@ -140,10 +140,10 @@ class HandleSubscriptionPaymentNotificationUseCaseTest extends TestCase {
 	}
 
 	/**
-	 * @return TemplateBasedMailer|\PHPUnit_Framework_MockObject_MockObject
+	 * @return TemplateMailerInterface|\PHPUnit_Framework_MockObject_MockObject
 	 */
-	private function getMailer(): TemplateBasedMailer {
-		return $this->getMockBuilder( TemplateBasedMailer::class )->disableOriginalConstructor()->getMock();
+	private function getMailer(): TemplateMailerInterface {
+		return $this->createMock( TemplateMailerInterface::class );
 	}
 
 	public function testGivenSubscriptionPaymentRequest_parentDataSetReferencesChildPaymentId(): void {

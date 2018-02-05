@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 use Doctrine\ORM\EntityManager;
 use WMDE\Fundraising\Entities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
-use WMDE\Fundraising\Frontend\Tests\TestEnvironment;
+use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
 /**
  * @licence GNU GPL v2+

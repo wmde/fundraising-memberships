@@ -6,21 +6,21 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembers
 
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplicationRequest;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\SucceedingEmailValidator;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
+use WMDE\Fundraising\PaymentContext\Domain\IbanValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
-use WMDE\Fundraising\Frontend\Tests\Fixtures\SucceedingEmailValidator;
 use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\Validators\EmailValidator;
-use WMDE\Fundraising\Frontend\Validation\KontoCheckIbanValidator;
-use WMDE\Fundraising\Frontend\Validation\MembershipFeeValidator;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipFeeValidator;
 use WMDE\FunValidators\ValidationResult;
 
 /**
- * @covers \WMDE\Fundraising\Frontend\Validation\MembershipFeeValidator
+ * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipFeeValidator
  *
  * @license GNU GPL v2+
  * @author Kai Nissen < kai.nissen@wikimedia.de >
@@ -137,8 +137,8 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 		return new BankDataValidator( $this->newSucceedingIbanValidator() );
 	}
 
-	private function newSucceedingIbanValidator(): KontoCheckIbanValidator {
-		$ibanValidator = $this->getMockBuilder( KontoCheckIbanValidator::class )
+	private function newSucceedingIbanValidator(): IbanValidator {
+		$ibanValidator = $this->getMockBuilder( IbanValidator::class )
 			->disableOriginalConstructor()->getMock();
 
 		$ibanValidator->method( 'validate' )
