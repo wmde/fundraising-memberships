@@ -242,17 +242,11 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 	}
 
 	public function testReadingAnonymizedApplication_anonymizedExceptionIsThrown(): void {
-		$this->storeDoctrineApplication( $this->newAnonymizedApplication() );
+		$this->storeDoctrineApplication( ValidMembershipApplication::newAnonymizedDoctrineEntity() );
 
 		$this->expectException( ApplicationAnonymizedException::class );
 
 		$this->newRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID );
-	}
-
-	private function newAnonymizedApplication(): DoctrineApplication {
-		$application = ValidMembershipApplication::newDoctrineEntity();
-		$application->setBackup( new \DateTime() );
-		return $application;
 	}
 
 }
