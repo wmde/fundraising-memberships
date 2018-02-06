@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Data;
 
+use DateTime;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\Entities\MembershipApplication as DoctrineMembershipApplication;
@@ -296,6 +297,12 @@ class ValidMembershipApplication {
 		$application->setPaymentAmount( self::COMPANY_PAYMENT_AMOUNT_IN_EURO );
 		$application->setDonationReceipt( self::OPTS_INTO_DONATION_RECEIPT );
 
+		return $application;
+	}
+
+	public static function newAnonymizedDoctrineEntity(): DoctrineMembershipApplication {
+		$application = self::newDoctrineEntity();
+		$application->setBackup( new DateTime() );
 		return $application;
 	}
 
