@@ -60,7 +60,7 @@ class MembershipContextFactory implements ServiceProviderInterface {
 			return $entityManager;
 		};
 
-		$container['token_generator'] = function() {
+		$container['fundraising.membership.application.token_generator'] = function() {
 			return new RandomMembershipTokenGenerator(
 				$this->config['token-length'],
 				new \DateInterval( $this->config['token-validity-timestamp'] )
@@ -106,7 +106,7 @@ class MembershipContextFactory implements ServiceProviderInterface {
 	}
 
 	public function getTokenGenerator(): MembershipTokenGenerator {
-		return $this->pimple['token_generator'];
+		return $this->pimple['fundraising.membership.application.token_generator'];
 	}
 
 	public function disableDoctrineSubscribers(): void {
