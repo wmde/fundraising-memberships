@@ -1,8 +1,20 @@
 version: '2'
 
 services:
-  app:
-    build: .
+  fundraising-memberships-7.1:
+    build:
+      context: .
+      args:
+        PHP_VERSION: 7.1
     volumes:
       - ./:/usr/src/app
     working_dir: /usr/src/app
+    image: wmde/fundraising-memberships:7.1
+
+  fundraising-memberships-7.2:
+    extends:
+      service: fundraising-memberships-7.1
+    build:
+      args:
+        PHP_VERSION: 7.2
+    image: wmde/fundraising-memberships:7.2

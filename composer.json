@@ -29,7 +29,7 @@
 		"squizlabs/php_codesniffer": "~3.0",
 		"slevomat/coding-standard": "~4.0",
 		"mediawiki/mediawiki-codesniffer": "~13.0",
-		"phpstan/phpstan": "~0.8.0"
+		"phpstan/phpstan": "~0.9"
 	},
 	"autoload": {
 		"psr-4": {

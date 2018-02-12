@@ -1,4 +1,6 @@
-FROM php:7.1-cli
+ARG PHP_VERSION
+
+FROM php:${PHP_VERSION}-cli
 
 RUN \
 	apt-get update && \

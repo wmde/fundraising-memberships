@@ -1,10 +1,8 @@
 language: php
 
+# php version to use for travis' composer & coverage
 php:
   - 7.1
-  - 7.2
-
-sudo: false
 
 services:
   - docker
@@ -17,7 +15,6 @@ script:
   - make ci
 
 after_success:
-  - if [[ "`phpenv version-name`" != "7.2" ]]; then exit 0; fi
   - vendor/bin/phpunit --coverage-clover coverage.clover
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
