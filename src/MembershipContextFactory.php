@@ -8,8 +8,11 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Pimple\Container;
+use Pimple\ServiceProviderInterface;
+use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Authorization\RandomMembershipTokenGenerator;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipApplicationPrePersistSubscriber;
 use WMDE\Fundraising\Store\Factory as StoreFactory;
 use WMDE\Fundraising\Store\Installer;
@@ -18,7 +21,7 @@ use WMDE\Fundraising\Store\Installer;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class MembershipContextFactory {
+class MembershipContextFactory implements ServiceProviderInterface {
 
 	private $config;
 
@@ -36,12 +39,16 @@ class MembershipContextFactory {
 
 	private function newPimple(): Container {
 		$pimple = new Container();
+		$this->register( $pimple );
+		return $pimple;
+	}
 
-		$pimple['dbal_connection'] = function() {
+	public function register( Container $container ): void {
+		$container['dbal_connection'] = function() {
 			return DriverManager::getConnection( $this->config['db'] );
 		};
 
-		$pimple['entity_manager'] = function() {
+		$container['entity_manager'] = function() {
 			$entityManager = ( new StoreFactory( $this->getConnection(), $this->getVarPath() . '/doctrine_proxies' ) )
 				->getEntityManager();
 			if ( $this->addDoctrineSubscribers ) {
@@ -53,14 +60,25 @@ class MembershipContextFactory {
 			return $entityManager;
 		};
 
-		$pimple['token_generator'] = function() {
+		$container['token_generator'] = function() {
 			return new RandomMembershipTokenGenerator(
 				$this->config['token-length'],
 				new \DateInterval( $this->config['token-validity-timestamp'] )
 			);
 		};
 
-		return $pimple;
+		$container['fundraising.membership.application.authorizer.class'] = DoctrineApplicationAuthorizer::class;
+		// @todo Consider if the tokens should not better be method parameters (see ApplicationAuthorizer interface)
+		$container['fundraising.membership.application.authorizer.update_token'] = null;
+		$container['fundraising.membership.application.authorizer.access_token'] = null;
+
+		$container['fundraising.membership.application.authorizer'] = $container->factory( function ( Container $container ): ApplicationAuthorizer {
+			return new $container['fundraising.membership.application.authorizer.class'](
+				$container['entity_manager'],
+				$container['fundraising.membership.application.authorizer.update_token'],
+				$container['fundraising.membership.application.authorizer.access_token']
+			);
+		} );
 	}
 
 	public function getConnection(): Connection {
