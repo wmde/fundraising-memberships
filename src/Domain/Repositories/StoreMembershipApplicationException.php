@@ -10,8 +10,12 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Repositories;
  */
 class StoreMembershipApplicationException extends \RuntimeException {
 
-	public function __construct( \Exception $previous = null ) {
-		parent::__construct( 'Could not store membership application', 0, $previous );
+	public function __construct( string $message = null, \Exception $previous = null ) {
+		parent::__construct(
+			$message ?? 'Could not store membership application',
+			0,
+			$previous
+		);
 	}
 
 }

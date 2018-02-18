@@ -57,7 +57,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 			$this->entityManager->flush();
 		}
 		catch ( ORMException $ex ) {
-			throw new StoreMembershipApplicationException( $ex );
+			throw new StoreMembershipApplicationException( null, $ex );
 		}
 
 		$application->assignId( $doctrineApplication->getId() );
@@ -77,7 +77,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 			$this->entityManager->flush();
 		}
 		catch ( ORMException $ex ) {
-			throw new StoreMembershipApplicationException( $ex );
+			throw new StoreMembershipApplicationException( null, $ex );
 		}
 	}
 

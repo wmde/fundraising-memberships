@@ -105,7 +105,10 @@
         <exclude name="Squiz.WhiteSpace.OperatorSpacing.NoSpaceAfter" />
     </rule>
 
-    <rule ref="Squiz.WhiteSpace.ScopeClosingBrace" />
+    <rule ref="Squiz.WhiteSpace.ScopeClosingBrace">
+        <exclude name="Squiz.WhiteSpace.ScopeClosingBrace.ContentBefore" />
+    </rule>
+
     <rule ref="Squiz.WhiteSpace.ScopeKeywordSpacing" />
     <rule ref="Squiz.WhiteSpace.SemicolonSpacing" />
     <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace" />
@@ -170,5 +173,9 @@
     <rule ref="MediaWiki.WhiteSpace.DisallowEmptyLineFunctions">
         <exclude name="MediaWiki.WhiteSpace.DisallowEmptyLineFunctions.NoEmptyLine" />
         <exclude name="MediaWiki.WhiteSpace.SpaceAfterClosure.NoWhitespaceAfterClosure" />
+    </rule>
+
+    <rule ref="MediaWiki.WhiteSpace.SpaceBeforeControlStructureBrace">
+        <exclude name="MediaWiki.WhiteSpace.SpaceBeforeControlStructureBrace.EmptyLines" />
     </rule>
 </ruleset>
