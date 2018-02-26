@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess\Internal;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\ORMException;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\Entities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
@@ -117,17 +118,27 @@ class DoctrineApplicationTableTest extends TestCase {
 	}
 
 	public function testWhenDoctrineThrowsException_modifyApplicationRethrowsIt() {
-		$this->markTestSkipped( 'https://stackoverflow.com/questions/48895329/creating-a-entitymanager-that-throws-on-write' );
-		//$this->entityManager = $this->newManagerThatThrowsOnPersist();
-
 		$application = ValidMembershipApplication::newDoctrineEntity();
 		$table = $this->getTable();
 		$table->persistApplication( $application );
+
+		$this->makeEntityManagerThrowOnPersist();
 
 		$this->expectException( StoreMembershipApplicationException::class );
 		$table->modifyApplication(
 			$application->getId(),
 			function( MembershipApplication $application ) {}
+		);
+	}
+
+	private function makeEntityManagerThrowOnPersist() {
+		$this->entityManager->getEventManager()->addEventListener(
+			\Doctrine\ORM\Events::onFlush,
+			new class() {
+				public function onFlush() {
+					throw new ORMException();
+				}
+			}
 		);
 	}
 
