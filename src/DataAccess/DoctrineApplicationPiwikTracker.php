@@ -6,7 +6,11 @@ namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
+use Psr\Log\NullLogger;
 use WMDE\Fundraising\Entities\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTrackingException;
 
@@ -16,43 +20,24 @@ use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTrackingExceptio
  */
 class DoctrineApplicationPiwikTracker implements ApplicationPiwikTracker {
 
-	private $entityManager;
+	private $table;
 
 	public function __construct( EntityManager $entityManager ) {
-		$this->entityManager = $entityManager;
+		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() ); // TODO: logger
 	}
 
 	public function trackApplication( int $applicationId, string $trackingString ): void {
-		$application = $this->getApplicationById( $applicationId );
 
-		$application->setTracking( $trackingString );
-
-		$this->persistApplication( $application );
-	}
-
-	private function getApplicationById( int $applicationId ): MembershipApplication {
 		try {
-			$application = $this->entityManager->find( MembershipApplication::class, $applicationId );
+			$this->table->modifyApplication(
+				$applicationId,
+				function( MembershipApplication $application ) use ( $trackingString ) {
+					$application->setTracking( $trackingString );
+				}
+			);
 		}
-		catch ( ORMException $ex ) {
-			// TODO: might want to log failure here
-			throw new ApplicationPiwikTrackingException( 'Membership application could not be accessed' );
-		}
-
-		if ( $application === null ) {
-			throw new ApplicationPiwikTrackingException( 'Membership application does not exist' );
-		}
-
-		return $application;
-	}
-
-	private function persistApplication( MembershipApplication $application ): void {
-		try {
-			$this->entityManager->persist( $application );
-			$this->entityManager->flush();
-		}
-		catch ( ORMException $ex ) {
-			throw new ApplicationPiwikTrackingException( 'Failed to persist membership application' );
+		catch ( GetMembershipApplicationException | StoreMembershipApplicationException $ex ) {
+			throw new ApplicationPiwikTrackingException( 'Could not add tracking info', $ex );
 		}
 	}
 
