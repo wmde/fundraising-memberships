@@ -41,8 +41,6 @@ class MembershipApplicationValidator {
 		Result::SOURCE_APPLICANT_POSTAL_CODE => 8,
 		Result::SOURCE_APPLICANT_CITY => 100,
 		Result::SOURCE_APPLICANT_COUNTRY => 8,
-		Result::SOURCE_BANK_NAME => 100,
-		Result::SOURCE_BIC => 32,
 	];
 
 	public function __construct( MembershipFeeValidator $feeValidator, BankDataValidator $bankDataValidator,
@@ -93,9 +91,6 @@ class MembershipApplicationValidator {
 		$validationResult = $this->bankDataValidator->validate( $bankData );
 		$violations = [];
 
-		$this->validateFieldLength( $bankData->getBankName(), Result::SOURCE_BANK_NAME );
-		$this->validateFieldLength( $bankData->getBic(), Result::SOURCE_BIC );
-
 		foreach ( $validationResult->getViolations() as $violation ) {
 			$violations[$this->getBankDataViolationSource( $violation )] = $this->getBankDataViolationType( $violation );
 		}
@@ -104,6 +99,7 @@ class MembershipApplicationValidator {
 	}
 
 	private function getBankDataViolationSource( ConstraintViolation $violation ): string {
+		// TODO move to bank data validator
 		switch ( $violation->getSource() ) {
 			case 'iban':
 				return Result::SOURCE_IBAN;
@@ -121,6 +117,7 @@ class MembershipApplicationValidator {
 	}
 
 	private function getBankDataViolationType( ConstraintViolation $violation ): string {
+		// TODO move to bank data validator
 		switch ( $violation->getMessageIdentifier() ) {
 			case 'field_required':
 				return Result::VIOLATION_MISSING;
