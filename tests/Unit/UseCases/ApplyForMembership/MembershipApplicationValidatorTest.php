@@ -13,7 +13,6 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApp
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\Validators\EmailValidator;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipFeeValidator;
@@ -114,15 +113,24 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 		return $feeValidator;
 	}
 
-	public function testWhenIbanIsMissing_validationFails(): void {
-		$this->bankDataValidator = $this->newRealBankDataValidator();
+	// TODO use Result object from BankDataValidator (TBD)
+	public function testWhenBankDataValidationFails_constraintViolationsArePropagated(): void {
+		$this->bankDataValidator = $this->createMock( BankDataValidator::class );
+		$this->bankDataValidator->method( 'validate' )->willReturn(
+			new ValidationResult(
+				new ConstraintViolation( '', 'field_required', 'iban' ),
+				new ConstraintViolation( 'ABC', 'incorrect_length', 'bic' )
+			)
+		);
 
 		$request = $this->newValidRequest();
-		$request->getBankData()->setIban( new Iban( '' ) );
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
-			[ Result::SOURCE_IBAN => Result::VIOLATION_MISSING ]
+			[
+				Result::SOURCE_IBAN => Result::VIOLATION_MISSING,
+				Result::SOURCE_BIC => Result::VIOLATION_WRONG_LENGTH
+			]
 		);
 	}
 
@@ -145,78 +153,6 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 			->willReturn( new ValidationResult() );
 
 		return $ibanValidator;
-	}
-
-	public function testWhenBicIsMissing_validationFails(): void {
-		$this->bankDataValidator = $this->newRealBankDataValidator();
-
-		$request = $this->newValidRequest();
-		$request->getBankData()->setBic( '' );
-
-		$this->assertRequestValidationResultInErrors(
-			$request,
-			[ Result::SOURCE_BIC => Result::VIOLATION_MISSING ]
-		);
-	}
-
-	public function testWhenBankNameIsMissing_validationSucceeds(): void {
-		$this->bankDataValidator = $this->newRealBankDataValidator();
-
-		$request = $this->newValidRequest();
-		$request->getBankData()->setBankName( '' );
-		$response = $this->newValidator()->validate( $request );
-
-		$this->assertEquals( new Result(), $response );
-		$this->assertEmpty( $response->getViolationSources() );
-		$this->assertTrue( $response->isSuccessful() );
-	}
-
-	public function testWhenBankCodeIsMissing_validationFails(): void {
-		$this->bankDataValidator = $this->newRealBankDataValidator();
-
-		$request = $this->newValidRequest();
-		$request->getBankData()->setBankCode( '' );
-
-		$this->assertRequestValidationResultInErrors(
-			$request,
-			[ Result::SOURCE_BANK_CODE => Result::VIOLATION_MISSING ]
-		);
-	}
-
-	public function testWhenBankAccountIsMissing_validationFails(): void {
-		$this->bankDataValidator = $this->newRealBankDataValidator();
-
-		$request = $this->newValidRequest();
-		$request->getBankData()->setAccount( '' );
-
-		$this->assertRequestValidationResultInErrors(
-			$request,
-			[ Result::SOURCE_BANK_ACCOUNT => Result::VIOLATION_MISSING ]
-		);
-	}
-
-	public function testWhenTooLongBankAccount_validationFails(): void {
-		$this->bankDataValidator = $this->newRealBankDataValidator();
-
-		$request = $this->newValidRequest();
-		$request->getBankData()->setAccount( '01189998819991197253' );
-
-		$this->assertRequestValidationResultInErrors(
-			$request,
-			[ Result::SOURCE_BANK_ACCOUNT => Result::VIOLATION_WRONG_LENGTH ]
-		);
-	}
-
-	public function testWhenTooLongBankCode_validationFails(): void {
-		$this->bankDataValidator = $this->newRealBankDataValidator();
-
-		$request = $this->newValidRequest();
-		$request->getBankData()->setBankCode( '01189998819991197253' );
-
-		$this->assertRequestValidationResultInErrors(
-			$request,
-			[ Result::SOURCE_BANK_CODE => Result::VIOLATION_WRONG_LENGTH ]
-		);
 	}
 
 	public function testWhenDateOfBirthIsNotDate_validationFails(): void {
@@ -414,23 +350,6 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 			[
 				Result::SOURCE_APPLICANT_EMAIL => Result::VIOLATION_WRONG_LENGTH,
 				Result::SOURCE_APPLICANT_PHONE_NUMBER => Result::VIOLATION_WRONG_LENGTH
-			]
-		);
-	}
-
-	public function testBankDataWithLongFields_validationFails(): void {
-		$longText = str_repeat( 'Cats ', 500 );
-		$request = $this->newValidRequest();
-		$bankData = $request->getBankData();
-		$bankData->setBic( $longText );
-		$bankData->setBankName( $longText );
-		// Other length violations will be caught by IBAN validation
-
-		$this->assertRequestValidationResultInErrors(
-			$request,
-			[
-				Result::SOURCE_BANK_NAME => Result::VIOLATION_WRONG_LENGTH,
-				Result::SOURCE_BIC => Result::VIOLATION_WRONG_LENGTH
 			]
 		);
 	}
