@@ -8,10 +8,9 @@ services:
   - docker
 
 install:
-  - travis_retry make composer install
+  - travis_retry composer install --prefer-dist --no-interaction --ignore-platform-reqs
 
 script:
-  - composer validate --no-interaction
   - make ci
 
 after_success:
