@@ -10,9 +10,11 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\SucceedingEmailValidator;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator;
+use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult as BankResult;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
-use WMDE\Fundraising\PaymentContext\Domain\IbanValidator;
+use WMDE\Fundraising\PaymentContext\Domain\IbanBlocklist;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\Validators\EmailValidator;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipFeeValidator;
@@ -26,6 +28,8 @@ use WMDE\FunValidators\ValidationResult;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
+
+	private const BLOCKED_IBAN = 'LU761111000872960000';
 
 	/*
 	 * @var MembershipFeeValidator
@@ -42,9 +46,15 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 	 */
 	private $emailValidator;
 
+	/**
+	 * @var IbanBlocklist
+	 */
+	private $ibanBlockList;
+
 	public function setUp(): void {
 		$this->feeValidator = $this->newSucceedingFeeValidator();
 		$this->bankDataValidator = $this->newSucceedingBankDataValidator();
+		$this->ibanBlockList = $this->newEmptyIbanBlocklist();
 		$this->emailValidator = new SucceedingEmailValidator();
 	}
 
@@ -61,6 +71,7 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 		return new MembershipApplicationValidator(
 			$this->feeValidator,
 			$this->bankDataValidator,
+			$this->ibanBlockList,
 			$this->emailValidator
 		);
 	}
@@ -71,6 +82,10 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 		$response = $this->newValidator()->validate( $this->newValidRequest() );
 
 		$this->assertEquals( $this->newFeeViolationResult(), $response );
+	}
+
+	private function newEmptyIbanBlocklist(): IbanBlocklist {
+		return new IbanBlocklist( [] );
 	}
 
 	private function newFailingFeeValidator(): MembershipFeeValidator {
@@ -113,13 +128,12 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 		return $feeValidator;
 	}
 
-	// TODO use Result object from BankDataValidator (TBD)
-	public function testWhenBankDataValidationFails_constraintViolationsArePropagated(): void {
+	public function testWhenBankDataValidationFails_constraintViolationValuesArePropagated(): void {
 		$this->bankDataValidator = $this->createMock( BankDataValidator::class );
 		$this->bankDataValidator->method( 'validate' )->willReturn(
 			new ValidationResult(
-				new ConstraintViolation( '', 'field_required', 'iban' ),
-				new ConstraintViolation( 'ABC', 'incorrect_length', 'bic' )
+				new ConstraintViolation( '', BankResult::VIOLATION_MISSING, BankResult::SOURCE_IBAN ),
+				new ConstraintViolation( 'ABC', BankResult::VIOLATION_INVALID_BIC, BankResult::SOURCE_BIC )
 			)
 		);
 
@@ -128,8 +142,22 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 		$this->assertRequestValidationResultInErrors(
 			$request,
 			[
-				Result::SOURCE_IBAN => Result::VIOLATION_MISSING,
-				Result::SOURCE_BIC => Result::VIOLATION_WRONG_LENGTH
+				BankResult::SOURCE_IBAN => BankResult::VIOLATION_MISSING,
+				BankResult::SOURCE_BIC => BankResult::VIOLATION_INVALID_BIC
+			]
+		);
+	}
+
+	public function testWhenIbanIsBlocked_validationFails(): void {
+		$this->ibanBlockList = new IbanBlocklist( [ self::BLOCKED_IBAN ] );
+
+		$request = $this->newValidRequest();
+		$request->getBankData()->setIban( new Iban( self::BLOCKED_IBAN ) );
+
+		$this->assertRequestValidationResultInErrors(
+			$request,
+			[
+				BankResult::SOURCE_IBAN => Result::VIOLATION_IBAN_BLOCKED,
 			]
 		);
 	}
@@ -139,20 +167,6 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 			new Result( $expectedErrors ),
 			$this->newValidator()->validate( $request )
 		);
-	}
-
-	private function newRealBankDataValidator(): BankDataValidator {
-		return new BankDataValidator( $this->newSucceedingIbanValidator() );
-	}
-
-	private function newSucceedingIbanValidator(): IbanValidator {
-		$ibanValidator = $this->getMockBuilder( IbanValidator::class )
-			->disableOriginalConstructor()->getMock();
-
-		$ibanValidator->method( 'validate' )
-			->willReturn( new ValidationResult() );
-
-		return $ibanValidator;
 	}
 
 	public function testWhenDateOfBirthIsNotDate_validationFails(): void {
