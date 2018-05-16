@@ -5,9 +5,10 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
+use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
+use WMDE\Fundraising\PaymentContext\Domain\IbanBlocklist;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
-use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\Validators\EmailValidator;
 
 /**
@@ -18,6 +19,7 @@ class MembershipApplicationValidator {
 
 	private $feeValidator;
 	private $bankDataValidator;
+	private $ibanBlocklist;
 	private $emailValidator;
 
 	/**
@@ -44,10 +46,11 @@ class MembershipApplicationValidator {
 	];
 
 	public function __construct( MembershipFeeValidator $feeValidator, BankDataValidator $bankDataValidator,
-		EmailValidator $emailValidator ) {
+		IbanBlocklist $ibanBlocklist, EmailValidator $emailValidator ) {
 
 		$this->feeValidator = $feeValidator;
 		$this->bankDataValidator = $bankDataValidator;
+		$this->ibanBlocklist = $ibanBlocklist;
 		$this->emailValidator = $emailValidator;
 	}
 
@@ -62,6 +65,7 @@ class MembershipApplicationValidator {
 		$this->validateApplicantAddress();
 		if ( $applicationRequest->getPaymentType() === PaymentMethod::DIRECT_DEBIT ) {
 			$this->validateBankData();
+			$this->checkForBlockedIban();
 		}
 
 		return new Result( $this->violations );
@@ -92,44 +96,10 @@ class MembershipApplicationValidator {
 		$violations = [];
 
 		foreach ( $validationResult->getViolations() as $violation ) {
-			$violations[$this->getBankDataViolationSource( $violation )] = $this->getBankDataViolationType( $violation );
+			$violations[$violation->getSource()] = $violation->getMessageIdentifier();
 		}
 
 		$this->addViolations( $violations );
-	}
-
-	private function getBankDataViolationSource( ConstraintViolation $violation ): string {
-		// TODO move to bank data validator
-		switch ( $violation->getSource() ) {
-			case 'iban':
-				return Result::SOURCE_IBAN;
-			case 'bic':
-				return Result::SOURCE_BIC;
-			case 'bankname':
-				return Result::SOURCE_BANK_NAME;
-			case 'blz':
-				return Result::SOURCE_BANK_CODE;
-			case 'konto':
-				return Result::SOURCE_BANK_ACCOUNT;
-			default:
-				throw new \LogicException();
-		}
-	}
-
-	private function getBankDataViolationType( ConstraintViolation $violation ): string {
-		// TODO move to bank data validator
-		switch ( $violation->getMessageIdentifier() ) {
-			case 'field_required':
-				return Result::VIOLATION_MISSING;
-			case 'incorrect_length':
-				return Result::VIOLATION_WRONG_LENGTH;
-			case 'iban_blocked':
-				return Result::VIOLATION_IBAN_BLOCKED;
-			case 'iban_invalid':
-				return Result::VIOLATION_IBAN_INVALID;
-			default:
-				throw new \LogicException();
-		}
 	}
 
 	private function validateApplicantDateOfBirth(): void {
@@ -219,6 +189,12 @@ class MembershipApplicationValidator {
 	private function validateFieldLength( string $value, string $fieldName ): void {
 		if ( strlen( $value ) > $this->maximumFieldLengths[$fieldName] ) {
 			$this->violations[$fieldName] = Result::VIOLATION_WRONG_LENGTH;
+		}
+	}
+
+	private function checkForBlockedIban() {
+		if ( $this->ibanBlocklist->isIbanBlocked( $this->request->getBankData()->getIban() ) ) {
+			$this->violations[BankDataValidationResult::SOURCE_IBAN] = Result::VIOLATION_IBAN_BLOCKED;
 		}
 	}
 
