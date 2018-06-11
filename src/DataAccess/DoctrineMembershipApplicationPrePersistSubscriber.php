@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\DataAccess;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
+use WMDE\Fundraising\Entities\AddressChange;
 use WMDE\Fundraising\Entities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\Store\MembershipApplicationData;
@@ -35,15 +36,21 @@ class DoctrineMembershipApplicationPrePersistSubscriber implements EventSubscrib
 		$entity = $args->getObject();
 
 		if ( $entity instanceof MembershipApplication ) {
-			$entity->modifyDataObject( function ( MembershipApplicationData $data ): void {
-				if ( $this->isEmpty( $data->getAccessToken() ) ) {
-					$data->setAccessToken( $this->accessTokenGenerator->generateToken() );
-				}
+			$entity->modifyDataObject(
+				function ( MembershipApplicationData $data ): void {
+					if ( $this->isEmpty( $data->getAccessToken() ) ) {
+						$data->setAccessToken( $this->accessTokenGenerator->generateToken() );
+					}
 
-				if ( $this->isEmpty( $data->getUpdateToken() ) ) {
-					$data->setUpdateToken( $this->updateTokenGenerator->generateToken() );
+					if ( $this->isEmpty( $data->getUpdateToken() ) ) {
+						$data->setUpdateToken( $this->updateTokenGenerator->generateToken() );
+					}
 				}
-			} );
+			);
+
+			if ( $entity->getAddressChange() === null ) {
+				$entity->setAddressChange( new AddressChange() );
+			}
 		}
 	}
 
