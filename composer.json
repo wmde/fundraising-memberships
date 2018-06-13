@@ -19,7 +19,8 @@
 	"repositories": [
 		{
 			"type": "vcs",
-			"url": "https://github.com/wmde/fundraising-payments"
+			"url": "https://github.com/wmde/fundraising-payments",
+            "no-api": true
 		}
 	],
 	"require-dev": {
