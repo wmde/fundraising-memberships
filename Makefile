@@ -15,17 +15,17 @@ test: covers phpunit
 cs: phpcs stan
 
 phpunit:
-	docker-compose run --rm fundraising-memberships-7.1 ./vendor/bin/phpunit
-	docker-compose run --rm fundraising-memberships-7.2 ./vendor/bin/phpunit
+	docker-compose run --rm fundraising-memberships ./vendor/bin/phpunit
+	docker-compose run --rm fundraising-memberships ./vendor/bin/phpunit
 
 phpcs:
-	docker-compose run --rm fundraising-memberships-7.1 ./vendor/bin/phpcs -p -s
+	docker-compose run --rm fundraising-memberships ./vendor/bin/phpcs -p -s
 
 stan:
-	docker-compose run --rm fundraising-memberships-7.1 ./vendor/bin/phpstan analyse --level=1 --no-progress src/ tests/
+	docker-compose run --rm fundraising-memberships ./vendor/bin/phpstan analyse --level=1 --no-progress src/ tests/
 
 covers:
-	docker-compose run --rm fundraising-memberships-7.1 ./vendor/bin/covers-validator
+	docker-compose run --rm fundraising-memberships ./vendor/bin/covers-validator
 
 composer:
 	docker run --rm --interactive --tty --volume $(shell pwd):/app -w /app\
