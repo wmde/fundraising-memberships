@@ -5,10 +5,11 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\ORMException;
+use Psr\Log\NullLogger;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\Entities\MembershipApplication as DoctrineApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
@@ -33,12 +34,15 @@ use WMDE\Fundraising\Store\MembershipApplicationData;
  */
 class DoctrineApplicationRepository implements ApplicationRepository {
 
-	private $entityManager;
+	private $table;
 
 	public function __construct( EntityManager $entityManager ) {
-		$this->entityManager = $entityManager;
+		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
 	}
 
+	/**
+	 * @throws StoreMembershipApplicationException
+	 */
 	public function storeApplication( Application $application ): void {
 		if ( $application->hasId() ) {
 			$this->updateApplication( $application );
@@ -52,32 +56,22 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		$doctrineApplication = new DoctrineApplication();
 		$this->updateDoctrineApplication( $doctrineApplication, $application );
 
-		try {
-			$this->entityManager->persist( $doctrineApplication );
-			$this->entityManager->flush();
-		}
-		catch ( ORMException $ex ) {
-			throw new StoreMembershipApplicationException( $ex );
-		}
+		$this->table->persistApplication( $doctrineApplication );
 
 		$application->assignId( $doctrineApplication->getId() );
 	}
 
 	private function updateApplication( Application $application ): void {
-		$doctrineApplication = $this->getDoctrineApplicationById( $application->getId() );
-
-		if ( $doctrineApplication === null ) {
-			throw new StoreMembershipApplicationException();
-		}
-
-		$this->updateDoctrineApplication( $doctrineApplication, $application );
-
 		try {
-			$this->entityManager->persist( $doctrineApplication );
-			$this->entityManager->flush();
+			$this->table->modifyApplication(
+				$application->getId(),
+				function( DoctrineApplication $doctrineApplication ) use ( $application ) {
+					$this->updateDoctrineApplication( $doctrineApplication, $application );
+				}
+			);
 		}
-		catch ( ORMException $ex ) {
-			throw new StoreMembershipApplicationException( $ex );
+		catch ( GetMembershipApplicationException | StoreMembershipApplicationException $ex ) {
+			throw new StoreMembershipApplicationException( null, $ex );
 		}
 	}
 
@@ -206,12 +200,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 	 * @throws GetMembershipApplicationException
 	 */
 	public function getApplicationById( int $id ): ?Application {
-		try {
-			$application = $this->getDoctrineApplicationById( $id );
-		}
-		catch ( ORMException $ex ) {
-			throw new GetMembershipApplicationException( null, $ex );
-		}
+		$application = $this->table->getApplicationOrNullById( $id );
 
 		if ( $application === null ) {
 			return null;
@@ -222,15 +211,6 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		}
 
 		throw new ApplicationAnonymizedException();
-	}
-
-	/**
-	 * @param int $id
-	 * @return DoctrineApplication|null
-	 * @throws ORMException
-	 */
-	public function getDoctrineApplicationById( int $id ): ?DoctrineApplication {
-		return $this->entityManager->find( DoctrineApplication::class, $id );
 	}
 
 	private function newApplicationDomainEntity( DoctrineApplication $application ): Application {

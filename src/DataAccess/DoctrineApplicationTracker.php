@@ -5,8 +5,11 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\ORMException;
+use Psr\Log\NullLogger;
 use WMDE\Fundraising\Entities\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTrackingException;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
@@ -17,46 +20,26 @@ use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInf
  */
 class DoctrineApplicationTracker implements ApplicationTracker {
 
-	private $entityManager;
+	private $table;
 
 	public function __construct( EntityManager $entityManager ) {
-		$this->entityManager = $entityManager;
+		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() ); // TODO: logger
 	}
 
 	public function trackApplication( int $applicationId, MembershipApplicationTrackingInfo $trackingInfo ): void {
-		$application = $this->getApplicationById( $applicationId );
-
-		$data = $application->getDecodedData();
-		$data['confirmationPageCampaign'] = $trackingInfo->getCampaignCode();
-		$data['confirmationPage'] = $trackingInfo->getKeyword();
-		$application->encodeAndSetData( $data );
-
-		$this->persistApplication( $application );
-	}
-
-	private function getApplicationById( int $applicationId ): MembershipApplication {
 		try {
-			$application = $this->entityManager->find( MembershipApplication::class, $applicationId );
+			$this->table->modifyApplication(
+				$applicationId,
+				function( MembershipApplication $application ) use ( $trackingInfo ) {
+					$data = $application->getDecodedData();
+					$data['confirmationPageCampaign'] = $trackingInfo->getCampaignCode();
+					$data['confirmationPage'] = $trackingInfo->getKeyword();
+					$application->encodeAndSetData( $data );
+				}
+			);
 		}
-		catch ( ORMException $ex ) {
-			// TODO: might want to log failure here
-			throw new ApplicationTrackingException( 'Membership application could not be accessed' );
-		}
-
-		if ( $application === null ) {
-			throw new ApplicationTrackingException( 'Membership application does not exist' );
-		}
-
-		return $application;
-	}
-
-	private function persistApplication( MembershipApplication $application ): void {
-		try {
-			$this->entityManager->persist( $application );
-			$this->entityManager->flush();
-		}
-		catch ( ORMException $ex ) {
-			throw new ApplicationTrackingException( 'Failed to persist membership application' );
+		catch ( GetMembershipApplicationException | StoreMembershipApplicationException $ex ) {
+			throw new ApplicationTrackingException( 'Failed to track membership application', $ex );
 		}
 	}
 
