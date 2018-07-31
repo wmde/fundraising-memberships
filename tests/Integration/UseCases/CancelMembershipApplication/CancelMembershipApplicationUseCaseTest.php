@@ -64,7 +64,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 
 	public function testFailureResponseContainsApplicationId(): void {
 		$response = $this->newUseCase()->cancelApplication(
-			new CancellationRequest(self::ID_OF_NON_EXISTING_APPLICATION )
+			new CancellationRequest( self::ID_OF_NON_EXISTING_APPLICATION )
 		);
 
 		$this->assertEquals( self::ID_OF_NON_EXISTING_APPLICATION, $response->getMembershipApplicationId() );
