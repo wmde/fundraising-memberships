@@ -23,7 +23,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\Canc
  */
 class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase {
 
-	const ID_OF_NON_EXISTING_APPLICATION = 1337;
+	private const ID_OF_NON_EXISTING_APPLICATION = 1337;
 
 	/**
 	 * @var ApplicationAuthorizer
