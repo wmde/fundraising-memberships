@@ -6,10 +6,9 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\CancelMe
 
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FailingAuthorizer;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\InMemoryApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FakeApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\SucceedingAuthorizer;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TemplateBasedMailerSpy;
 use WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancellationRequest;
@@ -31,7 +30,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 	private $authorizer;
 
 	/**
-	 * @var ApplicationRepository
+	 * @var FakeApplicationRepository
 	 */
 	private $repository;
 
@@ -40,10 +39,19 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 	 */
 	private $mailer;
 
+	/**
+	 * @var Application
+	 */
+	private $cancelableApplication;
+
 	public function setUp(): void {
 		$this->authorizer = new SucceedingAuthorizer();
-		$this->repository = new InMemoryApplicationRepository();
+		$this->repository = new FakeApplicationRepository();
 		$this->mailer = new TemplateBasedMailerSpy( $this );
+
+		$application = ValidMembershipApplication::newDomainEntity();
+		$this->repository->storeApplication( $application );
+		$this->cancelableApplication = $application;
 	}
 
 	public function testGivenIdOfUnknownDonation_cancellationIsNotSuccessful(): void {
@@ -67,31 +75,46 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 			new CancellationRequest( self::ID_OF_NON_EXISTING_APPLICATION )
 		);
 
-		$this->assertEquals( self::ID_OF_NON_EXISTING_APPLICATION, $response->getMembershipApplicationId() );
+		$this->assertSame(
+			self::ID_OF_NON_EXISTING_APPLICATION,
+			$response->getMembershipApplicationId()
+		);
 	}
 
 	public function testGivenIdOfCancellableApplication_cancellationIsSuccessful(): void {
-		$application = $this->newCancelableApplication();
-		$this->storeApplication( $application );
-
-		$response = $this->newUseCase()->cancelApplication( new CancellationRequest( $application->getId() ) );
+		$response = $this->newUseCase()->cancelApplication(
+			new CancellationRequest( $this->cancelableApplication->getId() )
+		);
 
 		$this->assertTrue( $response->cancellationWasSuccessful() );
-		$this->assertEquals( $application->getId(), $response->getMembershipApplicationId() );
+		$this->assertSame(
+			$this->cancelableApplication->getId(),
+			$response->getMembershipApplicationId()
+		);
 	}
 
-	private function newCancelableApplication(): Application {
-		return ValidMembershipApplication::newDomainEntity();
+	public function testWhenAuthorizationFails_cancellationFails(): void {
+		$this->authorizer = new FailingAuthorizer();
+
+		$response = $this->newUseCase()->cancelApplication(
+			new CancellationRequest( $this->cancelableApplication->getId() )
+		);
+
+		$this->assertFalse( $response->cancellationWasSuccessful() );
 	}
 
-	private function storeApplication( Application $application ): void {
-		$this->repository->storeApplication( $application );
+	public function testWhenSaveFails_cancellationFails() {
+		$this->repository->throwOnWrite();
+
+		$response = $this->newUseCase()->cancelApplication(
+			new CancellationRequest( $this->cancelableApplication->getId() )
+		);
+
+		$this->assertFalse( $response->cancellationWasSuccessful() );
 	}
 
-	public function testWhenApplicationGetsCancelled_cancellationConfirmationEmailIsSend(): void {
-		$application = $this->newCancelableApplication();
-		$this->storeApplication( $application );
-
+	public function testWhenApplicationGetsCancelled_confirmationEmailIsSent(): void {
+		$application = $this->cancelableApplication;
 		$this->newUseCase()->cancelApplication( new CancellationRequest( $application->getId() ) );
 
 		$this->mailer->assertCalledOnceWith(
@@ -107,24 +130,12 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 		);
 	}
 
-	public function testNotAuthorized_cancellationFails(): void {
-		$this->authorizer = new FailingAuthorizer();
+	public function testWhenCancellationFails_confirmationEmailIsNotSend(): void {
+		$this->newUseCase()->cancelApplication(
+			new CancellationRequest( self::ID_OF_NON_EXISTING_APPLICATION )
+		);
 
-		$application = $this->newCancelableApplication();
-		$this->storeApplication( $application );
-
-		$response = $this->newUseCase()->cancelApplication( new CancellationRequest( $application->getId() ) );
-
-		$this->assertFalse( $response->cancellationWasSuccessful() );
-	}
-
-	public function testWhenThereAreNoIssues_successResponseIsreturned(): void {
-		$application = $this->newCancelableApplication();
-		$this->storeApplication( $application );
-
-		$response = $this->newUseCase()->cancelApplication( new CancellationRequest( $application->getId() ) );
-
-		$this->assertTrue( $response->cancellationWasSuccessful() );
+		$this->assertEmpty( $this->mailer->getSendMailCalls() );
 	}
 
 }
