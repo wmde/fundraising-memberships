@@ -76,7 +76,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 			new CancellationRequest( self::ID_OF_NON_EXISTING_APPLICATION )
 		);
 
-		$this->assertEquals(
+		$this->assertSame(
 			self::ID_OF_NON_EXISTING_APPLICATION,
 			$response->getMembershipApplicationId()
 		);
@@ -88,7 +88,10 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 		);
 
 		$this->assertTrue( $response->cancellationWasSuccessful() );
-		$this->assertEquals( $this->cancelableApplication->getId(), $response->getMembershipApplicationId() );
+		$this->assertSame(
+			$this->cancelableApplication->getId(),
+			$response->getMembershipApplicationId()
+		);
 	}
 
 	public function testWhenApplicationGetsCancelled_cancellationConfirmationEmailIsSend(): void {
