@@ -6,10 +6,9 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\CancelMe
 
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FailingAuthorizer;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\InMemoryApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FakeApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\SucceedingAuthorizer;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TemplateBasedMailerSpy;
 use WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancellationRequest;
@@ -31,7 +30,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 	private $authorizer;
 
 	/**
-	 * @var ApplicationRepository
+	 * @var FakeApplicationRepository
 	 */
 	private $repository;
 
@@ -47,7 +46,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 
 	public function setUp(): void {
 		$this->authorizer = new SucceedingAuthorizer();
-		$this->repository = new InMemoryApplicationRepository();
+		$this->repository = new FakeApplicationRepository();
 		$this->mailer = new TemplateBasedMailerSpy( $this );
 
 		$application = ValidMembershipApplication::newDomainEntity();
@@ -113,6 +112,16 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 
 	public function testWhenAuthorizationFails_cancellationFails(): void {
 		$this->authorizer = new FailingAuthorizer();
+
+		$response = $this->newUseCase()->cancelApplication(
+			new CancellationRequest( $this->cancelableApplication->getid() )
+		);
+
+		$this->assertFalse( $response->cancellationWasSuccessful() );
+	}
+
+	public function testWhenSaveFails_cancellationFails() {
+		$this->repository->throwOnWrite();
 
 		$response = $this->newUseCase()->cancelApplication(
 			new CancellationRequest( $this->cancelableApplication->getid() )
