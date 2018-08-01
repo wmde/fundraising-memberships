@@ -47,9 +47,9 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 	}
 
 	public function testGivenIdOfUnknownDonation_cancellationIsNotSuccessful(): void {
-		$useCase = $this->newUseCase();
-
-		$response = $useCase->cancelApplication( new CancellationRequest( self::ID_OF_NON_EXISTING_APPLICATION ) );
+		$response = $this->newUseCase()->cancelApplication(
+			new CancellationRequest( self::ID_OF_NON_EXISTING_APPLICATION )
+		);
 
 		$this->assertFalse( $response->cancellationWasSuccessful() );
 	}
@@ -63,9 +63,9 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 	}
 
 	public function testFailureResponseContainsApplicationId(): void {
-		$useCase = $this->newUseCase();
-
-		$response = $useCase->cancelApplication( new CancellationRequest( self::ID_OF_NON_EXISTING_APPLICATION ) );
+		$response = $this->newUseCase()->cancelApplication(
+			new CancellationRequest( self::ID_OF_NON_EXISTING_APPLICATION )
+		);
 
 		$this->assertEquals( self::ID_OF_NON_EXISTING_APPLICATION, $response->getMembershipApplicationId() );
 	}
@@ -118,9 +118,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 		$this->assertFalse( $response->cancellationWasSuccessful() );
 	}
 
-	public function testNotAuthorized_cancellationSucceeds(): void {
-		$this->authorizer = new SucceedingAuthorizer();
-
+	public function testWhenThereAreNoIssues_successResponseIsreturned(): void {
 		$application = $this->newCancelableApplication();
 		$this->storeApplication( $application );
 
