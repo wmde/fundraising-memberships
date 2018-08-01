@@ -93,23 +93,6 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 		);
 	}
 
-	public function testWhenApplicationGetsCancelled_cancellationConfirmationEmailIsSend(): void {
-		$application = $this->cancelableApplication;
-		$this->newUseCase()->cancelApplication( new CancellationRequest( $application->getid() ) );
-
-		$this->mailer->assertCalledOnceWith(
-			$application->getApplicant()->getEmailAddress(),
-			[
-				'membershipApplicant' => [
-					'salutation' => $application->getApplicant()->getName()->getSalutation(),
-					'title' => $application->getApplicant()->getName()->getTitle(),
-					'lastName' => $application->getApplicant()->getName()->getLastName()
-				],
-			'applicationId' => 1
-			]
-		);
-	}
-
 	public function testWhenAuthorizationFails_cancellationFails(): void {
 		$this->authorizer = new FailingAuthorizer();
 
@@ -128,6 +111,31 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 		);
 
 		$this->assertFalse( $response->cancellationWasSuccessful() );
+	}
+
+	public function testWhenApplicationGetsCancelled_confirmationEmailIsSend(): void {
+		$application = $this->cancelableApplication;
+		$this->newUseCase()->cancelApplication( new CancellationRequest( $application->getid() ) );
+
+		$this->mailer->assertCalledOnceWith(
+			$application->getApplicant()->getEmailAddress(),
+			[
+				'membershipApplicant' => [
+					'salutation' => $application->getApplicant()->getName()->getSalutation(),
+					'title' => $application->getApplicant()->getName()->getTitle(),
+					'lastName' => $application->getApplicant()->getName()->getLastName()
+				],
+			'applicationId' => 1
+			]
+		);
+	}
+
+	public function testWhenCancellationFails_confirmationEmailIsNotSend(): void {
+		$this->newUseCase()->cancelApplication(
+			new CancellationRequest( self::ID_OF_NON_EXISTING_APPLICATION )
+		);
+
+		$this->assertEmpty( $this->mailer->getSendMailCalls() );
 	}
 
 }
