@@ -97,7 +97,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 		$this->authorizer = new FailingAuthorizer();
 
 		$response = $this->newUseCase()->cancelApplication(
-			new CancellationRequest( $this->cancelableApplication->getid() )
+			new CancellationRequest( $this->cancelableApplication->getId() )
 		);
 
 		$this->assertFalse( $response->cancellationWasSuccessful() );
@@ -107,15 +107,15 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 		$this->repository->throwOnWrite();
 
 		$response = $this->newUseCase()->cancelApplication(
-			new CancellationRequest( $this->cancelableApplication->getid() )
+			new CancellationRequest( $this->cancelableApplication->getId() )
 		);
 
 		$this->assertFalse( $response->cancellationWasSuccessful() );
 	}
 
-	public function testWhenApplicationGetsCancelled_confirmationEmailIsSend(): void {
+	public function testWhenApplicationGetsCancelled_confirmationEmailIsSent(): void {
 		$application = $this->cancelableApplication;
-		$this->newUseCase()->cancelApplication( new CancellationRequest( $application->getid() ) );
+		$this->newUseCase()->cancelApplication( new CancellationRequest( $application->getId() ) );
 
 		$this->mailer->assertCalledOnceWith(
 			$application->getApplicant()->getEmailAddress(),
