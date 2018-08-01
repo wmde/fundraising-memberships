@@ -107,7 +107,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 		);
 	}
 
-	public function testNotAuthorized_cancellationFails(): void {
+	public function testWhenAuthorizationFails_cancellationFails(): void {
 		$this->authorizer = new FailingAuthorizer();
 
 		$application = $this->newCancelableApplication();
