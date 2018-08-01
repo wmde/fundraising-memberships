@@ -46,7 +46,6 @@ class CancelMembershipApplicationUseCase {
 			$this->repository->storeApplication( $application );
 		}
 		catch ( StoreMembershipApplicationException $ex ) {
-			// TODO: log?
 			return $this->newFailureResponse( $request );
 		}
 
@@ -60,7 +59,6 @@ class CancelMembershipApplicationUseCase {
 			return $this->repository->getApplicationById( $id );
 		}
 		catch ( GetMembershipApplicationException $ex ) {
-			// TODO: log?
 			return null;
 		}
 	}
