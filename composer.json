@@ -20,7 +20,7 @@
 		{
 			"type": "vcs",
 			"url": "https://github.com/wmde/fundraising-payments",
-            "no-api": true
+			"no-api": true
 		}
 	],
 	"require-dev": {
