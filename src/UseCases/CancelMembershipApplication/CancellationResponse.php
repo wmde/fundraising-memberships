@@ -13,8 +13,8 @@ class CancellationResponse {
 	private $applicationId;
 	private $isSuccess;
 
-	const IS_SUCCESS = true;
-	const IS_FAILURE = false;
+	public const IS_SUCCESS = true;
+	public const IS_FAILURE = false;
 
 	public function __construct( int $applicationId, bool $isSuccess ) {
 		$this->applicationId = $applicationId;
