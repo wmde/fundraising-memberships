@@ -57,3 +57,9 @@ To run just the PHPUnit tests run
 To run only a subset of PHPUnit tests or otherwise pass flags to PHPUnit, run
 
     docker-compose run --rm app ./vendor/bin/phpunit --filter SomeClassNameOrFilter
+    
+## Architecture
+
+This Bounded context follows the architecture rules outlined in [Clean Architecture + Bounded Contexts](https://www.entropywins.wtf/blog/2018/08/14/clean-architecture-bounded-contexts/).
+
+![Architecture diagram](https://user-images.githubusercontent.com/146040/44942179-6bd68080-adac-11e8-9506-179a9470113b.png)
