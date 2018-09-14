@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
+use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlocklist;
@@ -45,7 +46,7 @@ class MembershipApplicationValidator {
 		Result::SOURCE_APPLICANT_COUNTRY => 8,
 	];
 
-	public function __construct( MembershipFeeValidator $feeValidator, BankDataValidator $bankDataValidator,
+	public function __construct( ValidateMembershipFeeUseCase $feeValidator, BankDataValidator $bankDataValidator,
 		IbanBlocklist $ibanBlocklist, EmailValidator $emailValidator ) {
 
 		$this->feeValidator = $feeValidator;
@@ -83,7 +84,7 @@ class MembershipApplicationValidator {
 
 	private function getApplicantType(): string {
 		return $this->request->isCompanyApplication() ?
-			MembershipFeeValidator::APPLICANT_TYPE_COMPANY : MembershipFeeValidator::APPLICANT_TYPE_PERSON;
+			ValidateMembershipFeeUseCase::APPLICANT_TYPE_COMPANY : ValidateMembershipFeeUseCase::APPLICANT_TYPE_PERSON;
 	}
 
 	private function addViolations( array $violations ): void {

@@ -2,21 +2,21 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
+namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ValidateMembershipFee;
 
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplicationRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
-use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipFeeValidator;
+use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase;
 
 /**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipFeeValidator
+ * @covers \WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase
  *
  * @license GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class MembershipFeeValidatorTest extends \PHPUnit\Framework\TestCase {
+class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 
 	public function testGivenValidRequest_validationSucceeds(): void {
 		$validRequest = $this->newValidRequest();
@@ -31,8 +31,8 @@ class MembershipFeeValidatorTest extends \PHPUnit\Framework\TestCase {
 		$this->assertTrue( $response->isSuccessful() );
 	}
 
-	private function newValidator(): MembershipFeeValidator {
-		return new MembershipFeeValidator();
+	private function newValidator(): ValidateMembershipFeeUseCase {
+		return new ValidateMembershipFeeUseCase();
 	}
 
 	private function newValidRequest(): ApplyForMembershipRequest {

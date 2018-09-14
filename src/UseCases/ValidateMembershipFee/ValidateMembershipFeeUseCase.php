@@ -2,20 +2,18 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
+namespace WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee;
 
 use InvalidArgumentException;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 
 /**
- * TODO: move outside this UC directory as it is used by things other than the UC (a route in FF app)
- *
  * @license GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class MembershipFeeValidator {
+class ValidateMembershipFeeUseCase {
 
 	private const MIN_PERSON_YEARLY_PAYMENT_IN_EURO = 24;
 	private const MIN_COMPANY_YEARLY_PAYMENT_IN_EURO = 100;
