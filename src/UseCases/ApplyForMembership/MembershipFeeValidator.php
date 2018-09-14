@@ -21,8 +21,8 @@ class MembershipFeeValidator {
 	private const MIN_COMPANY_YEARLY_PAYMENT_IN_EURO = 100;
 	private const MONTHS_PER_YEAR = 12;
 
-	const APPLICANT_TYPE_COMPANY = 'firma';
-	const APPLICANT_TYPE_PERSON = 'person';
+	public const APPLICANT_TYPE_COMPANY = 'firma';
+	public const APPLICANT_TYPE_PERSON = 'person';
 
 	private $membershipFee;
 	private $paymentIntervalInMonths;
