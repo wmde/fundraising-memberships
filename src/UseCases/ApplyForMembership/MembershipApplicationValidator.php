@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeRequest;
+use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeResult;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
@@ -81,7 +82,18 @@ class MembershipApplicationValidator {
 				->withInterval( $this->request->getPaymentIntervalInMonths() )
 		);
 
-		$this->addViolations( $result->getViolations() );
+		if ( !$result->isSuccessful() ) {
+			$this->addPaymentAmountViolation(
+				[
+					ValidateFeeResult::ERROR_NOT_MONEY => ApplicationValidationResult::VIOLATION_NOT_MONEY,
+					ValidateFeeResult::ERROR_TOO_LOW => ApplicationValidationResult::VIOLATION_TOO_LOW
+				][$result->getErrorCode()]
+			);
+		}
+	}
+
+	private function addPaymentAmountViolation( string $violation ) {
+		$this->violations[ApplicationValidationResult::SOURCE_PAYMENT_AMOUNT] = $violation;
 	}
 
 	private function getApplicantType(): string {

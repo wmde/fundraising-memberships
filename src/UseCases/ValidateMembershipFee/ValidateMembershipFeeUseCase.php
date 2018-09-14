@@ -6,7 +6,6 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee;
 
 use InvalidArgumentException;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 
 /**
  * @license GNU GPL v2+
@@ -24,43 +23,23 @@ class ValidateMembershipFeeUseCase {
 	private $paymentIntervalInMonths;
 	private $applicantType;
 
-	/**
-	 * @var string[]
-	 */
-	private $violations;
-
-	public function validate( ValidateFeeRequest $request ): Result {
+	public function validate( ValidateFeeRequest $request ): ValidateFeeResult {
 		$this->membershipFee = $request->getMembershipFee();
 		$this->paymentIntervalInMonths = $request->getPaymentIntervalInMonths();
 		$this->applicantType = $request->getApplicantType();
 
-		$this->violations = [];
-
-		$this->validateAmount();
-
-		return new Result( $this->violations );
-	}
-
-	private function validateAmount(): void {
 		try {
 			$amount = Euro::newFromString( $this->membershipFee );
 		}
 		catch ( InvalidArgumentException $ex ) {
-			$this->addViolation( Result::SOURCE_PAYMENT_AMOUNT, Result::VIOLATION_NOT_MONEY );
-			return;
+			return ValidateFeeResult::newNotMoneyResponse();
 		}
 
-		$this->validateAmountMeetsYearlyMinimum( $amount );
-	}
-
-	private function addViolation( string $source, string $type ): void {
-		$this->violations[$source] = $type;
-	}
-
-	private function validateAmountMeetsYearlyMinimum( Euro $amount ): void {
 		if ( $this->getYearlyPaymentAmount( $amount ) < $this->getYearlyPaymentRequirement() ) {
-			$this->addViolation( Result::SOURCE_PAYMENT_AMOUNT, Result::VIOLATION_TOO_LOW );
+			return ValidateFeeResult::newTooLowResponse();
 		}
+
+		return ValidateFeeResult::newSuccessResponse();
 	}
 
 	private function getYearlyPaymentAmount( Euro $amount ): float {

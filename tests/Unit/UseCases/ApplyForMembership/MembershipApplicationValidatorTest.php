@@ -10,6 +10,7 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\SucceedingEmailValidator;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator;
+use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeResult;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult as BankResult;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
@@ -32,7 +33,7 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 	private const BLOCKED_IBAN = 'LU761111000872960000';
 
 	/*
-	 * @var MembershipFeeValidator
+	 * @var ValidateMembershipFeeUseCase
 	 */
 	private $feeValidator;
 
@@ -89,21 +90,19 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	private function newFailingFeeValidator(): ValidateMembershipFeeUseCase {
-		$feeValidator = $this->getMockBuilder( ValidateMembershipFeeUseCase::class )
-			->disableOriginalConstructor()->getMock();
+		$feeValidator = $this->createMock( ValidateMembershipFeeUseCase::class );
 
 		$feeValidator->method( 'validate' )
-			->willReturn( $this->newFeeViolationResult() );
+			->willReturn( ValidateFeeResult::newNotMoneyResponse() );
 
 		return $feeValidator;
 	}
 
 	private function newSucceedingFeeValidator(): ValidateMembershipFeeUseCase {
-		$feeValidator = $this->getMockBuilder( ValidateMembershipFeeUseCase::class )
-			->disableOriginalConstructor()->getMock();
+		$feeValidator = $this->createMock( ValidateMembershipFeeUseCase::class );
 
 		$feeValidator->method( 'validate' )
-			->willReturn( new Result() );
+			->willReturn( ValidateFeeResult::newSuccessResponse() );
 
 		return $feeValidator;
 	}
