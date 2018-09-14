@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
+use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
@@ -74,9 +75,10 @@ class MembershipApplicationValidator {
 
 	private function validateFee(): void {
 		$result = $this->feeValidator->validate(
-			$this->request->getPaymentAmountInEuros(),
-			$this->request->getPaymentIntervalInMonths(),
-			$this->getApplicantType()
+			ValidateFeeRequest::newInstance()
+				->withFee( $this->request->getPaymentAmountInEuros() )
+				->withApplicantType( $this->getApplicantType() )
+				->withInterval( $this->request->getPaymentIntervalInMonths() )
 		);
 
 		$this->addViolations( $result->getViolations() );

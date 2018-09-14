@@ -4,26 +4,23 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ValidateMembershipFee;
 
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplicationRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
-use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
+use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase
  *
  * @license GNU GPL v2+
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 
 	public function testGivenValidRequest_validationSucceeds(): void {
-		$validRequest = $this->newValidRequest();
-		$response = $this->newValidator()->validate(
-			$validRequest->getPaymentAmountInEuros(),
-			$validRequest->getPaymentIntervalInMonths(),
-			$validRequest->isCompanyApplication() ? 'firma' : 'person'
+		$response = $this->newUseCase()->validate(
+			ValidateFeeRequest::newInstance()
+				->withFee( '12.34' )
+				->withApplicantType( ValidateFeeRequest::PERON_APPLICANT )
+				->withInterval( 3 )
 		);
 
 		$this->assertEquals( new Result( [] ), $response );
@@ -31,24 +28,19 @@ class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 		$this->assertTrue( $response->isSuccessful() );
 	}
 
-	private function newValidator(): ValidateMembershipFeeUseCase {
+	private function newUseCase(): ValidateMembershipFeeUseCase {
 		return new ValidateMembershipFeeUseCase();
-	}
-
-	private function newValidRequest(): ApplyForMembershipRequest {
-		return ValidMembershipApplicationRequest::newValidRequest();
 	}
 
 	/**
 	 * @dataProvider invalidAmountProvider
 	 */
 	public function testGivenInvalidAmount_validationFails( string $amount, int $intervalInMonths, string $expectedViolation ): void {
-		$request = $this->newValidRequestWithPaymentAmount( $amount, $intervalInMonths );
-
-		$response = $this->newValidator()->validate(
-			$amount,
-			$intervalInMonths,
-			$request->isCompanyApplication() ? 'firma' : 'person'
+		$response = $this->newUseCase()->validate(
+			ValidateFeeRequest::newInstance()
+				->withFee( $amount )
+				->withApplicantType( ValidateFeeRequest::PERON_APPLICANT )
+				->withInterval( $intervalInMonths )
 		);
 
 		$this->assertFalse( $response->isSuccessful() );
@@ -56,75 +48,67 @@ class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $expectedViolation, $response->getViolationType( Result::SOURCE_PAYMENT_AMOUNT ) );
 	}
 
-	public function invalidAmountProvider(): array {
-		return [
-			'invalid: negative' => [ '-1.00', 3, Result::VIOLATION_NOT_MONEY ],
-			'invalid' => [ 'y u no btc', 3, Result::VIOLATION_NOT_MONEY ],
+	public function invalidAmountProvider(): iterable {
+		yield 'invalid: negative' => [ '-1.00', 3, Result::VIOLATION_NOT_MONEY ];
+		yield 'invalid' => [ 'y u no btc', 3, Result::VIOLATION_NOT_MONEY ];
 
-			'too low single payment' => [ '1.00', 12, Result::VIOLATION_TOO_LOW ],
-			'just too low single payment' => [ '23.99', 12, Result::VIOLATION_TOO_LOW ],
-			'max too low single payment' => [ '0', 12, Result::VIOLATION_TOO_LOW ],
+		yield 'too low single payment' => [ '1.00', 12, Result::VIOLATION_TOO_LOW ];
+		yield 'just too low single payment' => [ '23.99', 12, Result::VIOLATION_TOO_LOW ];
+		yield 'max too low single payment' => [ '0', 12, Result::VIOLATION_TOO_LOW ];
 
-			'too low 12 times' => [ '1.99', 1, Result::VIOLATION_TOO_LOW ],
-			'too low 4 times' => [ '5.99', 3, Result::VIOLATION_TOO_LOW ],
-		];
-	}
-
-	private function newValidRequestWithPaymentAmount( string $amount, int $intervalInMonths ): ApplyForMembershipRequest {
-		$request = $this->newValidRequest();
-		$request->setPaymentAmountInEuros( $amount );
-		$request->setPaymentIntervalInMonths( $intervalInMonths );
-		return $request;
+		yield 'too low 12 times' => [ '1.99', 1, Result::VIOLATION_TOO_LOW ];
+		yield 'too low 4 times' => [ '5.99', 3, Result::VIOLATION_TOO_LOW ];
 	}
 
 	/**
 	 * @dataProvider validAmountProvider
 	 */
 	public function testGivenValidAmount_validationSucceeds( string $amount, int $intervalInMonths ): void {
-		$request = $this->newValidRequestWithPaymentAmount( $amount, $intervalInMonths );
-
 		$this->assertTrue(
-			$this->newValidator()
-				->validate( $amount, $intervalInMonths, $this->getRequestAddressType( $request ) )
+			$this->newUseCase()
+				->validate(
+					ValidateFeeRequest::newInstance()
+						->withFee( $amount )
+						->withApplicantType( 'person' )
+						->withInterval( $intervalInMonths )
+				)
 				->isSuccessful()
 		);
 	}
 
-	public function validAmountProvider(): array {
-		return [
-			'single payment' => [ '50.00', 12 ],
-			'just enough single payment' => [ '24.00', 12 ],
-			'high single payment' => [ '31333.37', 12 ],
+	public function validAmountProvider(): iterable {
+		yield 'single payment' => [ '50.00', 12 ];
+		yield 'just enough single payment' => [ '24.00', 12 ];
+		yield 'high single payment' => [ '31333.37', 12 ];
 
-			'just enough 12 times' => [ '2.00', 1 ],
-			'just enough 4 times' => [ '6.00', 3 ],
-		];
+		yield 'just enough 12 times' => [ '2.00', 1 ];
+		yield 'just enough 4 times' => [ '6.00', 3 ];
 	}
 
 	public function testGivenValidCompanyAmount_validationSucceeds(): void {
-		$request = $this->newValidRequestWithPaymentAmount( '100.00', 12 );
-		$request->markApplicantAsCompany();
-
 		$this->assertTrue(
-			$this->newValidator()
-				->validate( '100.00', 12, $this->getRequestAddressType( $request ) )
+			$this->newUseCase()
+				->validate(
+					ValidateFeeRequest::newInstance()
+						->withFee( '100.00' )
+						->withApplicantType( ValidateFeeRequest::COMPANY_APPLICANT )
+						->withInterval( 12 )
+				)
 				->isSuccessful()
 		);
 	}
 
 	public function testGivenInvalidCompanyAmount_validationFails(): void {
-		$request = $this->newValidRequestWithPaymentAmount( '99.99', 12 );
-		$request->markApplicantAsCompany();
-
 		$this->assertFalse(
-			$this->newValidator()
-				->validate( '99.99', 12, $this->getRequestAddressType( $request ) )
+			$this->newUseCase()
+				->validate(
+					ValidateFeeRequest::newInstance()
+						->withFee( '99.99' )
+						->withApplicantType( ValidateFeeRequest::COMPANY_APPLICANT )
+						->withInterval( 12 )
+				)
 				->isSuccessful()
 		);
-	}
-
-	private function getRequestAddressType( ApplyForMembershipRequest $request ): string {
-		return $request->isCompanyApplication() ? 'firma' : 'person';
 	}
 
 }

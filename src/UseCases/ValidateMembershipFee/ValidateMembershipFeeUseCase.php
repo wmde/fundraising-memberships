@@ -10,8 +10,6 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationVa
 
 /**
  * @license GNU GPL v2+
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class ValidateMembershipFeeUseCase {
 
@@ -31,10 +29,11 @@ class ValidateMembershipFeeUseCase {
 	 */
 	private $violations;
 
-	public function validate( string $membershipFee, int $paymentIntervalInMonths, string $applicantType ): Result {
-		$this->membershipFee = $membershipFee;
-		$this->paymentIntervalInMonths = $paymentIntervalInMonths;
-		$this->applicantType = $applicantType;
+	public function validate( ValidateFeeRequest $request ): Result {
+		$this->membershipFee = $request->getMembershipFee();
+		$this->paymentIntervalInMonths = $request->getPaymentIntervalInMonths();
+		$this->applicantType = $request->getApplicantType();
+
 		$this->violations = [];
 
 		$this->validateAmount();
