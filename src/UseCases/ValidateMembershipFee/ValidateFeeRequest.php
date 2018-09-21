@@ -10,7 +10,7 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee;
  */
 class ValidateFeeRequest {
 
-	public const PERON_APPLICANT = 'person';
+	public const PERSON_APPLICANT = 'person';
 	public const COMPANY_APPLICANT = 'firma';
 
 	private $membershipFee;

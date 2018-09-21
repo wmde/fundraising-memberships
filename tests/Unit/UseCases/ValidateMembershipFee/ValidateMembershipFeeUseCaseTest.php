@@ -20,7 +20,7 @@ class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 		$response = $this->newUseCase()->validate(
 			ValidateFeeRequest::newInstance()
 				->withFee( '12.34' )
-				->withApplicantType( ValidateFeeRequest::PERON_APPLICANT )
+				->withApplicantType( ValidateFeeRequest::PERSON_APPLICANT )
 				->withInterval( 3 )
 		);
 
@@ -39,7 +39,7 @@ class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 		$response = $this->newUseCase()->validate(
 			ValidateFeeRequest::newInstance()
 				->withFee( $amount )
-				->withApplicantType( ValidateFeeRequest::PERON_APPLICANT )
+				->withApplicantType( ValidateFeeRequest::PERSON_APPLICANT )
 				->withInterval( $intervalInMonths )
 		);
 
