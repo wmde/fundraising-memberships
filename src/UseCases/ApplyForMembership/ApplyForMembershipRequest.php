@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
+use WMDE\Euro\Euro;
 use WMDE\FreezableValueObject\FreezableValueObject;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
@@ -180,11 +181,11 @@ class ApplyForMembershipRequest {
 		$this->paymentIntervalInMonths = $paymentIntervalInMonths;
 	}
 
-	public function getPaymentAmountInEuros(): string {
+	public function getPaymentAmountInEuros(): Euro {
 		return $this->paymentAmount;
 	}
 
-	public function setPaymentAmountInEuros( string $paymentAmount ): void {
+	public function setPaymentAmountInEuros( Euro $paymentAmount ): void {
 		$this->assertIsWritable();
 		$this->paymentAmount = $paymentAmount;
 	}

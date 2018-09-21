@@ -85,7 +85,6 @@ class MembershipApplicationValidator {
 		if ( !$result->isSuccessful() ) {
 			$this->addPaymentAmountViolation(
 				[
-					ValidateFeeResult::ERROR_NOT_MONEY => ApplicationValidationResult::VIOLATION_NOT_MONEY,
 					ValidateFeeResult::ERROR_TOO_LOW => ApplicationValidationResult::VIOLATION_TOO_LOW
 				][$result->getErrorCode()]
 			);

@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee;
 
-use InvalidArgumentException;
 use WMDE\Euro\Euro;
 
 class ValidateMembershipFeeUseCase {
@@ -16,7 +15,11 @@ class ValidateMembershipFeeUseCase {
 	public const APPLICANT_TYPE_COMPANY = 'firma';
 	public const APPLICANT_TYPE_PERSON = 'person';
 
+	/**
+	 * @var Euro
+	 */
 	private $membershipFee;
+
 	private $paymentIntervalInMonths;
 	private $applicantType;
 
@@ -25,22 +28,15 @@ class ValidateMembershipFeeUseCase {
 		$this->paymentIntervalInMonths = $request->getPaymentIntervalInMonths();
 		$this->applicantType = $request->getApplicantType();
 
-		try {
-			$amount = Euro::newFromString( $this->membershipFee );
-		}
-		catch ( InvalidArgumentException $ex ) {
-			return ValidateFeeResult::newNotMoneyResponse();
-		}
-
-		if ( $this->getYearlyPaymentAmount( $amount ) < $this->getYearlyPaymentRequirement() ) {
+		if ( $this->getYearlyPaymentAmount() < $this->getYearlyPaymentRequirement() ) {
 			return ValidateFeeResult::newTooLowResponse();
 		}
 
 		return ValidateFeeResult::newSuccessResponse();
 	}
 
-	private function getYearlyPaymentAmount( Euro $amount ): float {
-		return $amount->getEuroFloat() * self::MONTHS_PER_YEAR / $this->paymentIntervalInMonths;
+	private function getYearlyPaymentAmount(): float {
+		return $this->membershipFee->getEuroFloat() * self::MONTHS_PER_YEAR / $this->paymentIntervalInMonths;
 	}
 
 	private function getYearlyPaymentRequirement(): float {

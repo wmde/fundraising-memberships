@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee;
 
+use WMDE\Euro\Euro;
+
 class ValidateFeeRequest {
 
 	public const PERSON_APPLICANT = 'person';
@@ -17,7 +19,7 @@ class ValidateFeeRequest {
 		return new self();
 	}
 
-	public function withFee( string $membershipFee ): self {
+	public function withFee( Euro $membershipFee ): self {
 		$request = clone $this;
 		$request->membershipFee = $membershipFee;
 		return $request;
@@ -35,7 +37,7 @@ class ValidateFeeRequest {
 		return $request;
 	}
 
-	public function getMembershipFee(): string {
+	public function getMembershipFee(): Euro {
 		return $this->membershipFee;
 	}
 

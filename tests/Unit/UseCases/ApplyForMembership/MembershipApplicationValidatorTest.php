@@ -93,7 +93,7 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 		$feeValidator = $this->createMock( ValidateMembershipFeeUseCase::class );
 
 		$feeValidator->method( 'validate' )
-			->willReturn( ValidateFeeResult::newNotMoneyResponse() );
+			->willReturn( ValidateFeeResult::newTooLowResponse() );
 
 		return $feeValidator;
 	}
@@ -113,7 +113,7 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 
 	private function newFeeViolationResult(): Result {
 		return new Result( [
-			Result::SOURCE_PAYMENT_AMOUNT => Result::VIOLATION_NOT_MONEY
+			Result::SOURCE_PAYMENT_AMOUNT => Result::VIOLATION_TOO_LOW
 		] );
 	}
 

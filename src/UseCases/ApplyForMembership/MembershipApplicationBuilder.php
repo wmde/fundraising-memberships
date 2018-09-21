@@ -81,7 +81,7 @@ class MembershipApplicationBuilder {
 	private function newPayment( ApplyForMembershipRequest $request ): Payment {
 		return new Payment(
 			$request->getPaymentIntervalInMonths(),
-			Euro::newFromString( $request->getPaymentAmountInEuros() ),
+			$request->getPaymentAmountInEuros(),
 			$this->newPaymentMethod( $request )
 		);
 	}

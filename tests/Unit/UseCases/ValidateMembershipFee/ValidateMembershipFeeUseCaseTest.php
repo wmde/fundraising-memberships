@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ValidateMembershipFee;
 
-use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
+use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeResult;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase;
@@ -19,7 +19,7 @@ class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 	public function testGivenValidRequest_validationSucceeds(): void {
 		$response = $this->newUseCase()->validate(
 			ValidateFeeRequest::newInstance()
-				->withFee( '12.34' )
+				->withFee( Euro::newFromString( '12.34' ) )
 				->withApplicantType( ValidateFeeRequest::PERSON_APPLICANT )
 				->withInterval( 3 )
 		);
@@ -38,7 +38,7 @@ class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 	public function testGivenInvalidAmount_validationFails( string $amount, int $intervalInMonths, string $expectedError ): void {
 		$response = $this->newUseCase()->validate(
 			ValidateFeeRequest::newInstance()
-				->withFee( $amount )
+				->withFee( Euro::newFromString( $amount ) )
 				->withApplicantType( ValidateFeeRequest::PERSON_APPLICANT )
 				->withInterval( $intervalInMonths )
 		);
@@ -48,9 +48,6 @@ class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function invalidAmountProvider(): iterable {
-		yield 'invalid: negative' => [ '-1.00', 3, ValidateFeeResult::ERROR_NOT_MONEY ];
-		yield 'invalid' => [ 'y u no btc', 3, ValidateFeeResult::ERROR_NOT_MONEY ];
-
 		yield 'too low single payment' => [ '1.00', 12, ValidateFeeResult::ERROR_TOO_LOW ];
 		yield 'just too low single payment' => [ '23.99', 12, ValidateFeeResult::ERROR_TOO_LOW ];
 		yield 'max too low single payment' => [ '0', 12, ValidateFeeResult::ERROR_TOO_LOW ];
@@ -67,7 +64,7 @@ class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 			$this->newUseCase()
 				->validate(
 					ValidateFeeRequest::newInstance()
-						->withFee( $amount )
+						->withFee( Euro::newFromString( $amount ) )
 						->withApplicantType( 'person' )
 						->withInterval( $intervalInMonths )
 				)
@@ -89,7 +86,7 @@ class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 			$this->newUseCase()
 				->validate(
 					ValidateFeeRequest::newInstance()
-						->withFee( '100.00' )
+						->withFee( Euro::newFromString( '100.00' ) )
 						->withApplicantType( ValidateFeeRequest::COMPANY_APPLICANT )
 						->withInterval( 12 )
 				)
@@ -102,7 +99,7 @@ class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 			$this->newUseCase()
 				->validate(
 					ValidateFeeRequest::newInstance()
-						->withFee( '99.99' )
+						->withFee( Euro::newFromString( '99.99' ) )
 						->withApplicantType( ValidateFeeRequest::COMPANY_APPLICANT )
 						->withInterval( 12 )
 				)
