@@ -7,9 +7,6 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee;
 use InvalidArgumentException;
 use WMDE\Euro\Euro;
 
-/**
- * @license GNU GPL v2+
- */
 class ValidateMembershipFeeUseCase {
 
 	private const MIN_PERSON_YEARLY_PAYMENT_IN_EURO = 24;

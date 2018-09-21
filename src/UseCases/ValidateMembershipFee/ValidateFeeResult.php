@@ -4,10 +4,6 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee;
 
-/**
- * @license GNU GPL v2+
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class ValidateFeeResult {
 
 	public const ERROR_TOO_LOW = 'error-too-low';
