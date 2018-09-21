@@ -5,6 +5,9 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
+use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeRequest;
+use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeResult;
+use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlocklist;
@@ -45,7 +48,7 @@ class MembershipApplicationValidator {
 		Result::SOURCE_APPLICANT_COUNTRY => 8,
 	];
 
-	public function __construct( MembershipFeeValidator $feeValidator, BankDataValidator $bankDataValidator,
+	public function __construct( ValidateMembershipFeeUseCase $feeValidator, BankDataValidator $bankDataValidator,
 		IbanBlocklist $ibanBlocklist, EmailValidator $emailValidator ) {
 
 		$this->feeValidator = $feeValidator;
@@ -73,17 +76,28 @@ class MembershipApplicationValidator {
 
 	private function validateFee(): void {
 		$result = $this->feeValidator->validate(
-			$this->request->getPaymentAmountInEuros(),
-			$this->request->getPaymentIntervalInMonths(),
-			$this->getApplicantType()
+			ValidateFeeRequest::newInstance()
+				->withFee( $this->request->getPaymentAmountInEuros() )
+				->withApplicantType( $this->getApplicantType() )
+				->withInterval( $this->request->getPaymentIntervalInMonths() )
 		);
 
-		$this->addViolations( $result->getViolations() );
+		if ( !$result->isSuccessful() ) {
+			$this->addPaymentAmountViolation(
+				[
+					ValidateFeeResult::ERROR_TOO_LOW => ApplicationValidationResult::VIOLATION_TOO_LOW
+				][$result->getErrorCode()]
+			);
+		}
+	}
+
+	private function addPaymentAmountViolation( string $violation ) {
+		$this->violations[ApplicationValidationResult::SOURCE_PAYMENT_AMOUNT] = $violation;
 	}
 
 	private function getApplicantType(): string {
 		return $this->request->isCompanyApplication() ?
-			MembershipFeeValidator::APPLICANT_TYPE_COMPANY : MembershipFeeValidator::APPLICANT_TYPE_PERSON;
+			ValidateMembershipFeeUseCase::APPLICANT_TYPE_COMPANY : ValidateMembershipFeeUseCase::APPLICANT_TYPE_PERSON;
 	}
 
 	private function addViolations( array $violations ): void {

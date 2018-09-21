@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ApplyFor
 
 use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
+use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
@@ -148,7 +149,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$request->setApplicantDateOfBirth( ValidMembershipApplication::APPLICANT_DATE_OF_BIRTH );
 		$request->setPaymentType( ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT );
 		$request->setPaymentIntervalInMonths( ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS );
-		$request->setPaymentAmountInEuros( (string)ValidMembershipApplication::PAYMENT_AMOUNT_IN_EURO );
+		$request->setPaymentAmountInEuros( Euro::newFromInt( ValidMembershipApplication::PAYMENT_AMOUNT_IN_EURO ) );
 
 		$request->setBankData( $this->newValidBankData() );
 
@@ -296,7 +297,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$request->setApplicantDateOfBirth( ValidMembershipApplication::APPLICANT_DATE_OF_BIRTH );
 		$request->setPaymentType( ValidMembershipApplication::PAYMENT_TYPE_PAYPAL );
 		$request->setPaymentIntervalInMonths( ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS );
-		$request->setPaymentAmountInEuros( (string)ValidMembershipApplication::PAYMENT_AMOUNT_IN_EURO );
+		$request->setPaymentAmountInEuros( Euro::newFromInt( ValidMembershipApplication::PAYMENT_AMOUNT_IN_EURO ) );
 		$request->setBankData( new BankData() );
 
 		$request->setTrackingInfo( $this->newTrackingInfo() );

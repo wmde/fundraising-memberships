@@ -10,18 +10,19 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\SucceedingEmailValidator;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator;
+use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeResult;
+use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult as BankResult;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlocklist;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\FunValidators\ConstraintViolation;
-use WMDE\FunValidators\Validators\EmailValidator;
-use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipFeeValidator;
 use WMDE\FunValidators\ValidationResult;
+use WMDE\FunValidators\Validators\EmailValidator;
 
 /**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipFeeValidator
+ * @covers \WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase
  *
  * @license GNU GPL v2+
  * @author Kai Nissen < kai.nissen@wikimedia.de >
@@ -32,7 +33,7 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 	private const BLOCKED_IBAN = 'LU761111000872960000';
 
 	/*
-	 * @var MembershipFeeValidator
+	 * @var ValidateMembershipFeeUseCase
 	 */
 	private $feeValidator;
 
@@ -88,22 +89,20 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 		return new IbanBlocklist( [] );
 	}
 
-	private function newFailingFeeValidator(): MembershipFeeValidator {
-		$feeValidator = $this->getMockBuilder( MembershipFeeValidator::class )
-			->disableOriginalConstructor()->getMock();
+	private function newFailingFeeValidator(): ValidateMembershipFeeUseCase {
+		$feeValidator = $this->createMock( ValidateMembershipFeeUseCase::class );
 
 		$feeValidator->method( 'validate' )
-			->willReturn( $this->newFeeViolationResult() );
+			->willReturn( ValidateFeeResult::newTooLowResponse() );
 
 		return $feeValidator;
 	}
 
-	private function newSucceedingFeeValidator(): MembershipFeeValidator {
-		$feeValidator = $this->getMockBuilder( MembershipFeeValidator::class )
-			->disableOriginalConstructor()->getMock();
+	private function newSucceedingFeeValidator(): ValidateMembershipFeeUseCase {
+		$feeValidator = $this->createMock( ValidateMembershipFeeUseCase::class );
 
 		$feeValidator->method( 'validate' )
-			->willReturn( new Result() );
+			->willReturn( ValidateFeeResult::newSuccessResponse() );
 
 		return $feeValidator;
 	}
@@ -114,7 +113,7 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 
 	private function newFeeViolationResult(): Result {
 		return new Result( [
-			Result::SOURCE_PAYMENT_AMOUNT => Result::VIOLATION_NOT_MONEY
+			Result::SOURCE_PAYMENT_AMOUNT => Result::VIOLATION_TOO_LOW
 		] );
 	}
 

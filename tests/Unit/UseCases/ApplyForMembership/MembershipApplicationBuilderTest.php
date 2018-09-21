@@ -60,7 +60,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 		$request->setApplicantEmailAddress( ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS );
 		$request->setPaymentType( ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT );
 		$request->setPaymentIntervalInMonths( ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS );
-		$request->setPaymentAmountInEuros( (string)ValidMembershipApplication::PAYMENT_AMOUNT_IN_EURO );
+		$request->setPaymentAmountInEuros( Euro::newFromInt( ValidMembershipApplication::PAYMENT_AMOUNT_IN_EURO ) );
 		$request->setBankData( $this->newValidBankData() );
 		$request->setApplicantPhoneNumber(
 			$omitOptionalFields ? '' : ValidMembershipApplication::APPLICANT_PHONE_NUMBER
