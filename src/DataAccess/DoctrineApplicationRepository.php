@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManager;
 use Psr\Log\NullLogger;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\Entities\AddressChange;
 use WMDE\Fundraising\Entities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
@@ -55,10 +56,21 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 	private function insertApplication( Application $application ): void {
 		$doctrineApplication = new DoctrineApplication();
 		$this->updateDoctrineApplication( $doctrineApplication, $application );
-
+		$doctrineApplication->setAddressChange(
+			new AddressChange( $this->getAddressChangeType( $application->getApplicant() ) )
+		);
 		$this->table->persistApplication( $doctrineApplication );
 
 		$application->assignId( $doctrineApplication->getId() );
+	}
+
+	private function getAddressChangeType( Applicant $applicant ): string {
+		if ( $applicant->isPrivatePerson() ) {
+			return AddressChange::ADDRESS_TYPE_PERSON;
+		}
+		if ( $applicant->isCompany() ) {
+			return AddressChange::ADDRESS_TYPE_COMPANY;
+		}
 	}
 
 	private function updateApplication( Application $application ): void {

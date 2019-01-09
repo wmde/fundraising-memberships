@@ -15,22 +15,28 @@ class ApplicantName {
 
 	public const COMPANY_SALUTATION = 'Firma';
 
-	private $companyName = '';
+	public const PERSON_PRIVATE = 'person';
+	public const PERSON_COMPANY = 'firma';
+
+	private $personType = '';
 
 	private $salutation = '';
 	private $title = '';
 	private $firstName = '';
 	private $lastName = '';
 
-	private function __construct() {
+	private $companyName = '';
+
+	private function __construct( string $personType ) {
+		$this->personType = $personType;
 	}
 
 	public static function newPrivatePersonName(): self {
-		return new self();
+		return new self( self::PERSON_PRIVATE );
 	}
 
 	public static function newCompanyName(): self {
-		$companyName = new self();
+		$companyName = new self( self::PERSON_COMPANY );
 		$companyName->setSalutation( self::COMPANY_SALUTATION );
 		return $companyName;
 	}
@@ -78,6 +84,14 @@ class ApplicantName {
 	public function setLastName( string $lastName ): void {
 		$this->assertIsWritable();
 		$this->lastName = $lastName;
+	}
+
+	public function isPrivatePerson(): bool {
+		return $this->personType === self::PERSON_PRIVATE;
+	}
+
+	public function isCompany(): bool {
+		return $this->personType === self::PERSON_COMPANY;
 	}
 
 	public function getFullName(): string {

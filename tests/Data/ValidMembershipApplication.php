@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Data;
 use DateTime;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\Entities\AddressChange;
 use WMDE\Fundraising\Entities\MembershipApplication as DoctrineMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
@@ -285,6 +286,8 @@ class ValidMembershipApplication {
 		$application->setPaymentBic( self::PAYMENT_BIC );
 		$application->setPaymentIban( self::PAYMENT_IBAN );
 
+		$application->setAddressChange( new AddressChange( AddressChange::ADDRESS_TYPE_PERSON ) );
+
 		return $application;
 	}
 
@@ -296,6 +299,7 @@ class ValidMembershipApplication {
 		$application->setApplicantSalutation( self::APPLICANT_SALUTATION_COMPANY );
 		$application->setPaymentAmount( self::COMPANY_PAYMENT_AMOUNT_IN_EURO );
 		$application->setDonationReceipt( self::OPTS_INTO_DONATION_RECEIPT );
+		$application->setAddressChange( new AddressChange( AddressChange::ADDRESS_TYPE_COMPANY ) );
 
 		return $application;
 	}
