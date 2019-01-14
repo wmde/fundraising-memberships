@@ -9,7 +9,7 @@
 		"psr/log": "~1.0",
 		"pimple/pimple": "~3.0",
 
-		"wmde/fundraising-store": "~9.0.0",
+		"wmde/fundraising-store": "~10.0.0",
 		"wmde/fundraising-payments": "@dev",
 		"wmde/euro": "~1.0",
 		"wmde/email-address": "~1.0",
@@ -20,6 +20,11 @@
 		{
 			"type": "vcs",
 			"url": "https://github.com/wmde/fundraising-payments",
+			"no-api": true
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/wmde/fundraisingstore",
 			"no-api": true
 		}
 	],

@@ -52,4 +52,11 @@ class Applicant {
 		return $this->phone;
 	}
 
+	public function isPrivatePerson(): bool {
+		return $this->getName()->isPrivatePerson();
+	}
+
+	public function isCompany(): bool {
+		return $this->getName()->isCompany();
+	}
 }
