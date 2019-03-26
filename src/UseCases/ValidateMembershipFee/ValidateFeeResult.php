@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee;
 class ValidateFeeResult {
 
 	public const ERROR_TOO_LOW = 'error-too-low';
+	public const ERROR_INTERVAL_INVALID = 'error-interval-invalid';
 
 	private $errorCode;
 
@@ -16,6 +17,10 @@ class ValidateFeeResult {
 
 	public static function newTooLowResponse(): self {
 		return self::newErrorResponse( self::ERROR_TOO_LOW );
+	}
+
+	public static function newIntervalInvalidResponse(): self {
+		return self::newErrorResponse( self::ERROR_INTERVAL_INVALID );
 	}
 
 	private static function newErrorResponse( string $errorCode ): self {
