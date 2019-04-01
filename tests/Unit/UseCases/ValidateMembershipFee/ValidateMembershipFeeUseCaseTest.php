@@ -107,4 +107,30 @@ class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 		);
 	}
 
+	public function testGivenInvalidInterval_zero_validationFails() {
+		$useCase = $this->newUseCase();
+
+		$response = $useCase->validate(
+			ValidateFeeRequest::newInstance()
+				->withFee( Euro::newFromString( '12.34' ) )
+				->withApplicantType( ValidateFeeRequest::PERSON_APPLICANT )
+				->withInterval( 0 )
+		);
+
+		$this->assertSame( ValidateFeeResult::ERROR_INTERVAL_INVALID, $response->getErrorCode() );
+	}
+
+	public function testGivenInvalidInterval_negative_validationFails() {
+		$useCase = $this->newUseCase();
+
+		$response = $useCase->validate(
+			ValidateFeeRequest::newInstance()
+				->withFee( Euro::newFromString( '12.34' ) )
+				->withApplicantType( ValidateFeeRequest::PERSON_APPLICANT )
+				->withInterval( -1 )
+		);
+
+		$this->assertSame( ValidateFeeResult::ERROR_INTERVAL_INVALID, $response->getErrorCode() );
+	}
+
 }
