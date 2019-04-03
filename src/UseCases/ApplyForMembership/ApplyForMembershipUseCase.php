@@ -94,6 +94,7 @@ class ApplyForMembershipUseCase {
 	private function sendConfirmationEmail( Application $application ): void {
 		$this->mailer->sendMail(
 			$application->getApplicant()->getEmailAddress(),
+			$application->isActiveMembership(),
 			[
 				'membershipType' => $application->getType(),
 				'membershipFee' => $application->getPayment()->getAmount()->getEuroString(),
@@ -101,7 +102,8 @@ class ApplyForMembershipUseCase {
 				'paymentType' => $application->getPayment()->getPaymentMethod()->getId(),
 				'salutation' => $application->getApplicant()->getName()->getSalutation(),
 				'title' => $application->getApplicant()->getName()->getTitle(),
-				'lastName' => $application->getApplicant()->getName()->getLastName()
+				'lastName' => $application->getApplicant()->getName()->getLastName(),
+				'firstName' => $application->getApplicant()->getName()->getFirstName(),
 			]
 		);
 	}

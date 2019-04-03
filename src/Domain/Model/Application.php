@@ -90,6 +90,10 @@ class Application {
 		return $this->type;
 	}
 
+	public function isActiveMembership(): bool {
+		return $this->type === self::ACTIVE_MEMBERSHIP;
+	}
+
 	public function getDonationReceipt(): ?bool {
 		return $this->donationReceipt;
 	}
