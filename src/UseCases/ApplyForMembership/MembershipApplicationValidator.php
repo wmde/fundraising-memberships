@@ -8,6 +8,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationVa
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeResult;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase;
+use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlocklist;
@@ -61,6 +62,7 @@ class MembershipApplicationValidator {
 		$this->request = $applicationRequest;
 		$this->violations = [];
 
+		$this->validateMembershipType();
 		$this->validateFee();
 		$this->validateApplicantName();
 		$this->validateApplicantContactInfo();
@@ -72,6 +74,13 @@ class MembershipApplicationValidator {
 		}
 
 		return new Result( $this->violations );
+	}
+
+	private function validateMembershipType(): void {
+		$membershiptype = $this->request->getMembershipType();
+		if ( $membershiptype !== Application::ACTIVE_MEMBERSHIP && $membershiptype !== Application::SUSTAINING_MEMBERSHIP ) {
+			$this->violations[Result::SOURCE_APPLICANT_MEMBERSHIP_TYPE] = Result::VIOLATION_INVALID_MEMBERSHIP_TYPE;
+		}
 	}
 
 	private function validateFee(): void {

@@ -314,6 +314,16 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 		);
 	}
 
+	public function testWhenMembershipTypeIsMissing_validationFails(): void {
+		$request = $this->newValidRequest();
+		$request->setMembershipType( '' );
+
+		$this->assertRequestValidationResultInErrors(
+			$request,
+			[ Result::SOURCE_APPLICANT_MEMBERSHIP_TYPE => Result::VIOLATION_INVALID_MEMBERSHIP_TYPE ]
+		);
+	}
+
 	public function testPhoneNumberIsNotProvided_validationDoesNotFail(): void {
 		$request = $this->newValidRequest();
 		$request->setApplicantPhoneNumber( '' );

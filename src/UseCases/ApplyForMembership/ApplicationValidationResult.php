@@ -22,6 +22,7 @@ class ApplicationValidationResult {
 	public const SOURCE_APPLICANT_POSTAL_CODE = 'postal-code';
 	public const SOURCE_APPLICANT_CITY = 'city';
 	public const SOURCE_APPLICANT_COUNTRY = 'country-code';
+	public const SOURCE_APPLICANT_MEMBERSHIP_TYPE = 'membership-type';
 
 	public const VIOLATION_TOO_LOW = 'too-low';
 	public const VIOLATION_WRONG_LENGTH = 'wrong-length';
@@ -31,6 +32,7 @@ class ApplicationValidationResult {
 	public const VIOLATION_NOT_DATE = 'not-date';
 	public const VIOLATION_NOT_PHONE_NUMBER = 'not-phone';
 	public const VIOLATION_NOT_EMAIL = 'not-email';
+	public const VIOLATION_INVALID_MEMBERSHIP_TYPE = 'invalid-membership-type';
 
 	private $violations;
 
