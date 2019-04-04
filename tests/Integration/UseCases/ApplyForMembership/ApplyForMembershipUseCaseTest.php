@@ -197,6 +197,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 		$this->mailer->assertCalledOnceWith(
 			new EmailAddress( ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS ),
+			false,
 			[
 				'membershipType' => 'sustaining',
 				'membershipFee' => '10.00',
@@ -204,6 +205,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 				'salutation' => 'Herr',
 				'title' => '',
 				'lastName' => 'The Great',
+				'firstName' => 'Potato',
 				'paymentType' => 'BEZ'
 			]
 		);

@@ -10,7 +10,9 @@ interface TemplateMailerInterface {
 
 	/**
 	 * @param EmailAddress $recipient The recipient of the email to send
+	 * @param bool $isActiveMembership Differentiates between sustaining and active memberships
 	 * @param array $templateArguments Context parameters to use while rendering the template
 	 */
-	public function sendMail( EmailAddress $recipient, array $templateArguments = [] ): void;
+	public function sendMail( EmailAddress $recipient, bool $isActiveMembership, array $templateArguments = [] ): void;
 }
+#
