@@ -17,7 +17,6 @@ use WMDE\Fundraising\PaymentContext\ResponseModel\PaypalNotificationResponse;
 
 /**
  * @license GNU GPL v2+
- * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class HandleSubscriptionSignupNotificationUseCase {
 
@@ -49,8 +48,9 @@ class HandleSubscriptionSignupNotificationUseCase {
 		return $this->handleRequestForMembershipApplication( $request, $membershipApplication );
 	}
 
-	private function handleRequestForMembershipApplication( SubscriptionSignupRequest $request,
-															Application $application ): PaypalNotificationResponse {
+	private function handleRequestForMembershipApplication(
+		SubscriptionSignupRequest $request,
+		Application $application ): PaypalNotificationResponse {
 		$paymentMethod = $application->getPayment()->getPaymentMethod();
 
 		if ( !( $paymentMethod instanceof PayPalPayment ) ) {
@@ -98,7 +98,17 @@ class HandleSubscriptionSignupNotificationUseCase {
 		try {
 			$this->mailer->sendMail(
 				$application->getApplicant()->getEmailAddress(),
-				$application->isActiveMembership()
+				$application->isActiveMembership(),
+				[
+					'membershipType' => $application->getType(),
+					'membershipFee' => $application->getPayment()->getAmount()->getEuroString(),
+					'paymentIntervalInMonths' => $application->getPayment()->getIntervalInMonths(),
+					'paymentType' => $application->getPayment()->getPaymentMethod()->getId(),
+					'salutation' => $application->getApplicant()->getName()->getSalutation(),
+					'title' => $application->getApplicant()->getName()->getTitle(),
+					'lastName' => $application->getApplicant()->getName()->getLastName(),
+					'firstName' => $application->getApplicant()->getName()->getFirstName(),
+				]
 			);
 		} catch ( \RuntimeException $ex ) {
 			// no need to re-throw or return false, this is not a fatal error, only a minor inconvenience
