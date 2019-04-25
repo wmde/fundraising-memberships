@@ -74,7 +74,6 @@ class CancelMembershipApplicationUseCase {
 	private function sendConfirmationEmail( Application $application ): void {
 		$this->mailer->sendMail(
 			$application->getApplicant()->getEmailAddress(),
-			$application->isActiveMembership(),
 			$this->getConfirmationMailTemplateArguments( $application )
 		);
 	}

@@ -98,7 +98,6 @@ class HandleSubscriptionSignupNotificationUseCase {
 		try {
 			$this->mailer->sendMail(
 				$application->getApplicant()->getEmailAddress(),
-				$application->isActiveMembership(),
 				[
 					'membershipType' => $application->getType(),
 					'membershipFee' => $application->getPayment()->getAmount()->getEuroString(),
