@@ -21,21 +21,20 @@ class TemplateBasedMailerSpy implements TemplateMailerInterface {
 		$this->testCase = $testCase;
 	}
 
-	public function sendMail( EmailAddress $recipient, bool $isActiveMembership, array $templateArguments = [] ): void {
-		$this->sendMailCalls[] = [ $recipient, $isActiveMembership, $templateArguments ];
+	public function sendMail( EmailAddress $recipient, array $templateArguments = [] ): void {
+		$this->sendMailCalls[] = [ $recipient, $templateArguments ];
 	}
 
 	public function getSendMailCalls(): array {
 		return $this->sendMailCalls;
 	}
 
-	public function assertCalledOnceWith( EmailAddress $expectedEmail, bool $expectedTypeFlag, array $expectedArguments ): void {
+	public function assertCalledOnceWith( EmailAddress $expectedEmail, array $expectedArguments ): void {
 		$this->assertCalledOnce();
 
 		$this->testCase->assertEquals(
 			[
 				$expectedEmail,
-				$expectedTypeFlag,
 				$expectedArguments
 			],
 			$this->sendMailCalls[0]

@@ -119,7 +119,6 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 
 		$this->mailer->assertCalledOnceWith(
 			$application->getApplicant()->getEmailAddress(),
-			$application->isActiveMembership(),
 			[
 				'membershipApplicant' => [
 					'salutation' => $application->getApplicant()->getName()->getSalutation(),

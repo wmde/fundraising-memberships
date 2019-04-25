@@ -15,7 +15,6 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentDelayCalculator;
 
 /**
  * @license GNU GPL v2+
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class ApplyForMembershipUseCase {
 
@@ -94,7 +93,6 @@ class ApplyForMembershipUseCase {
 	private function sendConfirmationEmail( Application $application ): void {
 		$this->mailer->sendMail(
 			$application->getApplicant()->getEmailAddress(),
-			$application->isActiveMembership(),
 			[
 				'membershipType' => $application->getType(),
 				'membershipFee' => $application->getPayment()->getAmount()->getEuroString(),
