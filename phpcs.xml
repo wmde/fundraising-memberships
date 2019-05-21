@@ -3,20 +3,25 @@
 	- https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml
 	- https://github.com/squizlabs/PHP_CodeSniffer/tree/master/src/Standards
 -->
-<ruleset name="WikimediaDeutschlandStyle">
+<ruleset name="FunFunFundraisingFrontend">
 
     <file>src/</file>
     <file>tests/</file>
 
-    <rule ref="vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/WhiteSpace">
-        <exclude name="vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/WhiteSpace/SpaceBeforeSingleLineCommentSniff.php" />
-    </rule>
+    <arg name="extensions" value="php"/>
+    <arg value="s"/>
+    <arg value="p"/>
+
+    <!--<rule ref="vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/WhiteSpace">-->
+    <!--<exclude name="vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/WhiteSpace/SpaceBeforeSingleLineCommentSniff.php" />-->
+    <!--</rule>-->
 
     <rule ref="Generic.Arrays.DisallowLongArraySyntax" />
     <rule ref="Generic.Classes" />
     <rule ref="Generic.CodeAnalysis">
         <exclude name="Generic.CodeAnalysis.EmptyStatement" />
         <exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
+        <exclude name="Generic.CodeAnalysis.AssignmentInCondition.Found" />
     </rule>
     <rule ref="Generic.ControlStructures" />
 
@@ -105,10 +110,7 @@
         <exclude name="Squiz.WhiteSpace.OperatorSpacing.NoSpaceAfter" />
     </rule>
 
-    <rule ref="Squiz.WhiteSpace.ScopeClosingBrace">
-        <exclude name="Squiz.WhiteSpace.ScopeClosingBrace.ContentBefore" />
-    </rule>
-
+    <rule ref="Squiz.WhiteSpace.ScopeClosingBrace" />
     <rule ref="Squiz.WhiteSpace.ScopeKeywordSpacing" />
     <rule ref="Squiz.WhiteSpace.SemicolonSpacing" />
     <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace" />
@@ -117,25 +119,6 @@
     </rule>
 
     <rule ref="Zend.Files.ClosingTag" />
-
-    <!-- MediaWiki.WhiteSpace.SpaceyParenthesis replica for up-to-date codesniffer version -->
-    <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing">
-        <properties>
-            <property name="equalsSpacing" value="1" />
-            <property name="requiredSpacesAfterOpen" value="1" />
-            <property name="requiredSpacesBeforeClose" value="1" />
-        </properties>
-    </rule>
-
-    <rule ref="PEAR.Functions.FunctionCallSignature">
-        <properties>
-            <property name="requiredSpacesAfterOpen" value="1" />
-            <property name="requiredSpacesBeforeClose" value="1" />
-        </properties>
-        <exclude name="PEAR.Functions.FunctionCallSignature.Indent" />
-        <exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket" />
-        <exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine" />
-    </rule>
 
     <!-- Using 3rd party sniff while Squiz isn't there, yet. https://github.com/squizlabs/PHP_CodeSniffer/issues/911 -->
     <rule ref="./vendor/slevomat/coding-standard/SlevomatCodingStandard/Sniffs/TypeHints/DeclareStrictTypesSniff.php" />
@@ -160,9 +143,12 @@
             <property name="usefulAnnotations" type="array" value="
 				@see,
 				@throws,
+				@expectedException,
+				@expectedExceptionMessage,
 				@dataProvider,
 				@slowThreshold,
-				@noinspection
+				@noinspection,
+				@SuppressWarnings
 			"/>
             <property name="enableVoidTypeHint" value="false" />
         </properties>
@@ -170,12 +156,23 @@
 
     <rule ref="./vendor/slevomat/coding-standard/SlevomatCodingStandard/Sniffs/Namespaces/UseDoesNotStartWithBackslashSniff.php" />
 
-    <rule ref="MediaWiki.WhiteSpace.DisallowEmptyLineFunctions">
-        <exclude name="MediaWiki.WhiteSpace.DisallowEmptyLineFunctions.NoEmptyLine" />
-        <exclude name="MediaWiki.WhiteSpace.SpaceAfterClosure.NoWhitespaceAfterClosure" />
+    <!-- MediaWiki.WhiteSpace.SpaceyParenthesis replica for up-to-date codesniffer version -->
+    <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing">
+        <properties>
+            <property name="equalsSpacing" value="1" />
+            <property name="requiredSpacesAfterOpen" value="1" />
+            <property name="requiredSpacesBeforeClose" value="1" />
+        </properties>
     </rule>
 
-    <rule ref="MediaWiki.WhiteSpace.SpaceBeforeControlStructureBrace">
-        <exclude name="MediaWiki.WhiteSpace.SpaceBeforeControlStructureBrace.EmptyLines" />
+    <rule ref="PEAR.Functions.FunctionCallSignature">
+        <properties>
+            <property name="requiredSpacesAfterOpen" value="1" />
+            <property name="requiredSpacesBeforeClose" value="1" />
+        </properties>
+        <exclude name="PEAR.Functions.FunctionCallSignature.Indent" />
+        <exclude name="PEAR.Functions.FunctionCallSignature.OpeningIndent" />
+        <exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket" />
+        <exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine" />
     </rule>
 </ruleset>

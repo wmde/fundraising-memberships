@@ -39,8 +39,7 @@ class ApplyForMembershipPolicyValidator {
 	}
 
 	private function yearlyAmountExceedsLimit( Application $application ): bool {
-		return
-			$application->getPayment()->getYearlyAmount()->getEuroFloat()
+		return $application->getPayment()->getYearlyAmount()->getEuroFloat()
 			> self::YEARLY_PAYMENT_MODERATION_THRESHOLD_IN_EURO;
 	}
 

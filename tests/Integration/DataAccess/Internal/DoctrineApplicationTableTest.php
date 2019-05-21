@@ -113,7 +113,8 @@ class DoctrineApplicationTableTest extends TestCase {
 		$this->expectException( GetMembershipApplicationException::class );
 		$this->getTable()->modifyApplication(
 			self::UNKNOWN_ID,
-			function( MembershipApplication $application ) {}
+			function( MembershipApplication $application ) {
+   }
 		);
 	}
 
@@ -127,7 +128,8 @@ class DoctrineApplicationTableTest extends TestCase {
 		$this->expectException( StoreMembershipApplicationException::class );
 		$table->modifyApplication(
 			$application->getId(),
-			function( MembershipApplication $application ) {}
+			function( MembershipApplication $application ) {
+   }
 		);
 	}
 
@@ -166,7 +168,8 @@ class DoctrineApplicationTableTest extends TestCase {
 		try {
 			$this->getTable()->getApplicationOrNullById( self::IRRELEVANT_ID );
 		}
-		catch ( \Exception $ex ) {}
+		catch ( \Exception $ex ) {
+  }
 
 		$this->assertNotEmpty( 1, $this->logger->getLogCalls() );
 	}
@@ -177,7 +180,8 @@ class DoctrineApplicationTableTest extends TestCase {
 		try {
 			$this->getTable()->persistApplication( ValidMembershipApplication::newDoctrineEntity() );
 		}
-		catch ( \Exception $ex ) {}
+		catch ( \Exception $ex ) {
+  }
 
 		$this->assertNotEmpty( 1, $this->logger->getLogCalls() );
 	}
@@ -186,9 +190,11 @@ class DoctrineApplicationTableTest extends TestCase {
 		$this->entityManager = ThrowingEntityManager::newInstance( $this );
 
 		try {
-			$this->getTable()->modifyApplication( self::IRRELEVANT_ID, function() {} );
+			$this->getTable()->modifyApplication( self::IRRELEVANT_ID, function() {
+   } );
 		}
-		catch ( \Exception $ex ) {}
+		catch ( \Exception $ex ) {
+  }
 
 		$this->assertNotEmpty( 1, $this->logger->getLogCalls() );
 	}
