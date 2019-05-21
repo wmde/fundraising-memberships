@@ -16,7 +16,6 @@ cs: phpcs stan
 
 phpunit:
 	docker-compose run --rm fundraising-memberships ./vendor/bin/phpunit
-	docker-compose run --rm fundraising-memberships ./vendor/bin/phpunit
 
 phpcs:
 	docker-compose run --rm fundraising-memberships ./vendor/bin/phpcs -p -s
