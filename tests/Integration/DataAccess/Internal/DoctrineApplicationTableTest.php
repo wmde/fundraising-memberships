@@ -171,7 +171,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		catch ( \Exception $ex ) {
   }
 
-		$this->assertNotEmpty( 1, $this->logger->getLogCalls() );
+		$this->assertNotEmpty( $this->logger->getLogCalls() );
 	}
 
 	public function testWhenDoctrineThrowsException_persistApplicationLogsIt() {
@@ -183,7 +183,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		catch ( \Exception $ex ) {
   }
 
-		$this->assertNotEmpty( 1, $this->logger->getLogCalls() );
+		$this->assertNotEmpty( $this->logger->getLogCalls() );
 	}
 
 	public function testWhenDoctrineThrowsException_modifyApplicationLogsIt() {
@@ -196,7 +196,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		catch ( \Exception $ex ) {
   }
 
-		$this->assertNotEmpty( 1, $this->logger->getLogCalls() );
+		$this->assertNotEmpty( $this->logger->getLogCalls() );
 	}
 
 }
