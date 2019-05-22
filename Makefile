@@ -16,10 +16,13 @@ cs: phpcs stan
 
 phpunit:
 	docker-compose run --rm fundraising-memberships ./vendor/bin/phpunit
-	docker-compose run --rm fundraising-memberships ./vendor/bin/phpunit
 
 phpcs:
-	docker-compose run --rm fundraising-memberships ./vendor/bin/phpcs -p -s
+	docker-compose run --rm fundraising-memberships ./vendor/bin/phpcs
+
+fix-cs:
+	docker-compose run --rm fundraising-memberships ./vendor/bin/phpcbf
+
 
 stan:
 	docker-compose run --rm fundraising-memberships ./vendor/bin/phpstan analyse --level=1 --no-progress src/ tests/
@@ -29,4 +32,4 @@ covers:
 
 composer:
 	docker run --rm --interactive --tty --volume $(shell pwd):/app -w /app\
-	 --volume ~/.composer:/composer --user $(shell id -u):$(shell id -g) composer composer --no-scripts $(filter-out $@,$(MAKECMDGOALS))
+	 --volume ~/.composer:/composer --user $(shell id -u):$(shell id -g) wikimediade/fundraising-frontend:composer composer --no-scripts $(filter-out $@,$(MAKECMDGOALS))
