@@ -102,6 +102,7 @@ class ApplyForMembershipUseCase {
 				'title' => $application->getApplicant()->getName()->getTitle(),
 				'lastName' => $application->getApplicant()->getName()->getLastName(),
 				'firstName' => $application->getApplicant()->getName()->getFirstName(),
+				'hasReceiptEnabled' => $application->getDonationReceipt()
 			]
 		);
 	}
