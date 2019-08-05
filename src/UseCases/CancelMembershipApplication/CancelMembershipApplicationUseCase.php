@@ -40,16 +40,16 @@ class CancelMembershipApplicationUseCase {
 			return $this->newFailureResponse( $request );
 		}
 
-		$application->cancel();
-
-		try {
-			$this->repository->storeApplication( $application );
+		if ( !$application->isCancelled() ) {
+			$application->cancel();
+			try {
+				$this->repository->storeApplication( $application );
+			}
+			catch ( StoreMembershipApplicationException $ex ) {
+				return $this->newFailureResponse( $request );
+			}
+			$this->sendConfirmationEmail( $application );
 		}
-		catch ( StoreMembershipApplicationException $ex ) {
-			return $this->newFailureResponse( $request );
-		}
-
-		$this->sendConfirmationEmail( $application );
 
 		return $this->newSuccessResponse( $request );
 	}
