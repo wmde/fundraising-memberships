@@ -138,4 +138,16 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 		$this->assertEmpty( $this->mailer->getSendMailCalls() );
 	}
 
+	public function testWhenApplicationIsAlreadyCancelled_onlySuccessResponseIsReturned(): void {
+		$this->cancelableApplication->cancel();
+		$this->repository->storeApplication( $this->cancelableApplication );
+		$this->repository->throwOnWrite();
+		$application = $this->cancelableApplication;
+
+		$response = $this->newUseCase()->cancelApplication( new CancellationRequest( $application->getId() ) );
+
+		$this->assertEmpty( $this->mailer->getSendMailCalls() );
+		$this->assertTrue( $response->cancellationWasSuccessful() );
+	}
+
 }
