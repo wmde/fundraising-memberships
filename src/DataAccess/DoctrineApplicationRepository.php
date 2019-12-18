@@ -71,6 +71,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		if ( $applicant->isCompany() ) {
 			return AddressChange::ADDRESS_TYPE_COMPANY;
 		}
+		throw new \RuntimeException( 'Unknown applicant type!' );
 	}
 
 	private function updateApplication( Application $application ): void {
