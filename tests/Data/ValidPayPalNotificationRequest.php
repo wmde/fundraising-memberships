@@ -98,7 +98,7 @@ class ValidPayPalNotificationRequest {
 			->setTransactionFee( self::TRANSACTION_FEE_EURO_STRING )
 			->setAmountGross( Euro::newFromCents( self::AMOUNT_GROSS_CENTS ) )
 			->setSettleAmount( Euro::newFromCents( self::SETTLE_AMOUNT_CENTS ) )
-			->setPaymentTimestamp( new \DateTimeImmutable( self::PAYMENT_TIMESTAMP ) )
+			->setPaymentTimestamp( self::PAYMENT_TIMESTAMP )
 			->setPaymentStatus( self::PAYMENT_STATUS_COMPLETED )
 			->setPaymentType( self::PAYMENT_TYPE );
 	}
