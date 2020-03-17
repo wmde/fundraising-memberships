@@ -36,7 +36,8 @@
 		"slevomat/coding-standard": "~4.6",
 		"mediawiki/mediawiki-codesniffer": "~25.0",
 		"phpstan/phpstan": "~0.11",
-		"wmde/psr-log-test-doubles": "~2.2"
+		"wmde/psr-log-test-doubles": "~2.2",
+		"phpstan/phpstan-phpunit": "^0.12.6"
 	},
 	"autoload": {
 		"psr-4": {

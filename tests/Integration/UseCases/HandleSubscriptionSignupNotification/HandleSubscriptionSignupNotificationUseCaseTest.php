@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\HandleSubscriptionSignupNotification;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
@@ -22,7 +24,7 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ThrowingEntityManager;
  * @licence GNU GPL v2+
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class HandleSubscriptionSignupNotificationUseCaseTest extends \PHPUnit\Framework\TestCase {
+class HandleSubscriptionSignupNotificationUseCaseTest extends TestCase {
 
 	/**
 	 * @var TemplateBasedMailerSpy
@@ -153,7 +155,7 @@ class HandleSubscriptionSignupNotificationUseCaseTest extends \PHPUnit\Framework
 	}
 
 	/**
-	 * @return TemplateMailerInterface|\PHPUnit_Framework_MockObject_MockObject
+	 * @return TemplateMailerInterface&MockObject
 	 */
 	private function getMailer(): TemplateMailerInterface {
 		return $this->createMock( TemplateMailerInterface::class );
