@@ -35,7 +35,10 @@ class DoctrineApplicationTokenFetcher implements ApplicationTokenFetcher {
 			$application = $this->table->getApplicationById( $applicationId );
 		}
 		catch ( GetMembershipApplicationException $ex ) {
-			throw new ApplicationTokenFetchingException( 'Could not get membership application', $applicationId );
+			throw new ApplicationTokenFetchingException(
+				sprintf( 'Could not get membership application with ID %d', $applicationId ),
+				$ex
+			);
 		}
 
 		return new MembershipApplicationTokens(
