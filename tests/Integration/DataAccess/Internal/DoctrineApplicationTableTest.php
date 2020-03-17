@@ -37,12 +37,12 @@ class DoctrineApplicationTableTest extends TestCase {
 	 */
 	private $logger;
 
-	public function setUp() {
+	public function setUp(): void {
 		$this->entityManager = TestEnvironment::newInstance()->getFactory()->getEntityManager();
 		$this->logger = new LoggerSpy();
 	}
 
-	public function testGivenUnknownId_getApplicationOrNullByIdReturnsNull() {
+	public function testGivenUnknownId_getApplicationOrNullByIdReturnsNull(): void {
 		$this->assertNull( $this->getTable()->getApplicationOrNullById( self::UNKNOWN_ID ) );
 	}
 
@@ -53,7 +53,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		);
 	}
 
-	public function testGivenKnownId_getApplicationOrNullByIdReturnsTheApplication() {
+	public function testGivenKnownId_getApplicationOrNullByIdReturnsTheApplication(): void {
 		$application = ValidMembershipApplication::newDoctrineEntity();
 		$table = $this->getTable();
 		$table->persistApplication( $application );
@@ -64,7 +64,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		);
 	}
 
-	public function testWhenDoctrineThrowsException_getApplicationOrNullByIdRethrowsIt() {
+	public function testWhenDoctrineThrowsException_getApplicationOrNullByIdRethrowsIt(): void {
 		$this->entityManager = ThrowingEntityManager::newInstance( $this );
 
 		$table = $this->getTable();
@@ -73,14 +73,14 @@ class DoctrineApplicationTableTest extends TestCase {
 		$table->getApplicationOrNullById( self::IRRELEVANT_ID );
 	}
 
-	public function testGivenUnknownId_getApplicationByIdThrowsException() {
+	public function testGivenUnknownId_getApplicationByIdThrowsException(): void {
 		$table = $this->getTable();
 
 		$this->expectException( GetMembershipApplicationException::class );
 		$table->getApplicationById( self::UNKNOWN_ID );
 	}
 
-	public function testGivenKnownId_getApplicationByIdReturnsTheApplication() {
+	public function testGivenKnownId_getApplicationByIdReturnsTheApplication(): void {
 		$application = ValidMembershipApplication::newDoctrineEntity();
 		$table = $this->getTable();
 		$table->persistApplication( $application );
@@ -91,7 +91,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		);
 	}
 
-	public function testWhenDoctrineThrowsException_getApplicationByIdRethrowsIt() {
+	public function testWhenDoctrineThrowsException_getApplicationByIdRethrowsIt(): void {
 		$this->entityManager = ThrowingEntityManager::newInstance( $this );
 
 		$table = $this->getTable();
@@ -100,7 +100,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		$table->getApplicationById( self::IRRELEVANT_ID );
 	}
 
-	public function testWhenDoctrineThrowsException_persistApplicationRethrowsIt() {
+	public function testWhenDoctrineThrowsException_persistApplicationRethrowsIt(): void {
 		$this->entityManager = ThrowingEntityManager::newInstance( $this );
 
 		$table = $this->getTable();
@@ -109,7 +109,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		$table->persistApplication( ValidMembershipApplication::newDoctrineEntity() );
 	}
 
-	public function testGivenUnknownId_modifyApplicationThrowsReadException() {
+	public function testGivenUnknownId_modifyApplicationThrowsReadException(): void {
 		$this->expectException( GetMembershipApplicationException::class );
 		$this->getTable()->modifyApplication(
 			self::UNKNOWN_ID,
@@ -118,7 +118,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		);
 	}
 
-	public function testWhenDoctrineThrowsException_modifyApplicationRethrowsIt() {
+	public function testWhenDoctrineThrowsException_modifyApplicationRethrowsIt(): void {
 		$application = ValidMembershipApplication::newDoctrineEntity();
 		$table = $this->getTable();
 		$table->persistApplication( $application );

@@ -45,7 +45,7 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 	 */
 	private $tokenFetcher;
 
-	public function setUp() {
+	public function setUp(): void {
 		$this->presenter = new FakeShowApplicationConfirmationPresenter();
 		$this->authorizer = new SucceedingAuthorizer();
 		$this->repository = new FakeApplicationRepository();
@@ -62,7 +62,7 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		return $application;
 	}
 
-	private function invokeUseCaseWithCorrectRequestModel() {
+	private function invokeUseCaseWithCorrectRequestModel(): void {
 		$request = new ShowAppConfirmationRequest( self::APPLICATION_ID );
 		$this->newUseCase()->showConfirmation( $request );
 	}
@@ -76,7 +76,7 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		);
 	}
 
-	public function testHappyPath_successResponseWithApplicationIsReturned() {
+	public function testHappyPath_successResponseWithApplicationIsReturned(): void {
 		$this->invokeUseCaseWithCorrectRequestModel();
 
 		$this->assertSame(
@@ -90,7 +90,7 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		);
 	}
 
-	public function testWhenRepositoryThrowsAnonymizedException_anonymizedMessageIsPresented() {
+	public function testWhenRepositoryThrowsAnonymizedException_anonymizedMessageIsPresented(): void {
 		$this->repository->throwAnonymizedOnRead();
 
 		$this->invokeUseCaseWithCorrectRequestModel();
@@ -98,7 +98,7 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		$this->assertTrue( $this->presenter->anonymizedResponseWasShown() );
 	}
 
-	public function testWhenAuthorizerReturnsFalse_accessViolationIsPresented() {
+	public function testWhenAuthorizerReturnsFalse_accessViolationIsPresented(): void {
 		$this->authorizer = new FailingAuthorizer();
 
 		$this->invokeUseCaseWithCorrectRequestModel();
@@ -106,7 +106,7 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		$this->assertTrue( $this->presenter->accessViolationWasShown() );
 	}
 
-	public function testWhenRepositoryThrowsException_technicalErrorIsPresented() {
+	public function testWhenRepositoryThrowsException_technicalErrorIsPresented(): void {
 		$this->repository->throwOnRead();
 
 		$this->invokeUseCaseWithCorrectRequestModel();
