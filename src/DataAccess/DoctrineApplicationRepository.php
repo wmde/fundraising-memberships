@@ -301,7 +301,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		return $bankData->freeze()->assertNoNullFields();
 	}
 
-	private function newPayPalData( DoctrineApplication $application ): ?PayPalData {
+	private function newPayPalData( DoctrineApplication $application ): PayPalData {
 		$data = $application->getDecodedData();
 
 		return ( new PayPalData() )
