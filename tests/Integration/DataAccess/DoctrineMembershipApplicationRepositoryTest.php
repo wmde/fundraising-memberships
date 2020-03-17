@@ -56,9 +56,7 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 		$actual = $this->getApplicationFromDatabase( $expected->getId() );
 
 		$this->assertNotNull( $actual->getCreationTime() );
-		//UUID identifiers would mismatch so we have to overwrite them
 		$actual->setCreationTime( null );
-		$actual->setAddressChange( $expected->getAddressChange() );
 
 		$this->assertEquals( $expected->getDecodedData(), $actual->getDecodedData() );
 
