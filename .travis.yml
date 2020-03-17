@@ -2,7 +2,7 @@ language: php
 
 # php version to use for travis' composer & coverage
 php:
-  - 7.1
+  - 7.4
 
 services:
   - docker
