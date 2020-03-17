@@ -4,6 +4,9 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\HandleSubscriptionPaymentNotification;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidPayPalNotificationRequest;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
@@ -14,8 +17,6 @@ use WMDE\Fundraising\MembershipContext\UseCases\HandleSubscriptionPaymentNotific
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ThrowingEntityManager;
-use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\HandleSubscriptionPaymentNotification\HandleSubscriptionPaymentNotificationUseCase
@@ -140,7 +141,7 @@ class HandleSubscriptionPaymentNotificationUseCaseTest extends TestCase {
 	}
 
 	/**
-	 * @return TemplateMailerInterface|\PHPUnit_Framework_MockObject_MockObject
+	 * @return TemplateMailerInterface&MockObject
 	 */
 	private function getMailer(): TemplateMailerInterface {
 		return $this->createMock( TemplateMailerInterface::class );

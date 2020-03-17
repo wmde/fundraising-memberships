@@ -277,7 +277,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	public function testWhenApplicationIsUnconfirmed_confirmationEmailIsNotSent(): void {
 		$this->newUseCase()->applyForMembership( $this->newValidRequestForUnconfirmedApplication() );
 
-		$this->assertSame( 0, count( $this->mailer->getSendMailCalls() ) );
+		$this->assertCount( 0, $this->mailer->getSendMailCalls() );
 	}
 
 	private function newValidRequestForUnconfirmedApplication(): ApplyForMembershipRequest {
