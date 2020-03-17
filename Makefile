@@ -25,7 +25,7 @@ fix-cs:
 
 
 stan:
-	docker-compose run --rm fundraising-memberships ./vendor/bin/phpstan analyse --level=3 --no-progress src/ tests/
+	docker-compose run --rm fundraising-memberships ./vendor/bin/phpstan analyse --level=4 --no-progress src/ tests/
 
 covers:
 	docker-compose run --rm fundraising-memberships ./vendor/bin/covers-validator
