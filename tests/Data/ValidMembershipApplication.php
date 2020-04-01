@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Data;
 use DateTime;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\Entities\MembershipApplication as DoctrineMembershipApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;

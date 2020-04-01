@@ -8,7 +8,7 @@ use Doctrine\ORM\EntityManager;
 use Psr\Log\NullLogger;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\Entities\MembershipApplication as DoctrineApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
@@ -26,7 +26,6 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
-use WMDE\Fundraising\Store\MembershipApplicationData;
 
 /**
  * @license GNU GPL v2+

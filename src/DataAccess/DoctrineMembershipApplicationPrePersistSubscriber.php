@@ -7,9 +7,8 @@ namespace WMDE\Fundraising\MembershipContext\DataAccess;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
-use WMDE\Fundraising\Entities\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
-use WMDE\Fundraising\Store\MembershipApplicationData;
 
 /**
  * @license GNU GPL v2+

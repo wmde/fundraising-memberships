@@ -7,11 +7,11 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 use Codeception\Specify;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
-use WMDE\Fundraising\Entities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationAuthorizer;
+use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
-use WMDE\Fundraising\Store\MembershipApplicationData;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationAuthorizer

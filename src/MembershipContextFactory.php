@@ -4,9 +4,18 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\Common\EventManager;
+use Doctrine\Common\EventSubscriber;
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Gedmo\Timestampable\TimestampableListener;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
@@ -14,8 +23,6 @@ use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Authorization\RandomMembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipApplicationPrePersistSubscriber;
-use WMDE\Fundraising\Store\Factory as StoreFactory;
-use WMDE\Fundraising\Store\Installer;
 
 /**
  * @licence GNU GPL v2+
@@ -23,7 +30,19 @@ use WMDE\Fundraising\Store\Installer;
  */
 class MembershipContextFactory implements ServiceProviderInterface {
 
-	private $config;
+	/**
+	 * Use this constant for MappingDriverChain::addDriver
+	 */
+	public const DOCTRINE_ADDITIONAL_ENTITIES = [
+		'WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities' => __DIR__ . '/DoctrineEntities'
+	];
+
+	public const ENTITY_PATHS = [
+		__DIR__ . '/DataAccess/DoctrineEntities/'
+	];
+
+	private array $config;
+	private Configuration $doctrineConfig;
 
 	/**
 	 * @var Container
@@ -32,8 +51,10 @@ class MembershipContextFactory implements ServiceProviderInterface {
 
 	private $addDoctrineSubscribers = true;
 
-	public function __construct( array $config ) {
+	public function __construct( array $config, Configuration $doctrineConfig ) {
 		$this->config = $config;
+		$this->doctrineConfig = $doctrineConfig;
+
 		$this->pimple = $this->newPimple();
 	}
 
@@ -49,15 +70,15 @@ class MembershipContextFactory implements ServiceProviderInterface {
 		};
 
 		$container['entity_manager'] = function() {
-			$entityManager = ( new StoreFactory( $this->getConnection(), $this->getVarPath() . '/doctrine_proxies' ) )
-				->getEntityManager();
-			if ( $this->addDoctrineSubscribers ) {
-				$entityManager->getEventManager()->addEventSubscriber(
-					$this->newDoctrineMembershipPrePersistSubscriber()
-				);
-			}
+			AnnotationRegistry::registerLoader( 'class_exists' );
 
-			return $entityManager;
+			$this->doctrineConfig->setMetadataDriverImpl( $this->newMappingDriver() );
+
+			$eventManager = $this->setupEventSubscribers(
+				array_merge( $this->newEventSubscribers(), $this->newDoctrineEventSubscribers() )
+			);
+
+			return EntityManager::create( $this->getConnection(), $this->getDoctrineConfig(), $eventManager );
 		};
 
 		$container['fundraising.membership.application.token_generator'] = function() {
@@ -81,6 +102,13 @@ class MembershipContextFactory implements ServiceProviderInterface {
 		} );
 	}
 
+	public function newMappingDriver(): MappingDriver {
+		// We're only calling this for the side effect of adding Mapping/Driver/DoctrineAnnotations.php
+		// to the AnnotationRegistry. When AnnotationRegistry is deprecated with Doctrine Annotations 2.0,
+		// instantiate AnnotationReader directly instead.
+		return $this->doctrineConfig->newDefaultAnnotationDriver( self::ENTITY_PATHS, false );
+	}
+
 	public function getConnection(): Connection {
 		return $this->pimple['dbal_connection'];
 	}
@@ -89,12 +117,23 @@ class MembershipContextFactory implements ServiceProviderInterface {
 		return $this->pimple['entity_manager'];
 	}
 
-	public function newInstaller(): Installer {
-		return ( new StoreFactory( $this->getConnection() ) )->newInstaller();
+	private function getDoctrineConfig(): Configuration {
+		return $this->doctrineConfig;
 	}
 
-	private function getVarPath(): string {
-		return $this->config['var-path'];
+	/**
+	 * @return EventSubscriber[]
+	 */
+	public function newDoctrineEventSubscribers(): array {
+		if ( !$this->addDoctrineSubscribers ) {
+			return [];
+		}
+		return array_merge(
+			$this->newEventSubscribers(),
+			[
+				DoctrineMembershipApplicationPrePersistSubscriber::class => $this->newDoctrineMembershipPrePersistSubscriber()
+			]
+		);
 	}
 
 	private function newDoctrineMembershipPrePersistSubscriber(): DoctrineMembershipApplicationPrePersistSubscriber {
@@ -111,6 +150,22 @@ class MembershipContextFactory implements ServiceProviderInterface {
 
 	public function disableDoctrineSubscribers(): void {
 		$this->addDoctrineSubscribers = false;
+	}
+
+	private function setupEventSubscribers( array $eventSubscribers ): EventManager {
+		$eventManager = $this->getConnection()->getEventManager();
+		foreach ( $eventSubscribers as $eventSubscriber ) {
+			$eventManager->addEventSubscriber( $eventSubscriber );
+		}
+		return $eventManager;
+	}
+
+	public function newEventSubscribers(): array {
+		$timestampableListener = new TimestampableListener();
+		$timestampableListener->setAnnotationReader( new AnnotationReader() );
+		return [
+			TimestampableListener::class => $timestampableListener
+		];
 	}
 
 }

@@ -8,7 +8,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use WMDE\Fundraising\Entities\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 

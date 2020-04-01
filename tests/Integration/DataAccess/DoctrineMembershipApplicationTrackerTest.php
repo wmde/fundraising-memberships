@@ -5,7 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
-use WMDE\Fundraising\Entities\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationTracker;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
