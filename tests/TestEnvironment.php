@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests;
 
+use Doctrine\ORM\Configuration;
+use Doctrine\ORM\Tools\Setup;
 use WMDE\Fundraising\MembershipContext\MembershipContextFactory;
 
 /**
@@ -12,20 +14,27 @@ use WMDE\Fundraising\MembershipContext\MembershipContextFactory;
  */
 class TestEnvironment {
 
-	private $config;
-	private $factory;
+	private array $config;
+	private Configuration $doctrineConfig;
+	private ?MembershipContextFactory $factory = null;
+
+	private function __construct( array $config, Configuration $doctrineConfig ) {
+		$this->config = $config;
+		$this->doctrineConfig = $doctrineConfig;
+	}
 
 	public static function newInstance(): self {
+
 		$environment = new self(
 			[
 				'db' => [
 					'driver' => 'pdo_sqlite',
 					'memory' => true,
 				],
-				'var-path' => '/tmp',
 				'token-length' => 16,
 				'token-validity-timestamp' => 'PT4H',
-			]
+			],
+			Setup::createConfiguration( true )
 		);
 
 		$environment->install();
@@ -33,24 +42,26 @@ class TestEnvironment {
 		return $environment;
 	}
 
-	private function __construct( array $config ) {
-		$this->config = $config;
-		$this->factory = new MembershipContextFactory( $this->config );
-	}
-
 	private function install(): void {
-		$installer = $this->factory->newInstaller();
+		$schemaCreator = new SchemaCreator( $this->getFactory()->getEntityManager() );
 
 		try {
-			$installer->uninstall();
+			$schemaCreator->dropSchema();
 		}
 		catch ( \Exception $ex ) {
 		}
 
-		$installer->install();
+		$schemaCreator->createSchema();
 	}
 
 	public function getFactory(): MembershipContextFactory {
+		if ( $this->factory === null ) {
+			$this->factory = new MembershipContextFactory(
+				$this->config,
+				$this->doctrineConfig
+			);
+		}
+
 		return $this->factory;
 	}
 

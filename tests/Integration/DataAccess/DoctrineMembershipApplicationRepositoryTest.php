@@ -6,7 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
 use WMDE\EmailAddress\EmailAddress;
-use WMDE\Fundraising\Entities\MembershipApplication as DoctrineApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
@@ -40,27 +40,22 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 	}
 
 	public function testValidMembershipApplicationGetPersisted(): void {
-		$this->newRepository()->storeApplication( ValidMembershipApplication::newDomainEntity() );
+		$application = ValidMembershipApplication::newDomainEntity();
+		$this->newRepository()->storeApplication( $application );
 
-		$expectedDoctrineEntity = ValidMembershipApplication::newDoctrineEntity();
-		$expectedDoctrineEntity->setId( self::MEMBERSHIP_APPLICATION_ID );
+		$expected = ValidMembershipApplication::newDoctrineEntity();
+		$expected->setId( $application->getId() );
 
-		$this->assertDoctrineEntityIsInDatabase( $expectedDoctrineEntity );
+		$actual = $this->getApplicationFromDatabase( $application->getId() );
+		$actual->setCreationTime( null );
+		$actual->setData( null );
+		$actual->setCompany( null );
+
+		$this->assertEquals( $expected, $actual );
 	}
 
 	private function newRepository(): ApplicationRepository {
 		return new DoctrineApplicationRepository( $this->entityManager );
-	}
-
-	private function assertDoctrineEntityIsInDatabase( DoctrineApplication $expected ): void {
-		$actual = $this->getApplicationFromDatabase( $expected->getId() );
-
-		$this->assertNotNull( $actual->getCreationTime() );
-		$actual->setCreationTime( null );
-
-		$this->assertEquals( $expected->getDecodedData(), $actual->getDecodedData() );
-
-		$this->assertEquals( $expected, $actual );
 	}
 
 	private function getApplicationFromDatabase( int $id ): DoctrineApplication {
@@ -235,10 +230,13 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 	public function testGivenCompanyApplication_companyNameIsPersisted(): void {
 		$this->newRepository()->storeApplication( ValidMembershipApplication::newCompanyApplication() );
 
-		$expectedDoctrineEntity = ValidMembershipApplication::newDoctrineCompanyEntity();
-		$expectedDoctrineEntity->setId( self::MEMBERSHIP_APPLICATION_ID );
+		$expected = ValidMembershipApplication::newDoctrineCompanyEntity();
+		$expected->setId( self::MEMBERSHIP_APPLICATION_ID );
 
-		$this->assertDoctrineEntityIsInDatabase( $expectedDoctrineEntity );
+		$actual = $this->getApplicationFromDatabase( self::MEMBERSHIP_APPLICATION_ID );
+
+		$this->assertNotNull( $actual->getCompany() );
+		$this->assertEquals( $expected->getCompany(), $actual->getCompany() );
 	}
 
 	public function testReadingAnonymizedApplication_anonymizedExceptionIsThrown(): void {

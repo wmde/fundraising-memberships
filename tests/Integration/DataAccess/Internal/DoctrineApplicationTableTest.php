@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess\Intern
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\Entities\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
