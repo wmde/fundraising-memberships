@@ -174,5 +174,6 @@
         <exclude name="PEAR.Functions.FunctionCallSignature.OpeningIndent" />
         <exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket" />
         <exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine" />
+        <exclude name="PEAR.Functions.FunctionCallSignature.OpeningIndent" />
     </rule>
 </ruleset>
