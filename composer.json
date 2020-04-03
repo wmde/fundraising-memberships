@@ -9,7 +9,6 @@
 		"gedmo/doctrine-extensions": "^2.4",
 
 		"psr/log": "~1.0",
-		"pimple/pimple": "~3.0",
 
 		"wmde/fundraising-payments": "@dev",
 		"wmde/euro": "~1.0",

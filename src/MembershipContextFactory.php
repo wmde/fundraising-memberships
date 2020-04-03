@@ -9,26 +9,20 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Gedmo\Timestampable\TimestampableListener;
-use Pimple\Container;
-use Pimple\ServiceProviderInterface;
-use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Authorization\RandomMembershipTokenGenerator;
-use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipApplicationPrePersistSubscriber;
 
 /**
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class MembershipContextFactory implements ServiceProviderInterface {
+class MembershipContextFactory {
 
 	/**
 	 * Use this constant for MappingDriverChain::addDriver
@@ -44,62 +38,19 @@ class MembershipContextFactory implements ServiceProviderInterface {
 	private array $config;
 	private Configuration $doctrineConfig;
 
-	/**
-	 * @var Container
-	 */
-	private $pimple;
-
 	private $addDoctrineSubscribers = true;
+
+	private ?Connection $connection;
+	private ?EntityManager $entityManager;
+	private ?RandomMembershipTokenGenerator $tokenGenerator;
 
 	public function __construct( array $config, Configuration $doctrineConfig ) {
 		$this->config = $config;
 		$this->doctrineConfig = $doctrineConfig;
 
-		$this->pimple = $this->newPimple();
-	}
-
-	private function newPimple(): Container {
-		$pimple = new Container();
-		$this->register( $pimple );
-		return $pimple;
-	}
-
-	public function register( Container $container ): void {
-		$container['dbal_connection'] = function() {
-			return DriverManager::getConnection( $this->config['db'] );
-		};
-
-		$container['entity_manager'] = function() {
-			AnnotationRegistry::registerLoader( 'class_exists' );
-
-			$this->doctrineConfig->setMetadataDriverImpl( $this->newMappingDriver() );
-
-			$eventManager = $this->setupEventSubscribers(
-				array_merge( $this->newEventSubscribers(), $this->newDoctrineEventSubscribers() )
-			);
-
-			return EntityManager::create( $this->getConnection(), $this->getDoctrineConfig(), $eventManager );
-		};
-
-		$container['fundraising.membership.application.token_generator'] = function() {
-			return new RandomMembershipTokenGenerator(
-				$this->config['token-length'],
-				new \DateInterval( $this->config['token-validity-timestamp'] )
-			);
-		};
-
-		$container['fundraising.membership.application.authorizer.class'] = DoctrineApplicationAuthorizer::class;
-		// @todo Consider if the tokens should not better be method parameters (see ApplicationAuthorizer interface)
-		$container['fundraising.membership.application.authorizer.update_token'] = null;
-		$container['fundraising.membership.application.authorizer.access_token'] = null;
-
-		$container['fundraising.membership.application.authorizer'] = $container->factory( function ( Container $container ): ApplicationAuthorizer {
-			return new $container['fundraising.membership.application.authorizer.class'](
-				$container['entity_manager'],
-				$container['fundraising.membership.application.authorizer.update_token'],
-				$container['fundraising.membership.application.authorizer.access_token']
-			);
-		} );
+		$this->connection = null;
+		$this->entityManager = null;
+		$this->tokenGenerator = null;
 	}
 
 	public function newMappingDriver(): MappingDriver {
@@ -110,11 +61,27 @@ class MembershipContextFactory implements ServiceProviderInterface {
 	}
 
 	public function getConnection(): Connection {
-		return $this->pimple['dbal_connection'];
+		if( $this->connection === null ) {
+			$this->connection = DriverManager::getConnection( $this->config['db'] );
+		}
+
+		return $this->connection;
 	}
 
 	public function getEntityManager(): EntityManager {
-		return $this->pimple['entity_manager'];
+		if( $this->entityManager === null ) {
+			AnnotationRegistry::registerLoader( 'class_exists' );
+
+			$this->doctrineConfig->setMetadataDriverImpl( $this->newMappingDriver() );
+
+			$eventManager = $this->setupEventSubscribers(
+				array_merge( $this->newEventSubscribers(), $this->newDoctrineEventSubscribers() )
+			);
+
+			$this->entityManager = EntityManager::create( $this->getConnection(), $this->getDoctrineConfig(), $eventManager );
+		}
+
+		return $this->entityManager;
 	}
 
 	private function getDoctrineConfig(): Configuration {
@@ -145,7 +112,14 @@ class MembershipContextFactory implements ServiceProviderInterface {
 	}
 
 	public function getTokenGenerator(): MembershipTokenGenerator {
-		return $this->pimple['fundraising.membership.application.token_generator'];
+		if( $this->tokenGenerator === null ) {
+			$this->tokenGenerator = new RandomMembershipTokenGenerator(
+				$this->config['token-length'],
+				new \DateInterval( $this->config['token-validity-timestamp'] )
+			);
+		}
+
+		return $this->tokenGenerator;
 	}
 
 	public function disableDoctrineSubscribers(): void {
