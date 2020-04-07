@@ -14,7 +14,7 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 class MembershipApplicationInsertionTest extends TestCase {
 
 	public function testNewMembershipApplicationCanBeInserted(): void {
-		$entityManager = TestEnvironment::newInstance()->getFactory()->getEntityManager();
+		$entityManager = TestEnvironment::newInstance()->getEntityManager();
 		$entityManager->persist( new MembershipApplication() );
 		$entityManager->flush();
 

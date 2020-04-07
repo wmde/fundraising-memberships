@@ -32,7 +32,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends \PHPUnit\Framework\Tes
 	private function newAuthorizerWithApplications( string $updateToken = null,
 		string $accessToken = null, MembershipApplication ...$applications ): ApplicationAuthorizer {
 
-		$entityManager = TestEnvironment::newInstance()->getFactory()->getEntityManager();
+		$entityManager = TestEnvironment::newInstance()->getEntityManager();
 
 		foreach ( $applications as $application ) {
 			$entityManager->persist( $application );

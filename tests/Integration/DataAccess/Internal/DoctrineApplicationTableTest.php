@@ -38,7 +38,7 @@ class DoctrineApplicationTableTest extends TestCase {
 	private $logger;
 
 	public function setUp(): void {
-		$this->entityManager = TestEnvironment::newInstance()->getFactory()->getEntityManager();
+		$this->entityManager = TestEnvironment::newInstance()->getEntityManager();
 		$this->logger = new LoggerSpy();
 	}
 
