@@ -17,7 +17,7 @@ class SerializedDataHandlingTest extends \PHPUnit\Framework\TestCase {
 
 	/** @dataProvider encodedMembershipDataProvider */
 	public function testDataFieldOfMembershipApplicationIsInteractedWithCorrectly( array $data ): void {
-		$entityManager = TestEnvironment::newInstance()->getFactory()->getEntityManager();
+		$entityManager = TestEnvironment::newInstance()->getEntityManager();
 
 		$repository = new DoctrineApplicationRepository( $entityManager );
 		$this->storeMembershipApplication( $entityManager, $data );

@@ -33,9 +33,9 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 	private $entityManager;
 
 	public function setUp(): void {
-		$factory = TestEnvironment::newInstance()->getFactory();
-		$factory->disableDoctrineSubscribers();
-		$this->entityManager = $factory->getEntityManager();
+		$testEnvironment = TestEnvironment::newInstance();
+		$testEnvironment->disableDoctrineSubscribers();
+		$this->entityManager = $testEnvironment->getEntityManager();
 		parent::setUp();
 	}
 

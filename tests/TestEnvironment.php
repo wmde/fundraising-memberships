@@ -5,8 +5,8 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests;
 
 use Doctrine\ORM\Configuration;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
-use WMDE\Fundraising\MembershipContext\MembershipContextFactory;
 
 /**
  * @licence GNU GPL v2+
@@ -14,13 +14,10 @@ use WMDE\Fundraising\MembershipContext\MembershipContextFactory;
  */
 class TestEnvironment {
 
-	private array $config;
-	private Configuration $doctrineConfig;
-	private ?MembershipContextFactory $factory = null;
+	private TestMembershipContextFactory $factory;
 
 	private function __construct( array $config, Configuration $doctrineConfig ) {
-		$this->config = $config;
-		$this->doctrineConfig = $doctrineConfig;
+		$this->factory = new TestMembershipContextFactory( $config, $doctrineConfig );
 	}
 
 	public static function newInstance(): self {
@@ -43,7 +40,7 @@ class TestEnvironment {
 	}
 
 	private function install(): void {
-		$schemaCreator = new SchemaCreator( $this->getFactory()->getEntityManager() );
+		$schemaCreator = new SchemaCreator( $this->getEntityManager() );
 
 		try {
 			$schemaCreator->dropSchema();
@@ -54,15 +51,12 @@ class TestEnvironment {
 		$schemaCreator->createSchema();
 	}
 
-	public function getFactory(): MembershipContextFactory {
-		if ( $this->factory === null ) {
-			$this->factory = new MembershipContextFactory(
-				$this->config,
-				$this->doctrineConfig
-			);
-		}
+	public function getEntityManager(): EntityManager {
+		return $this->factory->getEntityManager();
+	}
 
-		return $this->factory;
+	public function disableDoctrineSubscribers(): void {
+		$this->factory->disableDoctrineSubscribers();
 	}
 
 }
