@@ -50,12 +50,12 @@ class MembershipContextFactory {
 	/**
 	 * @return EventSubscriber[]
 	 */
-	public function newDoctrineEventSubscribers(): array {
+	public function newEventSubscribers(): array {
 		if ( !$this->addDoctrineSubscribers ) {
 			return [];
 		}
 		return array_merge(
-			$this->newEventSubscribers(),
+			$this->newDoctrineSpecificEventSubscribers(),
 			[
 				DoctrineMembershipApplicationPrePersistSubscriber::class => $this->newDoctrineMembershipPrePersistSubscriber(
 				)
@@ -63,7 +63,7 @@ class MembershipContextFactory {
 		);
 	}
 
-	private function newEventSubscribers(): array {
+	private function newDoctrineSpecificEventSubscribers(): array {
 		$timestampableListener = new TimestampableListener();
 		$timestampableListener->setAnnotationReader( new AnnotationReader() );
 		return [

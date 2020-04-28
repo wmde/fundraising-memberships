@@ -35,7 +35,7 @@ class TestMembershipContextFactory {
 
 			$this->doctrineConfig->setMetadataDriverImpl( $this->factory->newMappingDriver() );
 
-			$eventManager = $this->setupEventSubscribers( $this->factory->newDoctrineEventSubscribers() );
+			$eventManager = $this->setupEventSubscribers( $this->factory->newEventSubscribers() );
 
 			$this->entityManager = EntityManager::create(
 				$this->connection,
