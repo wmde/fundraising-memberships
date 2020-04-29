@@ -10,6 +10,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
+use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\MembershipContextFactory;
 
 class TestMembershipContextFactory {
@@ -55,7 +56,7 @@ class TestMembershipContextFactory {
 		return $eventManager;
 	}
 
-	public function disableDoctrineSubscribers(): void {
-		$this->factory->disableDoctrineSubscribers();
+	public function setTokenGenerator( MembershipTokenGenerator $tokenGenerator ) {
+		$this->factory->setTokenGenerator( $tokenGenerator );
 	}
 }

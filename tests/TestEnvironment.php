@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
+use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 
 /**
  * @licence GNU GPL v2+
@@ -55,8 +56,7 @@ class TestEnvironment {
 		return $this->factory->getEntityManager();
 	}
 
-	public function disableDoctrineSubscribers(): void {
-		$this->factory->disableDoctrineSubscribers();
+	public function setTokenGenerator( MembershipTokenGenerator $tokenGenerator ): void {
+		$this->factory->setTokenGenerator( $tokenGenerator );
 	}
-
 }

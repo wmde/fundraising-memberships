@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext;
 
+use DateInterval;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
@@ -28,16 +29,16 @@ class MembershipContextFactory {
 		__DIR__ . '/DataAccess/DoctrineEntities/'
 	];
 
-	private $addDoctrineSubscribers = true;
-
 	private array $config;
 	private Configuration $doctrineConfig;
+
+	// Singleton instances
 	private ?MembershipTokenGenerator $tokenGenerator;
 
-	public function __construct( array $config, Configuration $doctrineConfig, ?MembershipTokenGenerator $tokenGenerator = null ) {
+	public function __construct( array $config, Configuration $doctrineConfig ) {
 		$this->config = $config;
 		$this->doctrineConfig = $doctrineConfig;
-		$this->tokenGenerator = $tokenGenerator;
+		$this->tokenGenerator = null;
 	}
 
 	public function newMappingDriver(): MappingDriver {
@@ -51,9 +52,6 @@ class MembershipContextFactory {
 	 * @return EventSubscriber[]
 	 */
 	public function newEventSubscribers(): array {
-		if ( !$this->addDoctrineSubscribers ) {
-			return [];
-		}
 		return array_merge(
 			$this->newDoctrineSpecificEventSubscribers(),
 			[
@@ -83,14 +81,17 @@ class MembershipContextFactory {
 		if ( $this->tokenGenerator === null ) {
 			$this->tokenGenerator = new RandomMembershipTokenGenerator(
 				$this->config['token-length'],
-				new \DateInterval( $this->config['token-validity-timestamp'] )
+				new DateInterval( $this->config['token-validity-timestamp'] )
 			);
 		}
 
 		return $this->tokenGenerator;
 	}
 
-	public function disableDoctrineSubscribers(): void {
-		$this->addDoctrineSubscribers = false;
+	// Setters for replacing instances in tests
+
+	public function setTokenGenerator( ?MembershipTokenGenerator $tokenGenerator ): void {
+		$this->tokenGenerator = $tokenGenerator;
 	}
+
 }
