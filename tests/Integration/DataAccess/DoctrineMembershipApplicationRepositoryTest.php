@@ -13,6 +13,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedMembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ThrowingEntityManager;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
@@ -24,8 +25,10 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
  */
 class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\TestCase {
 
-	const MEMBERSHIP_APPLICATION_ID = 1;
-	const ID_OF_APPLICATION_NOT_IN_DB = 35505;
+	private const MEMBERSHIP_APPLICATION_ID = 1;
+	private const ID_OF_APPLICATION_NOT_IN_DB = 35505;
+	private const VALID_TOKEN = 'access_token';
+	private const FUTURE_EXPIRY = '3000-01-01 0:00:00';
 
 	/**
 	 * @var EntityManager
@@ -34,7 +37,7 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 
 	public function setUp(): void {
 		$testEnvironment = TestEnvironment::newInstance();
-		$testEnvironment->disableDoctrineSubscribers();
+		$testEnvironment->setTokenGenerator( new FixedMembershipTokenGenerator( self::VALID_TOKEN, new \DateTime( self::FUTURE_EXPIRY ) ) );
 		$this->entityManager = $testEnvironment->getEntityManager();
 		parent::setUp();
 	}
