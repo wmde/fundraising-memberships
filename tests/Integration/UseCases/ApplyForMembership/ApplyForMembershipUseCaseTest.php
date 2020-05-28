@@ -10,8 +10,11 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
+use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
+use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\EventEmitterSpy;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedMembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedPaymentDelayCalculator;
@@ -49,20 +52,14 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	 */
 	private $repository;
 
-	/**
-	 * @var TemplateBasedMailerSpy
-	 */
-	private $mailer;
+	private TemplateBasedMailerSpy $mailer;
 
 	/**
 	 * @var MembershipTokenGenerator
 	 */
 	private $tokenGenerator;
 
-	/**
-	 * @var MembershipApplicationValidator
-	 */
-	private $validator;
+	private MembershipApplicationValidator $validator;
 
 	/**
 	 * @var ApplicationTracker
@@ -74,8 +71,9 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	 */
 	private $piwikTracker;
 
-	/** @var  ApplyForMembershipPolicyValidator */
-	private $policyValidator;
+	private ApplyForMembershipPolicyValidator $policyValidator;
+
+	private EventEmitter $eventEmitter;
 
 	public function setUp(): void {
 		$this->repository = new InMemoryApplicationRepository();
@@ -85,6 +83,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$this->policyValidator = $this->newSucceedingPolicyValidator();
 		$this->tracker = $this->createMock( ApplicationTracker::class );
 		$this->piwikTracker = $this->createMock( ApplicationPiwikTracker::class );
+		$this->eventEmitter = $this->createMock( EventEmitter::class );
 	}
 
 	private function newSucceedingValidator(): MembershipApplicationValidator {
@@ -113,7 +112,8 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 			$this->policyValidator,
 			$this->tracker,
 			$this->piwikTracker,
-			$this->newFixedPaymentDelayCalculator()
+			$this->newFixedPaymentDelayCalculator(),
+			$this->eventEmitter
 		);
 	}
 
@@ -339,4 +339,16 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$this->assertFalse( $application->getDonationReceipt() );
 	}
 
+	public function testUseCaseEmitsDomainEvent(): void {
+		$this->eventEmitter = new EventEmitterSpy();
+		$request = $this->newValidRequest();
+
+		$this->newUseCase()->applyForMembership( $request );
+
+		$events = $this->eventEmitter->getEvents();
+		$this->assertCount( 1, $events );
+		$this->assertInstanceOf( MembershipCreatedEvent::class, $events[0] );
+		$this->assertTrue( $events[0]->getApplicant()->isPrivatePerson() );
+		$this->assertGreaterThan( 0, $events[0]->getMembershipId() );
+	}
 }
