@@ -1,6 +1,3 @@
-build: true
-inherit: true
-
 tools:
     external_code_coverage: true
     php_code_sniffer: true
@@ -15,3 +12,18 @@ tools:
 filter:
     excluded_paths:
         - 'vendor/*'
+
+
+build:
+    environment:
+        php:
+            version: '7.4'
+    nodes:
+        analysis:
+            tests:
+                override:
+                - php-scrutinizer-run
+                - phpcs-run
+    tests:
+        override:
+        - true
