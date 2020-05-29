@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
+use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
+use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
@@ -18,20 +20,25 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentDelayCalculator;
  */
 class ApplyForMembershipUseCase {
 
-	private $repository;
-	private $tokenFetcher;
-	private $mailer;
-	private $validator;
-	private $policyValidator;
-	private $membershipApplicationTracker;
-	private $piwikTracker;
-	private $paymentDelayCalculator;
+	private ApplicationRepository $repository;
+	private ApplicationTokenFetcher $tokenFetcher;
+	private TemplateMailerInterface $mailer;
+	private MembershipApplicationValidator $validator;
+	private ApplyForMembershipPolicyValidator $policyValidator;
+	/**
+	 * @var ApplicationTracker
+	 * @deprecated See https://phabricator.wikimedia.org/T197112
+	 */
+	private ApplicationTracker $membershipApplicationTracker;
+	private ApplicationPiwikTracker $piwikTracker;
+	private PaymentDelayCalculator $paymentDelayCalculator;
+	private EventEmitter $eventEmitter;
 
 	public function __construct( ApplicationRepository $repository,
 		ApplicationTokenFetcher $tokenFetcher, TemplateMailerInterface $mailer,
 		MembershipApplicationValidator $validator, ApplyForMembershipPolicyValidator $policyValidator,
 		ApplicationTracker $tracker, ApplicationPiwikTracker $piwikTracker,
-		PaymentDelayCalculator $paymentDelayCalculator ) {
+		PaymentDelayCalculator $paymentDelayCalculator, EventEmitter $eventEmitter ) {
 
 		$this->repository = $repository;
 		$this->tokenFetcher = $tokenFetcher;
@@ -41,6 +48,7 @@ class ApplyForMembershipUseCase {
 		$this->membershipApplicationTracker = $tracker;
 		$this->piwikTracker = $piwikTracker;
 		$this->paymentDelayCalculator = $paymentDelayCalculator;
+		$this->eventEmitter = $eventEmitter;
 	}
 
 	public function applyForMembership( ApplyForMembershipRequest $request ): ApplyForMembershipResponse {
@@ -64,6 +72,8 @@ class ApplyForMembershipUseCase {
 
 		// TODO: handle exceptions
 		$this->repository->storeApplication( $application );
+
+		$this->eventEmitter->emit( new MembershipCreatedEvent( $application->getId(), $application->getApplicant() ) );
 
 		// TODO: handle exceptions
 		$this->membershipApplicationTracker->trackApplication( $application->getId(), $request->getTrackingInfo() );
