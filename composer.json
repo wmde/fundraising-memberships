@@ -13,7 +13,7 @@
 		"wmde/fundraising-payments": "@dev",
 		"wmde/euro": "~1.0",
 		"wmde/email-address": "~1.0",
-		"wmde/fun-validators": "~1.0",
+		"wmde/fun-validators": "~2.0.0",
 		"wmde/freezable-value-object": "~1.0"
 	},
 	"repositories": [
@@ -25,6 +25,11 @@
 		{
 			"type": "vcs",
 			"url": "https://github.com/wmde/fundraisingstore",
+			"no-api": true
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/wmde/fun-validators",
 			"no-api": true
 		}
 	],
