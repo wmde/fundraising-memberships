@@ -41,11 +41,10 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentDelayCalculator;
  */
 class ApplyForMembershipUseCaseTest extends TestCase {
 
-	const ID_OF_NON_EXISTING_APPLICATION = 1337;
-	const FIRST_APPLICATION_ID = 1;
-	const ACCESS_TOKEN = 'Gimmeh all the access';
-	const UPDATE_TOKEN = 'Lemme change all the stuff';
-	const FIRST_PAYMENT_DATE = '2017-08-07';
+	private const FIRST_APPLICATION_ID = 1;
+	private const ACCESS_TOKEN = 'Gimmeh all the access';
+	private const UPDATE_TOKEN = 'Lemme change all the stuff';
+	private const FIRST_PAYMENT_DATE = '2017-08-07';
 
 	/**
 	 * @var ApplicationRepository

@@ -17,7 +17,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplic
  */
 class LoggingApplicationRepository implements ApplicationRepository {
 
-	const CONTEXT_EXCEPTION_KEY = 'exception';
+	private const CONTEXT_EXCEPTION_KEY = 'exception';
 
 	private $repository;
 	private $logger;

@@ -20,6 +20,8 @@ class ValidMembershipApplicationRequest {
 	 * Returns a request with the same data as the constants in @see ValidMembershipApplication
 	 *
 	 * The object is purposely left mutable so tests can change a single value to something invalid.
+	 *
+	 * @return ApplyForMembershipRequest
 	 */
 	public static function newValidRequest(): ApplyForMembershipRequest {
 		return ( new self() )->createValidRequest();

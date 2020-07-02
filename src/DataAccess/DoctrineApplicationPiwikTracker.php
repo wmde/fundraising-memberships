@@ -22,7 +22,8 @@ class DoctrineApplicationPiwikTracker implements ApplicationPiwikTracker {
 	private $table;
 
 	public function __construct( EntityManager $entityManager ) {
-		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() ); // TODO: logger
+		// TODO: Add non-null logger
+		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
 	}
 
 	public function trackApplication( int $applicationId, string $trackingString ): void {

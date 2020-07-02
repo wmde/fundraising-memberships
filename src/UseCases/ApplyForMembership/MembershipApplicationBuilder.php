@@ -23,8 +23,6 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
  */
 class MembershipApplicationBuilder {
 
-	const COMPANY_APPLICANT_TYPE = 'firma';
-
 	public function newApplicationFromRequest( ApplyForMembershipRequest $request ): Application {
 		return Application::newApplication(
 			$request->getMembershipType(),

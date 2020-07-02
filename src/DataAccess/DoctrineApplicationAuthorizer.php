@@ -22,7 +22,8 @@ class DoctrineApplicationAuthorizer implements ApplicationAuthorizer {
 	private $accessToken;
 
 	public function __construct( EntityManager $entityManager, string $updateToken = null, string $accessToken = null ) {
-		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() ); // TODO: logger
+		// TODO: Add non-null logger
+		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
 		$this->updateToken = $updateToken;
 		$this->accessToken = $accessToken;
 	}

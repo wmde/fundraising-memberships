@@ -88,8 +88,11 @@ class MembershipContextFactory {
 		return $this->tokenGenerator;
 	}
 
-	// Setters for replacing instances in tests
-
+	/**
+	 * This setter should only be used in tests, to replace the default implementation.
+	 *
+	 * @param MembershipTokenGenerator|null $tokenGenerator
+	 */
 	public function setTokenGenerator( ?MembershipTokenGenerator $tokenGenerator ): void {
 		$this->tokenGenerator = $tokenGenerator;
 	}

@@ -12,11 +12,19 @@ interface ApplicationAuthorizer {
 
 	/**
 	 * Should return false on infrastructure failure.
+	 *
+	 * @param int $applicationId
+	 *
+	 * @return bool
 	 */
 	public function canModifyApplication( int $applicationId ): bool;
 
 	/**
 	 * Should return false on infrastructure failure.
+	 *
+	 * @param int $applicationId
+	 *
+	 * @return bool
 	 */
 	public function canAccessApplication( int $applicationId ): bool;
 

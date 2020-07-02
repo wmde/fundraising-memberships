@@ -23,8 +23,8 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
  */
 class MembershipApplicationBuilderTest extends TestCase {
 
-	const COMPANY_NAME = 'Malenfant asteroid mining';
-	const OMIT_OPTIONAL_FIELDS = true;
+	private const COMPANY_NAME = 'Malenfant asteroid mining';
+	private const OMIT_OPTIONAL_FIELDS = true;
 
 	public function testCompanyMembershipRequestGetsBuildCorrectly(): void {
 		$request = $this->newCompanyMembershipRequest();

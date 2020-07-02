@@ -18,11 +18,12 @@ class ApplicationRepositorySpy extends FakeApplicationRepository {
 
 	public function __construct( Application ...$applications ) {
 		parent::__construct( ...$applications );
-		$this->storeApplicationCalls = []; // remove calls coming from initialization
+		$this->storeApplicationCalls = [];
 	}
 
 	public function storeApplication( Application $application ): void {
-		$this->storeApplicationCalls[] = clone $application; // protect against the application being changed later
+		// protect against the application being changed later
+		$this->storeApplicationCalls[] = clone $application;
 		parent::storeApplication( $application );
 	}
 
