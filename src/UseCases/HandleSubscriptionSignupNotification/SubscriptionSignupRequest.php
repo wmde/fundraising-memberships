@@ -5,7 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\HandleSubscriptionSignupNotification;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class SubscriptionSignupRequest {

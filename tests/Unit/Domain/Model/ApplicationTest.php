@@ -10,7 +10,7 @@ use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 /**
  * @covers \WMDE\Fundraising\MembershipContext\Domain\Model\Application
  *
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class ApplicationTest extends \PHPUnit\Framework\TestCase {

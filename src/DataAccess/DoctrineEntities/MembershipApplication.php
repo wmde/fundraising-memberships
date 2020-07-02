@@ -4,10 +4,10 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
-use DateTime;
 
 /**
  * @since 2.0
@@ -308,7 +308,7 @@ class MembershipApplication {
 	 * Returns the id of the donation that led to the membership application,
 	 * or null when the application is not linked to any donation.
 	 *
-	 * @return integer|null
+	 * @return int|null
 	 */
 	public function getDonationId(): ?int {
 		return $this->donationId;
@@ -667,7 +667,7 @@ class MembershipApplication {
 	 * Sets the status of the membership request.
 	 * The allowed values are the STATUS_ constants in this class.
 	 *
-	 * @param integer $status
+	 * @param int $status
 	 *
 	 * @return self
 	 */
@@ -681,7 +681,7 @@ class MembershipApplication {
 	 * Returns the status of the membership request.
 	 * The possible values are the STATUS_ constants in this class.
 	 *
-	 * @return integer
+	 * @return int
 	 */
 	public function getStatus(): int {
 		return $this->status;
@@ -788,7 +788,7 @@ class MembershipApplication {
 		);
 
 		foreach ( [ 'token', 'utoken', 'old_status' ] as $keyName ) {
-			if ( is_null( $dataArray[$keyName] ) ) {
+			if ( $dataArray[$keyName] === null ) {
 				unset( $dataArray[$keyName] );
 			}
 		}
@@ -811,7 +811,7 @@ class MembershipApplication {
 	 *
 	 * @since 7.0
 	 *
-	 * @param boolean|null $donationReceipt
+	 * @param bool|null $donationReceipt
 	 * @return self
 	 */
 	public function setDonationReceipt( ?bool $donationReceipt ): self {
@@ -825,7 +825,7 @@ class MembershipApplication {
 	 *
 	 * @since 7.0
 	 *
-	 * @return boolean|null
+	 * @return bool|null
 	 */
 	public function getDonationReceipt(): ?bool {
 		return $this->donationReceipt;

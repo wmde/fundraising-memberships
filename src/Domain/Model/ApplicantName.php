@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 use WMDE\FreezableValueObject\FreezableValueObject;
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class ApplicantName {
@@ -95,14 +95,14 @@ class ApplicantName {
 	}
 
 	public function getFullName(): string {
-		return join( ', ', array_filter( [
+		return implode( ', ', array_filter( [
 			$this->getFullPrivatePersonName(),
 			$this->companyName
 		] ) );
 	}
 
 	private function getFullPrivatePersonName(): string {
-		return join( ' ', array_filter( [
+		return implode( ' ', array_filter( [
 			$this->getTitle(),
 			$this->getFirstName(),
 			$this->getLastName()

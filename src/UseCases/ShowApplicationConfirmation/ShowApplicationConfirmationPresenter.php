@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmatio
 use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 interface ShowApplicationConfirmationPresenter {

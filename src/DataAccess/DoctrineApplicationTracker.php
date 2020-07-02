@@ -15,7 +15,7 @@ use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTrackingException;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class DoctrineApplicationTracker implements ApplicationTracker {
@@ -30,7 +30,7 @@ class DoctrineApplicationTracker implements ApplicationTracker {
 		try {
 			$this->table->modifyApplication(
 				$applicationId,
-				function( MembershipApplication $application ) use ( $trackingInfo ) {
+				function ( MembershipApplication $application ) use ( $trackingInfo ) {
 					$data = $application->getDecodedData();
 					$data['confirmationPageCampaign'] = $trackingInfo->getCampaignCode();
 					$data['confirmationPage'] = $trackingInfo->getKeyword();

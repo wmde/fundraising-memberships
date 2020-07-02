@@ -4,15 +4,15 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication;
 
-use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
+use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class CancelMembershipApplicationUseCase {
@@ -23,7 +23,6 @@ class CancelMembershipApplicationUseCase {
 
 	public function __construct( ApplicationAuthorizer $authorizer,
 		ApplicationRepository $repository, TemplateMailerInterface $mailer ) {
-
 		$this->authorizer = $authorizer;
 		$this->repository = $repository;
 		$this->mailer = $mailer;

@@ -8,7 +8,7 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\RequestModel\PayPalPaymentNotificationRequest;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Gabriel Birke < gabriel.birke@wikimedia.de >
  */
 class ValidPayPalNotificationRequest {

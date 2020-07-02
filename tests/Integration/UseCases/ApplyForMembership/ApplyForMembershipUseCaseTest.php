@@ -36,7 +36,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentDelayCalculator;
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipUseCase
  *
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class ApplyForMembershipUseCaseTest extends TestCase {

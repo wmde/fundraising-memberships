@@ -5,17 +5,17 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
-use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationTracker;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
-use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationTracker
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class DoctrineMembershipApplicationTrackerTest extends \PHPUnit\Framework\TestCase {

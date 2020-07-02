@@ -17,7 +17,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\Canc
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancelMembershipApplicationUseCase
  *
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase {

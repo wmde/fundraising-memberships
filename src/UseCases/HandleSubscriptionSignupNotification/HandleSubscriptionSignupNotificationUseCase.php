@@ -5,18 +5,18 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\HandleSubscriptionSignupNotification;
 
 use Psr\Log\LoggerInterface;
-use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
+use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\ResponseModel\PaypalNotificationResponse;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  */
 class HandleSubscriptionSignupNotificationUseCase {
 
@@ -27,7 +27,6 @@ class HandleSubscriptionSignupNotificationUseCase {
 
 	public function __construct( ApplicationRepository $repository, ApplicationAuthorizer $authorizationService,
 		TemplateMailerInterface $mailer, LoggerInterface $logger ) {
-
 		$this->repository = $repository;
 		$this->authorizationService = $authorizationService;
 		$this->mailer = $mailer;

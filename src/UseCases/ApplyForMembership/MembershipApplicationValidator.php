@@ -4,11 +4,11 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
+use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeResult;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlocklist;
@@ -16,7 +16,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
 use WMDE\FunValidators\Validators\EmailValidator;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class MembershipApplicationValidator {
@@ -51,7 +51,6 @@ class MembershipApplicationValidator {
 
 	public function __construct( ValidateMembershipFeeUseCase $feeValidator, BankDataValidator $bankDataValidator,
 		IbanBlocklist $ibanBlocklist, EmailValidator $emailValidator ) {
-
 		$this->feeValidator = $feeValidator;
 		$this->bankDataValidator = $bankDataValidator;
 		$this->ibanBlocklist = $ibanBlocklist;
@@ -154,8 +153,7 @@ class MembershipApplicationValidator {
 	private function validateApplicantName(): void {
 		if ( $this->request->isCompanyApplication() ) {
 			$this->validateCompanyName();
-		}
-		else {
+		} else {
 			$this->validatePersonName();
 		}
 	}

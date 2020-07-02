@@ -12,7 +12,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 /**
  * @covers \WMDE\Fundraising\MembershipContext\Domain\Model\Payment
  *
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class PaymentTest extends \PHPUnit\Framework\TestCase {

@@ -20,6 +20,7 @@ class MembershipCreatedEvent implements Event {
 	public function getMembershipId(): int {
 		return $this->membershipId;
 	}
+
 	public function getApplicant(): Applicant {
 		return $this->applicant;
 	}

@@ -9,5 +9,4 @@ namespace WMDE\Fundraising\MembershipContext\Domain;
  */
 interface Event {
 
-
 }

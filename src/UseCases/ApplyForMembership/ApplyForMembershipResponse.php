@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
@@ -15,7 +15,6 @@ class ApplyForMembershipResponse {
 
 	public static function newSuccessResponse( string $accessToken, string $updateToken,
 		Application $application ): self {
-
 		$response = new self( new ApplicationValidationResult() );
 		$response->accessToken = $accessToken;
 		$response->updateToken = $updateToken;

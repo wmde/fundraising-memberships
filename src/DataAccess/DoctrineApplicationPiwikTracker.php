@@ -14,7 +14,7 @@ use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTrackingException;
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DoctrineApplicationPiwikTracker implements ApplicationPiwikTracker {
@@ -26,11 +26,10 @@ class DoctrineApplicationPiwikTracker implements ApplicationPiwikTracker {
 	}
 
 	public function trackApplication( int $applicationId, string $trackingString ): void {
-
 		try {
 			$this->table->modifyApplication(
 				$applicationId,
-				function( MembershipApplication $application ) use ( $trackingString ) {
+				function ( MembershipApplication $application ) use ( $trackingString ) {
 					$application->setTracking( $trackingString );
 				}
 			);

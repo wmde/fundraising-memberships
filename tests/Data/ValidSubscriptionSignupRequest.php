@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Data;
 use WMDE\Fundraising\MembershipContext\UseCases\HandleSubscriptionSignupNotification\SubscriptionSignupRequest;
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class ValidSubscriptionSignupRequest {

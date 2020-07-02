@@ -6,20 +6,20 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\HandleSubscriptionPaymentN
 
 use Psr\Log\LoggerInterface;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Payment;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
+use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\RequestModel\PayPalPaymentNotificationRequest;
 use WMDE\Fundraising\PaymentContext\ResponseModel\PaypalNotificationResponse;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class HandleSubscriptionPaymentNotificationUseCase {
@@ -31,7 +31,6 @@ class HandleSubscriptionPaymentNotificationUseCase {
 
 	public function __construct( ApplicationRepository $repository, ApplicationAuthorizer $authorizationService,
 		TemplateMailerInterface $mailer, LoggerInterface $logger ) {
-
 		$this->repository = $repository;
 		$this->authorizationService = $authorizationService;
 		$this->mailer = $mailer;
@@ -94,6 +93,7 @@ class HandleSubscriptionPaymentNotificationUseCase {
 			'stackTrace' => $ex->getTraceAsString()
 		] );
 	}
+
 	private function newPayPalDataFromRequest( PayPalPaymentNotificationRequest $request ): PayPalData {
 		return ( new PayPalData() )
 			->setPayerId( $request->getPayerId() )

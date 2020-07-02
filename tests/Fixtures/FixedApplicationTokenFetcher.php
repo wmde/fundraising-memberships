@@ -9,7 +9,7 @@ use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetchingExc
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class FixedApplicationTokenFetcher implements ApplicationTokenFetcher {
