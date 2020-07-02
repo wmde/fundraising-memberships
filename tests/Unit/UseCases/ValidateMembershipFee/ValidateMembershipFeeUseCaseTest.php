@@ -12,7 +12,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMe
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase
  *
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  */
 class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
 

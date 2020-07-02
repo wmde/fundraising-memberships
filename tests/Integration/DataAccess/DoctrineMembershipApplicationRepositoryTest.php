@@ -6,8 +6,8 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
 use WMDE\EmailAddress\EmailAddress;
-use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
@@ -20,7 +20,7 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\TestCase {

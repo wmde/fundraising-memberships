@@ -4,19 +4,19 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
-use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
-use WMDE\Fundraising\MembershipContext\EventEmitter;
-use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
+use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
+use WMDE\Fundraising\MembershipContext\EventEmitter;
+use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentDelayCalculator;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  */
 class ApplyForMembershipUseCase {
 
@@ -39,7 +39,6 @@ class ApplyForMembershipUseCase {
 		MembershipApplicationValidator $validator, ApplyForMembershipPolicyValidator $policyValidator,
 		ApplicationTracker $tracker, ApplicationPiwikTracker $piwikTracker,
 		PaymentDelayCalculator $paymentDelayCalculator, EventEmitter $eventEmitter ) {
-
 		$this->repository = $repository;
 		$this->tokenFetcher = $tokenFetcher;
 		$this->mailer = $mailer;

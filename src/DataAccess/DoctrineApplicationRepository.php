@@ -23,12 +23,12 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplic
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DoctrineApplicationRepository implements ApplicationRepository {
@@ -45,8 +45,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 	public function storeApplication( Application $application ): void {
 		if ( $application->hasId() ) {
 			$this->updateApplication( $application );
-		}
-		else {
+		} else {
 			$this->insertApplication( $application );
 		}
 	}
@@ -63,7 +62,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		try {
 			$this->table->modifyApplication(
 				$application->getId(),
-				function( DoctrineApplication $doctrineApplication ) use ( $application ) {
+				function ( DoctrineApplication $doctrineApplication ) use ( $application ) {
 					$this->updateDoctrineApplication( $doctrineApplication, $application );
 				}
 			);

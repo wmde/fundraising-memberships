@@ -23,7 +23,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 /**
  * newDomainEntity and newDoctrineEntity return equivalent objects.
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class ValidMembershipApplication {

@@ -8,7 +8,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\FunValidators\Validators\TextPolicyValidator;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Gabriel Birke < gabriel.birke@wikimedia.de >
  */
 class ApplyForMembershipPolicyValidator {

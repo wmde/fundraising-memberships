@@ -13,7 +13,7 @@ use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTa
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DoctrineApplicationTokenFetcher implements ApplicationTokenFetcher {

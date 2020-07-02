@@ -8,7 +8,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class ApplicationRepositorySpy extends FakeApplicationRepository {
@@ -22,7 +22,7 @@ class ApplicationRepositorySpy extends FakeApplicationRepository {
 	}
 
 	public function storeApplication( Application $application ): void {
-		$this->storeApplicationCalls[] = clone( $application ); // protect against the application being changed later
+		$this->storeApplicationCalls[] = clone $application; // protect against the application being changed later
 		parent::storeApplication( $application );
 	}
 

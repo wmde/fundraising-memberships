@@ -9,14 +9,14 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationAuthorizer;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
-use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationAuthorizer
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DoctrineMembershipApplicationAuthorizerTest extends \PHPUnit\Framework\TestCase {
@@ -31,7 +31,6 @@ class DoctrineMembershipApplicationAuthorizerTest extends \PHPUnit\Framework\Tes
 
 	private function newAuthorizerWithApplications( string $updateToken = null,
 		string $accessToken = null, MembershipApplication ...$applications ): ApplicationAuthorizer {
-
 		$entityManager = TestEnvironment::newInstance()->getEntityManager();
 
 		foreach ( $applications as $application ) {
@@ -47,12 +46,12 @@ class DoctrineMembershipApplicationAuthorizerTest extends \PHPUnit\Framework\Tes
 	 * @slowThreshold 400
 	 */
 	public function testWhenNoMembershipApplications(): void {
-		$this->specify( 'update authorization fails', function(): void {
+		$this->specify( 'update authorization fails', function (): void {
 			$authorizer = $this->newAuthorizerWithApplications( self::CORRECT_UPDATE_TOKEN );
 			$this->assertFalse( $authorizer->canModifyApplication( self::MEANINGLESS_APPLICATION_ID ) );
 		} );
 
-		$this->specify( 'access authorization fails', function(): void {
+		$this->specify( 'access authorization fails', function (): void {
 			$authorizer = $this->newAuthorizerWithApplications( self::CORRECT_ACCESS_TOKEN );
 			$this->assertFalse( $authorizer->canAccessApplication( self::MEANINGLESS_APPLICATION_ID ) );
 		} );
@@ -64,14 +63,14 @@ class DoctrineMembershipApplicationAuthorizerTest extends \PHPUnit\Framework\Tes
 	public function testWhenApplicationWithTokenExists(): void {
 		$application = new MembershipApplication();
 
-		$application->modifyDataObject( function( MembershipApplicationData $data ): void {
+		$application->modifyDataObject( function ( MembershipApplicationData $data ): void {
 			$data->setUpdateToken( self::CORRECT_UPDATE_TOKEN );
 			$data->setAccessToken( self::CORRECT_ACCESS_TOKEN );
 		} );
 
 		$this->specify(
 			'given correct application id and correct token, update authorization succeeds',
-			function() use ( $application ): void {
+			function () use ( $application ): void {
 				$authorizer = $this->newAuthorizerWithApplications( self::CORRECT_UPDATE_TOKEN, null, $application );
 				$this->assertTrue( $authorizer->canModifyApplication( $application->getId() ) );
 			}
@@ -79,7 +78,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends \PHPUnit\Framework\Tes
 
 		$this->specify(
 			'given wrong application id and correct token, update authorization fails',
-			function() use ( $application ): void {
+			function () use ( $application ): void {
 				$authorizer = $this->newAuthorizerWithApplications( self::CORRECT_UPDATE_TOKEN, null, $application );
 				$this->assertFalse( $authorizer->canModifyApplication( self::ID_OF_WRONG_APPLICATION ) );
 			}
@@ -87,7 +86,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends \PHPUnit\Framework\Tes
 
 		$this->specify(
 			'given correct application id and wrong token, update authorization fails',
-			function() use ( $application ): void {
+			function () use ( $application ): void {
 				$authorizer = $this->newAuthorizerWithApplications( self::WRONG__UPDATE_TOKEN, null, $application );
 				$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
 			}
@@ -95,7 +94,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends \PHPUnit\Framework\Tes
 
 		$this->specify(
 			'given correct application id and correct token, access authorization succeeds',
-			function() use ( $application ): void {
+			function () use ( $application ): void {
 				$authorizer = $this->newAuthorizerWithApplications( null, self::CORRECT_ACCESS_TOKEN, $application );
 				$this->assertTrue( $authorizer->canAccessApplication( $application->getId() ) );
 			}
@@ -103,7 +102,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends \PHPUnit\Framework\Tes
 
 		$this->specify(
 			'given wrong application id and correct token, access authorization fails',
-			function() use ( $application ): void {
+			function () use ( $application ): void {
 				$authorizer = $this->newAuthorizerWithApplications( null, self::CORRECT_ACCESS_TOKEN, $application );
 				$this->assertFalse( $authorizer->canAccessApplication( self::ID_OF_WRONG_APPLICATION ) );
 			}
@@ -111,7 +110,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends \PHPUnit\Framework\Tes
 
 		$this->specify(
 			'given correct application id and wrong token, access authorization fails',
-			function() use ( $application ): void {
+			function () use ( $application ): void {
 				$authorizer = $this->newAuthorizerWithApplications( null, self::WRONG_ACCESS_TOKEN, $application );
 				$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
 			}
@@ -126,7 +125,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends \PHPUnit\Framework\Tes
 
 		$this->specify(
 			'given correct application id and a token, update authorization fails',
-			function() use ( $application ): void {
+			function () use ( $application ): void {
 				$authorizer = $this->newAuthorizerWithApplications( 'SomeToken', null, $application );
 				$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
 			}
@@ -134,7 +133,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends \PHPUnit\Framework\Tes
 
 		$this->specify(
 			'given correct application id and a token, access authorization fails',
-			function() use ( $application ): void {
+			function () use ( $application ): void {
 				$authorizer = $this->newAuthorizerWithApplications( null, 'SomeToken', $application );
 				$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
 			}
@@ -151,11 +150,11 @@ class DoctrineMembershipApplicationAuthorizerTest extends \PHPUnit\Framework\Tes
 			self::CORRECT_ACCESS_TOKEN
 		);
 
-		$this->specify( 'update authorization fails', function() use ( $authorizer ): void {
+		$this->specify( 'update authorization fails', function () use ( $authorizer ): void {
 			$this->assertFalse( $authorizer->canModifyApplication( self::MEANINGLESS_APPLICATION_ID ) );
 		} );
 
-		$this->specify( 'access authorization fails', function() use ( $authorizer ): void {
+		$this->specify( 'access authorization fails', function () use ( $authorizer ): void {
 			$this->assertFalse( $authorizer->canAccessApplication( self::MEANINGLESS_APPLICATION_ID ) );
 		} );
 	}

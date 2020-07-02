@@ -9,7 +9,7 @@ use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class TemplateBasedMailerSpy implements TemplateMailerInterface {

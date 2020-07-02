@@ -11,7 +11,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class ShowApplicationConfirmationUseCase {

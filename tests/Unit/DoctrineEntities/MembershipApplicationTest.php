@@ -12,7 +12,7 @@ use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class MembershipApplicationTest extends TestCase {
@@ -108,7 +108,7 @@ class MembershipApplicationTest extends TestCase {
 			'pink' => 'fluffy',
 		] );
 
-		$application->modifyDataObject( function( MembershipApplicationData $data ) {
+		$application->modifyDataObject( function ( MembershipApplicationData $data ) {
 			$data->setAccessToken( 'foo' );
 			$data->setUpdateToken( 'bar' );
 		} );

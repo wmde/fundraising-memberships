@@ -12,7 +12,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicat
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class LoggingApplicationRepository implements ApplicationRepository {
