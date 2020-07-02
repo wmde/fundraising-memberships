@@ -8,21 +8,18 @@ endif
 
 .PHONY: ci test phpunit cs stan covers composer
 
-ci: test cs
+ci: test cs stan
 
 test: covers phpunit
-
-cs: phpcs stan
 
 phpunit:
 	docker-compose run --rm fundraising-memberships ./vendor/bin/phpunit
 
-phpcs:
+cs:
 	docker-compose run --rm fundraising-memberships ./vendor/bin/phpcs
 
 fix-cs:
 	docker-compose run --rm fundraising-memberships ./vendor/bin/phpcbf
-
 
 stan:
 	docker-compose run --rm fundraising-memberships ./vendor/bin/phpstan analyse --level=4 --no-progress src/ tests/
