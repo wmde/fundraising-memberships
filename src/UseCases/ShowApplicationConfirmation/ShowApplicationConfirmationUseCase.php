@@ -48,7 +48,8 @@ class ShowApplicationConfirmationUseCase {
 		}
 
 		$this->presenter->presentConfirmation(
-			$application, // TODO: use DTO instead of Entity (currently violates the architecture)
+		// TODO: use DTO instead of Entity (currently violates the architecture)
+			$application,
 			$this->tokenFetcher->getTokens( $request->getApplicationId() )->getUpdateToken()
 		);
 	}

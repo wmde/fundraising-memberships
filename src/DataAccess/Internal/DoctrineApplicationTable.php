@@ -26,9 +26,6 @@ class DoctrineApplicationTable {
 		$this->logger = $logger;
 	}
 
-	/**
-	 * @throws GetMembershipApplicationException
-	 */
 	public function getApplicationOrNullById( int $applicationId ): ?MembershipApplication {
 		try {
 			$application = $this->entityManager->find( MembershipApplication::class, $applicationId );
@@ -45,9 +42,6 @@ class DoctrineApplicationTable {
 		$this->logger->log( LogLevel::CRITICAL, $message, [ 'exception' => $previous ] );
 	}
 
-	/**
-	 * @throws GetMembershipApplicationException
-	 */
 	public function getApplicationById( int $applicationId ): MembershipApplication {
 		$application = $this->getApplicationOrNullById( $applicationId );
 
@@ -58,9 +52,6 @@ class DoctrineApplicationTable {
 		return $application;
 	}
 
-	/**
-	 * @throws StoreMembershipApplicationException
-	 */
 	public function persistApplication( MembershipApplication $application ) {
 		try {
 			$this->entityManager->persist( $application );

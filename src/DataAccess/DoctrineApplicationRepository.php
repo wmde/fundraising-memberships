@@ -39,9 +39,6 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
 	}
 
-	/**
-	 * @throws StoreMembershipApplicationException
-	 */
 	public function storeApplication( Application $application ): void {
 		if ( $application->hasId() ) {
 			$this->updateApplication( $application );

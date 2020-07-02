@@ -28,41 +28,41 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
  */
 class ValidMembershipApplication {
 
-	const APPLICANT_FIRST_NAME = 'Potato';
-	const APPLICANT_LAST_NAME = 'The Great';
-	const APPLICANT_SALUTATION = 'Herr';
-	const APPLICANT_SALUTATION_COMPANY = ApplicantName::COMPANY_SALUTATION;
-	const APPLICANT_TITLE = '';
-	const APPLICANT_COMPANY_NAME = 'Evilcrop';
+	public const APPLICANT_FIRST_NAME = 'Potato';
+	public const APPLICANT_LAST_NAME = 'The Great';
+	public const APPLICANT_SALUTATION = 'Herr';
+	public const APPLICANT_SALUTATION_COMPANY = ApplicantName::COMPANY_SALUTATION;
+	public const APPLICANT_TITLE = '';
+	public const APPLICANT_COMPANY_NAME = 'Evilcrop';
 
-	const APPLICANT_DATE_OF_BIRTH = '1990-01-01';
+	public const APPLICANT_DATE_OF_BIRTH = '1990-01-01';
 
-	const APPLICANT_CITY = 'Berlin';
-	const APPLICANT_COUNTRY_CODE = 'DE';
-	const APPLICANT_POSTAL_CODE = '1234';
-	const APPLICANT_STREET_ADDRESS = 'Nyan street';
+	public const APPLICANT_CITY = 'Berlin';
+	public const APPLICANT_COUNTRY_CODE = 'DE';
+	public const APPLICANT_POSTAL_CODE = '1234';
+	public const APPLICANT_STREET_ADDRESS = 'Nyan street';
 
-	const APPLICANT_EMAIL_ADDRESS = 'jeroendedauw@gmail.com';
-	const APPLICANT_PHONE_NUMBER = '1337-1337-1337';
+	public const APPLICANT_EMAIL_ADDRESS = 'jeroendedauw@gmail.com';
+	public const APPLICANT_PHONE_NUMBER = '1337-1337-1337';
 
-	const MEMBERSHIP_TYPE = Application::SUSTAINING_MEMBERSHIP;
-	const PAYMENT_TYPE_PAYPAL = 'PPL';
-	const PAYMENT_TYPE_DIRECT_DEBIT = 'BEZ';
-	const PAYMENT_PERIOD_IN_MONTHS = 3;
-	const PAYMENT_AMOUNT_IN_EURO = 10;
-	const COMPANY_PAYMENT_AMOUNT_IN_EURO = 25;
-	const TOO_HIGH_QUARTERLY_PAYMENT_AMOUNT_IN_EURO = 250.1;
-	const TOO_HIGH_YEARLY_PAYMENT_AMOUNT_IN_EURO = 1000.1;
+	public const MEMBERSHIP_TYPE = Application::SUSTAINING_MEMBERSHIP;
+	public const PAYMENT_TYPE_PAYPAL = 'PPL';
+	public const PAYMENT_TYPE_DIRECT_DEBIT = 'BEZ';
+	public const PAYMENT_PERIOD_IN_MONTHS = 3;
+	public const PAYMENT_AMOUNT_IN_EURO = 10;
+	public const COMPANY_PAYMENT_AMOUNT_IN_EURO = 25;
+	public const TOO_HIGH_QUARTERLY_PAYMENT_AMOUNT_IN_EURO = 250.1;
+	public const TOO_HIGH_YEARLY_PAYMENT_AMOUNT_IN_EURO = 1000.1;
 
-	const PAYMENT_BANK_ACCOUNT = '0648489890';
-	const PAYMENT_BANK_CODE = '50010517';
-	const PAYMENT_BANK_NAME = 'ING-DiBa';
-	const PAYMENT_BIC = 'INGDDEFFXXX';
-	const PAYMENT_IBAN = 'DE12500105170648489890';
+	public const PAYMENT_BANK_ACCOUNT = '0648489890';
+	public const PAYMENT_BANK_CODE = '50010517';
+	public const PAYMENT_BANK_NAME = 'ING-DiBa';
+	public const PAYMENT_BIC = 'INGDDEFFXXX';
+	public const PAYMENT_IBAN = 'DE12500105170648489890';
 
-	const TEMPLATE_CAMPAIGN = 'test161012';
-	const TEMPLATE_NAME = 'Some_Membership_Form_Template.twig';
-	const FIRST_PAYMENT_DATE = '2021-02-01';
+	public const TEMPLATE_CAMPAIGN = 'test161012';
+	public const TEMPLATE_NAME = 'Some_Membership_Form_Template.twig';
+	public const FIRST_PAYMENT_DATE = '2021-02-01';
 
 	private const OPTS_INTO_DONATION_RECEIPT = true;
 

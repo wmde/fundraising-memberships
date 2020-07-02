@@ -12,23 +12,23 @@ use WMDE\Fundraising\MembershipContext\UseCases\HandleSubscriptionSignupNotifica
  */
 class ValidSubscriptionSignupRequest {
 
-	const APPLICATION_ID = 1;
-	const CURRENCY_CODE = 'EUR';
-	const SUBSCRIPTION_ID = 'subscr_id';
-	const SUBSCRIPTION_DATE = '12:34:56 Jan 25, 2017 PST';
-	const TRANSACTION_TYPE = 'subscr_signup';
-	const PAYMENT_TYPE = 'instant';
-	const PAYER_ID = 'payer_id';
-	const PAYER_STATUS = 'verified';
-	const PAYER_ADDRESS_STATUS = 'confirmed';
-	const PAYER_FIRST_NAME = 'Hank';
-	const PAYER_LAST_NAME = 'Scorpio';
-	const PAYER_ADDRESS_NAME = 'Hank Scorpio';
-	const PAYER_ADDRESS_STREET = 'Hammock District';
-	const PAYER_ADDRESS_POSTAL_CODE = '12345';
-	const PAYER_ADDRESS_CITY = 'Cypress Creek';
-	const PAYER_ADDRESS_COUNTRY = 'US';
-	const PAYER_EMAIL = 'hank.scorpio@globex.com';
+	public const APPLICATION_ID = 1;
+	public const CURRENCY_CODE = 'EUR';
+	public const SUBSCRIPTION_ID = 'subscr_id';
+	public const SUBSCRIPTION_DATE = '12:34:56 Jan 25, 2017 PST';
+	public const TRANSACTION_TYPE = 'subscr_signup';
+	public const PAYMENT_TYPE = 'instant';
+	public const PAYER_ID = 'payer_id';
+	public const PAYER_STATUS = 'verified';
+	public const PAYER_ADDRESS_STATUS = 'confirmed';
+	public const PAYER_FIRST_NAME = 'Hank';
+	public const PAYER_LAST_NAME = 'Scorpio';
+	public const PAYER_ADDRESS_NAME = 'Hank Scorpio';
+	public const PAYER_ADDRESS_STREET = 'Hammock District';
+	public const PAYER_ADDRESS_POSTAL_CODE = '12345';
+	public const PAYER_ADDRESS_CITY = 'Cypress Creek';
+	public const PAYER_ADDRESS_COUNTRY = 'US';
+	public const PAYER_EMAIL = 'hank.scorpio@globex.com';
 
 	public static function newValidRequest(): SubscriptionSignupRequest {
 		$request = new SubscriptionSignupRequest();

@@ -4,11 +4,15 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
+use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipPolicyValidator;
 use WMDE\FunValidators\Validators\TextPolicyValidator;
 
-class ApplyForMembershipPolicyValidatorTest extends \PHPUnit\Framework\TestCase {
+/**
+ * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipPolicyValidator
+ */
+class ApplyForMembershipPolicyValidatorTest extends TestCase {
 
 	public function testGivenQuarterlyAmountTooHigh_MembershipApplicationNeedsModeration(): void {
 		$textPolicyValidator = $this->newSucceedingTextPolicyValidator();

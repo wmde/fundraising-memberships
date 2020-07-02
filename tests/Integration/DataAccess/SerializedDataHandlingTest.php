@@ -5,15 +5,15 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
 /**
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
+ * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository
  */
-class SerializedDataHandlingTest extends \PHPUnit\Framework\TestCase {
+class SerializedDataHandlingTest extends TestCase {
 
 	/** @dataProvider encodedMembershipDataProvider */
 	public function testDataFieldOfMembershipApplicationIsInteractedWithCorrectly( array $data ): void {

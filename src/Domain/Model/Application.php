@@ -26,8 +26,8 @@ class Application {
 	private const IS_CONFIRMED = true;
 	private const IS_PENDING = false;
 
-	const IS_DELETED = true;
-	const IS_NOT_DELETED = false;
+	private const IS_NOT_DELETED = false;
+	private const IS_DELETED = true;
 
 	/**
 	 * @var int|null
