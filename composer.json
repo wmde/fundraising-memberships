@@ -6,7 +6,7 @@
 		"php": ">=7.4",
 
 		"doctrine/orm": "~2.7",
-		"gedmo/doctrine-extensions": "^2.4",
+		"gedmo/doctrine-extensions": "^3.0",
 
 		"psr/log": "~1.0",
 
