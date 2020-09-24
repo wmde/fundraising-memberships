@@ -1,32 +1,34 @@
-# If the first argument is "composer"...
-ifeq (composer,$(firstword $(MAKECMDGOALS)))
-  # use the rest as arguments for "composer"
-  RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-  # ...and turn them into do-nothing targets
-  $(eval $(RUN_ARGS):;@:)
-endif
+current_user  := $(shell id -u)
+current_group := $(shell id -g)
+BUILD_DIR     := $(PWD)
+DOCKER_FLAGS  := --interactive --tty
+DOCKER_IMAGE  := wikimediade/fundraising-frontend
 
-.PHONY: ci test phpunit cs stan covers composer
+install-php:
+	docker run --rm $(DOCKER_FLAGS) --volume $(BUILD_DIR):/app -w /app --volume ~/.composer:/composer --user $(current_user):$(current_group) $(DOCKER_IMAGE):composer composer install $(COMPOSER_FLAGS)
 
-ci: test cs stan
+update-php:
+	docker run --rm $(DOCKER_FLAGS) --volume $(BUILD_DIR):/app -w /app --volume ~/.composer:/composer --user $(current_user):$(current_group) $(DOCKER_IMAGE):composer composer update $(COMPOSER_FLAGS)
+
+ci: covers phpunit cs stan
 
 test: covers phpunit
 
+covers:
+	docker-compose run --rm app ./vendor/bin/covers-validator
+
 phpunit:
-	docker-compose run --rm fundraising-memberships ./vendor/bin/phpunit
+	docker-compose run --rm app ./vendor/bin/phpunit
 
 cs:
-	docker-compose run --rm fundraising-memberships ./vendor/bin/phpcs
+	docker-compose run --rm app ./vendor/bin/phpcs
 
 fix-cs:
-	docker-compose run --rm fundraising-memberships ./vendor/bin/phpcbf
+	docker-compose run --rm app ./vendor/bin/phpcbf
 
 stan:
-	docker-compose run --rm fundraising-memberships ./vendor/bin/phpstan analyse --level=4 --no-progress src/ tests/
+	docker-compose run --rm app ./vendor/bin/phpstan analyse --level=1 --no-progress src/ tests/
 
-covers:
-	docker-compose run --rm fundraising-memberships ./vendor/bin/covers-validator
+setup: install-php
 
-composer:
-	docker run --rm --interactive --tty --volume $(shell pwd):/app -w /app\
-	 --volume ~/.composer:/composer --user $(shell id -u):$(shell id -g) wikimediade/fundraising-frontend:composer composer --no-scripts $(filter-out $@,$(MAKECMDGOALS))
+.PHONY: covers phpunit cs stan
