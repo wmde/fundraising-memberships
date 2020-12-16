@@ -20,7 +20,7 @@ class ThrowingEntityManager {
 
 		$entityManager->expects( $testCase->any() )
 			->method( $testCase->anything() )
-			->willThrowException( new ORMException() );
+			->willThrowException( new ORMException( 'This is a test exception from ' . self::class ) );
 
 		return $entityManager;
 	}
