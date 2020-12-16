@@ -5,9 +5,12 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities;
 
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
+use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 
 /**
  * @since 2.0
@@ -289,6 +292,21 @@ class MembershipApplication {
 	 * @ORM\Column(name="donation_receipt", type="boolean", nullable=true)
 	 */
 	private $donationReceipt;
+
+	/**
+	 * @var Collection<Incentive>
+	 *
+	 * @ORM\ManyToMany(targetEntity="WMDE\Fundraising\MembershipContext\Domain\Model\Incentive")
+	 * @ORM\JoinTable(name="membership_incentive",
+	 *      joinColumns={@ORM\JoinColumn(name="membership_id", referencedColumnName="id")},
+	 *      inverseJoinColumns={@ORM\JoinColumn(name="incentive_id", referencedColumnName="id")}
+	 *      )
+	 */
+	private $incentives;
+
+	public function __construct() {
+		$this->incentives = new ArrayCollection();
+	}
 
 	public function getId(): ?int {
 		return $this->id;
@@ -734,7 +752,6 @@ class MembershipApplication {
 	/**
 	 * NOTE: if possible, use @see getDataObject instead, as it provides a nicer API.
 	 *
-	 * @since 2.0
 	 * @return array
 	 */
 	public function getDecodedData(): array {
@@ -750,7 +767,6 @@ class MembershipApplication {
 	/**
 	 * NOTE: if possible, use @see modifyDataObject instead, as it provides a nicer API.
 	 *
-	 * @since 2.0
 	 * @param array $dataArray
 	 */
 	public function encodeAndSetData( array $dataArray ) {
@@ -762,7 +778,6 @@ class MembershipApplication {
 	 * Similarly, updates to the Donation state will not propagate to the returned object.
 	 * To update the Donation state, explicitly call @see setDataObject.
 	 *
-	 * @since 2.0
 	 * @return MembershipApplicationData
 	 */
 	public function getDataObject(): MembershipApplicationData {
@@ -797,7 +812,6 @@ class MembershipApplication {
 	}
 
 	/**
-	 * @since 2.0
 	 * @param callable $modificationFunction Takes a modifiable MembershipApplicationData parameter
 	 */
 	public function modifyDataObject( callable $modificationFunction ) {
@@ -808,8 +822,6 @@ class MembershipApplication {
 
 	/**
 	 * Set donation receipt state
-	 *
-	 * @since 7.0
 	 *
 	 * @param bool|null $donationReceipt
 	 * @return self
@@ -823,11 +835,22 @@ class MembershipApplication {
 	/**
 	 * Get donation receipt state
 	 *
-	 * @since 7.0
-	 *
 	 * @return bool|null
 	 */
 	public function getDonationReceipt(): ?bool {
 		return $this->donationReceipt;
+	}
+
+	public function getIncentives(): Collection {
+		return $this->incentives;
+	}
+
+	/**
+	 * @param Collection<Incentive> $incentives
+	 * @return self
+	 */
+	public function setIncentives( Collection $incentives ): self {
+		$this->incentives = $incentives;
+		return $this;
 	}
 }

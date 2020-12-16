@@ -12,6 +12,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Payment;
 use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
@@ -151,6 +152,18 @@ class ValidMembershipApplication {
 			$self->newPayment(),
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
+	}
+
+	public static function newApplicationWithIncentives(): Application {
+		$self = ( new self() );
+		$application = Application::newApplication(
+			self::MEMBERSHIP_TYPE,
+			$self->newApplicant( $self->newPersonApplicantName() ),
+			$self->newPayment(),
+			self::OPTS_INTO_DONATION_RECEIPT
+		);
+		$application->addIncentive( self::newIncentive() );
+		return $application;
 	}
 
 	private function newApplicantWithEmailAddress( ApplicantName $name, string $emailAddress ): Applicant {
@@ -304,6 +317,10 @@ class ValidMembershipApplication {
 		$application = self::newDoctrineEntity();
 		$application->setBackup( new DateTime() );
 		return $application;
+	}
+
+	public static function newIncentive(): Incentive {
+		return new Incentive( 'eternal_thankfulness' );
 	}
 
 }

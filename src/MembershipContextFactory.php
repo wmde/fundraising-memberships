@@ -8,7 +8,9 @@ use DateInterval;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Configuration;
+use Doctrine\ORM\Mapping\Driver\XmlDriver;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
 use Gedmo\Timestampable\TimestampableListener;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Authorization\RandomMembershipTokenGenerator;
@@ -25,9 +27,13 @@ class MembershipContextFactory {
 	 */
 	public const ENTITY_NAMESPACE = 'WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities';
 
+	public const DOMAIN_ENTITY_NAMESPACE = 'WMDE\Fundraising\MembershipContext\Domain\Model';
+
 	private const ENTITY_PATHS = [
 		__DIR__ . '/DataAccess/DoctrineEntities/'
 	];
+
+	private const DOCTRINE_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DoctrineClassMapping';
 
 	private array $config;
 	private Configuration $doctrineConfig;
@@ -41,11 +47,31 @@ class MembershipContextFactory {
 		$this->tokenGenerator = null;
 	}
 
-	public function newMappingDriver(): MappingDriver {
+	public function newMappingDriver(): MappingDriverChain {
+		$driver = new MappingDriverChain();
 		// We're only calling this for the side effect of adding Mapping/Driver/DoctrineAnnotations.php
 		// to the AnnotationRegistry. When AnnotationRegistry is deprecated with Doctrine Annotations 2.0,
 		// instantiate AnnotationReader directly instead.
-		return $this->doctrineConfig->newDefaultAnnotationDriver( self::ENTITY_PATHS, false );
+		$driver->addDriver( $this->doctrineConfig->newDefaultAnnotationDriver( self::ENTITY_PATHS, false ), self::ENTITY_NAMESPACE );
+		$driver->addDriver( new XmlDriver( self::DOCTRINE_CLASS_MAPPING_DIRECTORY ), self::DOMAIN_ENTITY_NAMESPACE );
+		return $driver;
+	}
+
+	/**
+	 * Append the mapping drivers from this context to another MappingDriverChain.
+	 *
+	 * When calling from the FunFunFactory, use this method instead of newMappingDriver,
+	 * otherwise the "domain entities" will be left out!
+	 *
+	 * This is a transitional method that is only needed as long as we have a mix of the annotation driver
+	 * for the legacy Membership entity and the XML-annotated Domain entities
+	 *
+	 * @param MappingDriverChain $visitingChain
+	 */
+	public function visitMappingDriver( MappingDriverChain $visitingChain ): void {
+		foreach ( $this->newMappingDriver()->getDrivers() as $namespace => $driver ) {
+			$visitingChain->addDriver( $driver, $namespace );
+		}
 	}
 
 	/**

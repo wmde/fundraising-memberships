@@ -4,16 +4,17 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\Domain\Model;
 
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\Domain\Model\Application
  *
  * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class ApplicationTest extends \PHPUnit\Framework\TestCase {
+class ApplicationTest extends TestCase {
 
 	public function testIdIsNullWhenNotAssigned(): void {
 		$this->assertNull( ValidMembershipApplication::newDomainEntity()->getId() );
@@ -59,6 +60,26 @@ class ApplicationTest extends \PHPUnit\Framework\TestCase {
 	public function testDonationReceiptIsSetFromConstructor(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$this->assertTrue( $application->getDonationReceipt() );
+	}
+
+	public function testNewApplicationHasNoIncentives(): void {
+		$this->assertCount( 0, ValidMembershipApplication::newDomainEntity()->getIncentives() );
+	}
+
+	public function testIncentivesCanBeAdded(): void {
+		$firstIncentive = new Incentive( 'eternal_gratitude' );
+		$secondIncentive = new Incentive( 'good_karma' );
+		$thirdIncentive = new Incentive( 'santas_nice_list' );
+		$application = ValidMembershipApplication::newDomainEntity();
+
+		$application->addIncentive( $firstIncentive );
+		$application->addIncentive( $secondIncentive );
+		$application->addIncentive( $thirdIncentive );
+		$incentives = iterator_to_array( $application->getIncentives() );
+
+		$this->assertSame( $firstIncentive, $incentives[0] );
+		$this->assertSame( $secondIncentive, $incentives[1] );
+		$this->assertSame( $thirdIncentive, $incentives[2] );
 	}
 
 }

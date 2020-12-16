@@ -4,10 +4,13 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\Exception\UnknownIncentive;
+use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
@@ -50,9 +53,11 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 		$expected->setId( $application->getId() );
 
 		$actual = $this->getApplicationFromDatabase( $application->getId() );
+		// Override values that get created on persistence
 		$actual->setCreationTime( null );
 		$actual->setData( null );
 		$actual->setCompany( null );
+		$actual->setIncentives( new ArrayCollection() );
 
 		$this->assertEquals( $expected, $actual );
 	}
@@ -74,15 +79,6 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 		$this->newRepository()->storeApplication( $application );
 
 		$this->assertSame( self::MEMBERSHIP_APPLICATION_ID, $application->getId() );
-	}
-
-	public function testWhenPersistenceFails_domainExceptionIsThrown(): void {
-		$donation = ValidMembershipApplication::newDomainEntity();
-
-		$repository = new DoctrineApplicationRepository( ThrowingEntityManager::newInstance( $this ) );
-
-		$this->expectException( StoreMembershipApplicationException::class );
-		$repository->storeApplication( $donation );
 	}
 
 	public function testWhenMembershipApplicationInDatabase_itIsReturnedAsMatchingDomainEntity(): void {
@@ -248,6 +244,29 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 		$this->expectException( ApplicationAnonymizedException::class );
 
 		$this->newRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID );
+	}
+
+	public function testGivenNonexistentIncentive_savingTheApplicationIsRejected(): void {
+		$this->expectException( UnknownIncentive::class );
+
+		$application = ValidMembershipApplication::newApplicationWithIncentives();
+
+		$this->newRepository()->storeApplication( $application );
+	}
+
+	public function testApplicationWithIncentivesHasIncentivesAfterRoundtrip(): void {
+		$incentive = ValidMembershipApplication::newIncentive();
+		$this->entityManager->persist( $incentive );
+		$this->entityManager->flush();
+		$application = ValidMembershipApplication::newApplicationWithIncentives();
+		$repo = $this->newRepository();
+		$repo->storeApplication( $application );
+
+		$actual = $repo->getApplicationById( $application->getId() );
+		$incentives = $actual->getIncentives();
+
+		$this->assertCount( 1, $incentives );
+		$this->assertEquals( $incentive, $incentives[0] );
 	}
 
 }
