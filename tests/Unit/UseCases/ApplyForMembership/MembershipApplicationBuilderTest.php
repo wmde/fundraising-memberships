@@ -42,7 +42,12 @@ class MembershipApplicationBuilderTest extends TestCase {
 		$this->assertTrue( $application->getDonationReceipt() );
 	}
 
-	private function newCompanyMembershipRequest( bool $omitOptionalFields = false ): ApplyForMembershipRequest {
+	/**
+	 * @param bool $omitOptionalFields
+	 * @param string[] $incentives
+	 * @return ApplyForMembershipRequest
+	 */
+	private function newCompanyMembershipRequest( bool $omitOptionalFields = false, array $incentives = [] ): ApplyForMembershipRequest {
 		$request = new ApplyForMembershipRequest();
 
 		$request->setMembershipType( ValidMembershipApplication::MEMBERSHIP_TYPE );
@@ -71,6 +76,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 		$request->setTrackingInfo( $this->newTrackingInfo() );
 		$request->setPiwikTrackingString( 'foo/bar' );
 		$request->setOptsIntoDonationReceipt( true );
+		$request->setIncentives( $incentives );
 
 		return $request->assertNoNullFields()->freeze();
 	}
@@ -151,6 +157,15 @@ class MembershipApplicationBuilderTest extends TestCase {
 		$application = ( new MembershipApplicationBuilder() )->newApplicationFromRequest( $request );
 
 		$this->assertSame( ApplicantName::COMPANY_SALUTATION, $application->getApplicant()->getName()->getSalutation() );
+	}
+
+	public function testWhenBuildingApplicationIncentivesAreSet(): void {
+		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS, [ 'inner_peace', 'a_better_world' ] );
+
+		$application = ( new MembershipApplicationBuilder() )->newApplicationFromRequest( $request );
+		$incentives = iterator_to_array( $application->getIncentives() );
+
+		$this->assertCount( 2, $incentives );
 	}
 
 }

@@ -16,33 +16,36 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
 class ApplyForMembershipRequest {
 	use FreezableValueObject;
 
-	private $membershipType;
+	private string $membershipType;
 
-	private $applicantIsCompany = false;
-	private $applicantCompanyName;
-	private $applicantSalutation;
-	private $applicantTitle;
-	private $applicantFirstName;
-	private $applicantLastName;
+	private bool $applicantIsCompany = false;
+	private string $applicantCompanyName;
+	private string $applicantSalutation;
+	private string $applicantTitle;
+	private string $applicantFirstName;
+	private string $applicantLastName;
 
-	private $applicantStreetAddress;
-	private $applicantPostalCode;
-	private $applicantCity;
-	private $applicantCountryCode;
+	private string $applicantStreetAddress;
+	private string $applicantPostalCode;
+	private string $applicantCity;
+	private string $applicantCountryCode;
 
-	private $applicantEmailAddress;
-	private $applicantPhoneNumber;
-	private $applicantDateOfBirth;
+	private string $applicantEmailAddress;
+	private string $applicantPhoneNumber;
+	private string $applicantDateOfBirth;
 
-	private $paymentType;
-	private $paymentIntervalInMonths;
-	private $paymentAmount;
-	private $bankData;
+	private string $paymentType;
+	private int $paymentIntervalInMonths;
+	private Euro $paymentAmount;
+	private BankData $bankData;
 
-	private $trackingInfo;
-	private $piwikTrackingString;
+	private MembershipApplicationTrackingInfo $trackingInfo;
+	private string $piwikTrackingString;
 
-	private $optsIntoDonationReceipt = true;
+	private bool $optsIntoDonationReceipt = true;
+
+	/** @var string[] */
+	private array $incentives = [];
 
 	public function getMembershipType(): string {
 		return $this->membershipType;
@@ -233,6 +236,21 @@ class ApplyForMembershipRequest {
 	public function setOptsIntoDonationReceipt( bool $optIn ): void {
 		$this->assertIsWritable();
 		$this->optsIntoDonationReceipt = $optIn;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getIncentives(): array {
+		return $this->incentives;
+	}
+
+	/**
+	 * @param string[] $incentives
+	 */
+	public function setIncentives( array $incentives ): void {
+		$this->assertIsWritable();
+		$this->incentives = $incentives;
 	}
 
 }
