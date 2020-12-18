@@ -27,7 +27,7 @@ fix-cs:
 	docker-compose run --rm app ./vendor/bin/phpcbf
 
 stan:
-	docker-compose run --rm app ./vendor/bin/phpstan analyse --level=1 --no-progress src/ tests/
+	docker-compose run --rm app php -d memory_limit=1G vendor/bin/phpstan analyse --level=5 --no-progress src/ tests/
 
 setup: install-php
 
