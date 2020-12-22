@@ -65,7 +65,8 @@ class ValidMembershipApplication {
 	public const TEMPLATE_NAME = 'Some_Membership_Form_Template.twig';
 	public const FIRST_PAYMENT_DATE = '2021-02-01';
 
-	private const OPTS_INTO_DONATION_RECEIPT = true;
+	public const OPTS_INTO_DONATION_RECEIPT = true;
+	public const INCENTIVE_NAME = 'eternal_thankfulness';
 
 	public static function newDomainEntity(): Application {
 		$self = ( new self() );
@@ -320,7 +321,7 @@ class ValidMembershipApplication {
 	}
 
 	public static function newIncentive(): Incentive {
-		return new Incentive( 'eternal_thankfulness' );
+		return new Incentive( self::INCENTIVE_NAME );
 	}
 
 }

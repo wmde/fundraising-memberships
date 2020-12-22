@@ -102,17 +102,7 @@ class ApplyForMembershipUseCase {
 	private function sendConfirmationEmail( Application $application ): void {
 		$this->mailer->sendMail(
 			$application->getApplicant()->getEmailAddress(),
-			[
-				'membershipType' => $application->getType(),
-				'membershipFee' => $application->getPayment()->getAmount()->getEuroString(),
-				'paymentIntervalInMonths' => $application->getPayment()->getIntervalInMonths(),
-				'paymentType' => $application->getPayment()->getPaymentMethod()->getId(),
-				'salutation' => $application->getApplicant()->getName()->getSalutation(),
-				'title' => $application->getApplicant()->getName()->getTitle(),
-				'lastName' => $application->getApplicant()->getName()->getLastName(),
-				'firstName' => $application->getApplicant()->getName()->getFirstName(),
-				'hasReceiptEnabled' => $application->getDonationReceipt()
-			]
+			( new MailTemplateValueBuilder() )->buildValuesForTemplate( $application )
 		);
 	}
 
