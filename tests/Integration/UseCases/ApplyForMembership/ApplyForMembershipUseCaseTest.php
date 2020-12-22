@@ -205,7 +205,8 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 				'lastName' => 'The Great',
 				'firstName' => 'Potato',
 				'paymentType' => 'BEZ',
-				'hasReceiptEnabled' => true
+				'hasReceiptEnabled' => true,
+				'incentives' => []
 			]
 		);
 	}
