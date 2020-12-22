@@ -4,16 +4,20 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use Psr\Log\NullLogger;
+use Traversable;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\Exception\UnknownIncentive;
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Payment;
 use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
@@ -29,14 +33,15 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
 /**
  * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DoctrineApplicationRepository implements ApplicationRepository {
 
-	private $table;
+	private DoctrineApplicationTable $table;
+	private EntityManager $entityManager;
 
 	public function __construct( EntityManager $entityManager ) {
 		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
+		$this->entityManager = $entityManager;
 	}
 
 	public function storeApplication( Application $application ): void {
@@ -75,6 +80,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 
 		$this->setApplicantFields( $doctrineApplication, $application->getApplicant() );
 		$this->setPaymentFields( $doctrineApplication, $application->getPayment() );
+		$this->setIncentives( $doctrineApplication, $application->getIncentives() );
 		$doctrineApplication->setDonationReceipt( $application->getDonationReceipt() );
 
 		$doctrineStatus = $this->getDoctrineStatus( $application );
@@ -149,6 +155,27 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		) );
 	}
 
+	/**
+	 * @param DoctrineApplication $application
+	 * @param Traversable<Incentive> $incentives
+	 */
+	private function setIncentives( DoctrineApplication $application, Traversable $incentives ): void {
+		$incentiveRepo = $this->entityManager->getRepository( Incentive::class );
+		$incentiveCollection = new ArrayCollection();
+		foreach ( $incentives as $incentive ) {
+			if ( $incentive->getId() !== null ) {
+				$incentiveCollection->add( $incentive );
+				continue;
+			}
+			$foundIncentive = $incentiveRepo->findOneBy( [ 'name' => $incentive->getName() ] );
+			if ( $foundIncentive === null ) {
+				throw new UnknownIncentive( sprintf( 'Incentive "%s" not found', $incentive->getName() ) );
+			}
+			$incentiveCollection->add( $foundIncentive );
+		}
+		$application->setIncentives( $incentiveCollection );
+	}
+
 	private function getDoctrineStatus( Application $application ): int {
 		$status = DoctrineApplication::STATUS_NEUTRAL;
 
@@ -200,35 +227,39 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 			return null;
 		}
 
-		if ( $application->getBackup() === null ) {
-			return $this->newApplicationDomainEntity( $application );
+		if ( $application->getBackup() !== null ) {
+			throw new ApplicationAnonymizedException();
 		}
 
-		throw new ApplicationAnonymizedException();
+		return $this->newApplicationDomainEntity( $application );
 	}
 
-	private function newApplicationDomainEntity( DoctrineApplication $application ): Application {
-		return new Application(
-			$application->getId(),
-			$application->getMembershipType(),
+	private function newApplicationDomainEntity( DoctrineApplication $doctrineApplication ): Application {
+		$application = new Application(
+			$doctrineApplication->getId(),
+			$doctrineApplication->getMembershipType(),
 			new Applicant(
-				$this->newPersonName( $application ),
-				$this->newAddress( $application ),
-				new EmailAddress( $application->getApplicantEmailAddress() ),
-				new PhoneNumber( $application->getApplicantPhoneNumber() ),
-				$application->getApplicantDateOfBirth()
+				$this->newPersonName( $doctrineApplication ),
+				$this->newAddress( $doctrineApplication ),
+				new EmailAddress( $doctrineApplication->getApplicantEmailAddress() ),
+				new PhoneNumber( $doctrineApplication->getApplicantPhoneNumber() ),
+				$doctrineApplication->getApplicantDateOfBirth()
 			),
 			new Payment(
-				$application->getPaymentIntervalInMonths(),
-				Euro::newFromFloat( $application->getPaymentAmount() ),
-				$this->newPaymentMethod( $application )
+				$doctrineApplication->getPaymentIntervalInMonths(),
+				Euro::newFromFloat( $doctrineApplication->getPaymentAmount() ),
+				$this->newPaymentMethod( $doctrineApplication )
 			),
-			$application->needsModeration(),
-			$application->isCancelled(),
-			!$application->isUnconfirmed(),
-			$application->isDeleted(),
-			$application->getDonationReceipt()
+			$doctrineApplication->needsModeration(),
+			$doctrineApplication->isCancelled(),
+			!$doctrineApplication->isUnconfirmed(),
+			$doctrineApplication->isDeleted(),
+			$doctrineApplication->getDonationReceipt()
 		);
+		foreach ( $doctrineApplication->getIncentives() as $incentive ) {
+			$application->addIncentive( $incentive );
+		}
+		return $application;
 	}
 
 	private function newPersonName( DoctrineApplication $application ): ApplicantName {

@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
 use RuntimeException;
+use Traversable;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
@@ -34,14 +35,16 @@ class Application {
 	 */
 	private $id;
 
-	private $type;
-	private $applicant;
-	private $payment;
-	private $needsModeration;
-	private $isCancelled;
-	private $isConfirmed;
-	private $isDeleted;
-	private $donationReceipt;
+	private string $type;
+	private Applicant $applicant;
+	private Payment $payment;
+	private bool $needsModeration;
+	private bool $isCancelled;
+	private bool $isConfirmed;
+	private bool $isDeleted;
+	private ?bool $donationReceipt;
+	/** @var Incentive[] */
+	private array $incentives;
 
 	public static function newApplication( string $type, Applicant $applicant, Payment $payment, ?bool $donationReceipt ): self {
 		return new self(
@@ -68,6 +71,7 @@ class Application {
 		$this->isConfirmed = $isConfirmed;
 		$this->isDeleted = $isDeleted;
 		$this->donationReceipt = $donationReceipt;
+		$this->incentives = [];
 	}
 
 	public function getId(): ?int {
@@ -164,6 +168,17 @@ class Application {
 		if ( $paymentMethod instanceof PayPalPayment ) {
 			$paymentMethod->getPayPalData()->setFirstPaymentDate( $firstPaymentDate );
 		}
+	}
+
+	public function addIncentive( Incentive $incentive ): void {
+		$this->incentives[] = $incentive;
+	}
+
+	/**
+	 * @return Traversable<Incentive>
+	 */
+	public function getIncentives(): Traversable {
+		return new \ArrayObject( $this->incentives );
 	}
 
 }
