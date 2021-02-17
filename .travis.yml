@@ -11,7 +11,7 @@ install:
   - travis_retry composer install --prefer-dist --no-interaction --ignore-platform-reqs
 
 script:
-  - make ci
+  - make ci-with-coverage
 
 after_success:
   - vendor/bin/phpunit --coverage-clover coverage.clover
