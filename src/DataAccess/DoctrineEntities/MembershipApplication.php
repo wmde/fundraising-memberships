@@ -35,7 +35,7 @@ class MembershipApplication {
 	public const STATUS_CANCELED = -8;
 
 	/**
-	 * @var integer
+	 * @var int
 	 *
 	 * @ORM\Column(name="id", type="integer")
 	 * @ORM\Id
@@ -46,7 +46,7 @@ class MembershipApplication {
 	/**
 	 * FIXME: this should not be nullable
 	 *
-	 * @var integer
+	 * @var int
 	 *
 	 * @ORM\Column(name="status", type="smallint", options={"default":0}, nullable=true)
 	 */
@@ -187,7 +187,7 @@ class MembershipApplication {
 	private $paymentType = 'BEZ';
 
 	/**
-	 * @var integer
+	 * @var int
 	 *
 	 * @ORM\Column(name="membership_fee", type="integer", options={"default":0}, nullable=false)
 	 */
@@ -196,7 +196,7 @@ class MembershipApplication {
 	/**
 	 * FIXME: this should not be nullable
 	 *
-	 * @var integer
+	 * @var int
 	 *
 	 * @ORM\Column(name="membership_fee_interval", type="smallint", options={"default":12}, nullable=true)
 	 */
@@ -266,7 +266,7 @@ class MembershipApplication {
 	private $backup;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 *
 	 * @ORM\Column(name="wikilogin", type="boolean", options={"default":0}, nullable=false)
 	 */
@@ -287,7 +287,7 @@ class MembershipApplication {
 	private $data;
 
 	/**
-	 * @var boolean|null
+	 * @var bool|null
 	 *
 	 * @ORM\Column(name="donation_receipt", type="boolean", nullable=true)
 	 */
