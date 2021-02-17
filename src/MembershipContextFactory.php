@@ -38,7 +38,6 @@ class MembershipContextFactory {
 	private array $config;
 	private Configuration $doctrineConfig;
 
-	// Singleton instances
 	private ?MembershipTokenGenerator $tokenGenerator;
 
 	public function __construct( array $config, Configuration $doctrineConfig ) {

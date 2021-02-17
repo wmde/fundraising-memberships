@@ -32,25 +32,13 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 
 	private const BLOCKED_IBAN = 'LU761111000872960000';
 
-	/*
-	 * @var ValidateMembershipFeeUseCase
-	 */
-	private $feeValidator;
+	private ValidateMembershipFeeUseCase $feeValidator;
 
-	/**
-	 * @var BankDataValidator
-	 */
-	private $bankDataValidator;
+	private BankDataValidator $bankDataValidator;
 
-	/**
-	 * @var EmailValidator
-	 */
-	private $emailValidator;
+	private EmailValidator $emailValidator;
 
-	/**
-	 * @var IbanBlocklist
-	 */
-	private $ibanBlockList;
+	private IbanBlocklist $ibanBlockList;
 
 	public function setUp(): void {
 		$this->feeValidator = $this->newSucceedingFeeValidator();
