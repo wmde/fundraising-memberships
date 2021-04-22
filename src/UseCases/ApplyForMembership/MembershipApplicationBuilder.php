@@ -25,13 +25,14 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 class MembershipApplicationBuilder {
 
 	public function newApplicationFromRequest( ApplyForMembershipRequest $request ): Application {
-		$application = Application::newApplication(
+		$application = new Application(
+			null,
 			$request->getMembershipType(),
 			$this->newApplicant( $request ),
 			$this->newPayment( $request ),
 			$request->getOptsIntoDonationReceipt()
 		);
-		$application = $this->addIncentives( $application, $request );
+		$this->addIncentives( $application, $request );
 		return $application;
 	}
 

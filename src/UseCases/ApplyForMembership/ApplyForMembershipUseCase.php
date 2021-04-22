@@ -64,7 +64,7 @@ class ApplyForMembershipUseCase {
 		}
 
 		if ( $this->policyValidator->isAutoDeleted( $application ) ) {
-			$application->markAsDeleted();
+			$application->cancel();
 		}
 
 		$application->notifyOfFirstPaymentDate( $this->paymentDelayCalculator->calculateFirstPaymentDate()->format( 'Y-m-d' ) );

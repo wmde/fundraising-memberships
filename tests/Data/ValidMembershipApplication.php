@@ -70,7 +70,8 @@ class ValidMembershipApplication {
 
 	public static function newDomainEntity(): Application {
 		$self = ( new self() );
-		return Application::newApplication(
+		return new Application(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			$self->newPayment(),
@@ -86,7 +87,8 @@ class ValidMembershipApplication {
 
 	public static function newCompanyApplication(): Application {
 		$self = ( new self() );
-		return Application::newApplication(
+		return new Application(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newCompanyApplicantName() ),
 			$self->newPaymentWithHighAmount( self::PAYMENT_PERIOD_IN_MONTHS, self::COMPANY_PAYMENT_AMOUNT_IN_EURO ),
@@ -96,7 +98,8 @@ class ValidMembershipApplication {
 
 	public static function newApplicationWithTooHighQuarterlyAmount(): Application {
 		$self = ( new self() );
-		return Application::newApplication(
+		return new Application(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			$self->newPaymentWithHighAmount( self::PAYMENT_PERIOD_IN_MONTHS, self::TOO_HIGH_QUARTERLY_PAYMENT_AMOUNT_IN_EURO ),
@@ -106,7 +109,8 @@ class ValidMembershipApplication {
 
 	public static function newApplicationWithTooHighYearlyAmount(): Application {
 		$self = ( new self() );
-		return Application::newApplication(
+		return new Application(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			$self->newPaymentWithHighAmount( 12, self::TOO_HIGH_YEARLY_PAYMENT_AMOUNT_IN_EURO ),
@@ -124,7 +128,8 @@ class ValidMembershipApplication {
 		$payPalData = ( new PayPalData() )
 			->setSubscriberId( 'subscription_id' );
 
-		$application = Application::newApplication(
+		$application = new Application(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			$self->newPayPalPayment( $payPalData ),
@@ -147,7 +152,8 @@ class ValidMembershipApplication {
 
 	public static function newDomainEntityWithEmailAddress( string $emailAddress ): Application {
 		$self = ( new self() );
-		return Application::newApplication(
+		return new Application(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicantWithEmailAddress( $self->newPersonApplicantName(), $emailAddress ),
 			$self->newPayment(),
@@ -157,7 +163,8 @@ class ValidMembershipApplication {
 
 	public static function newApplicationWithIncentives(): Application {
 		$self = ( new self() );
-		$application = Application::newApplication(
+		$application = new Application(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			$self->newPayment(),
@@ -179,7 +186,8 @@ class ValidMembershipApplication {
 
 	private function createApplicationUsingPayPal( PayPalData $payPalData = null ): Application {
 		$self = ( new self() );
-		return Application::newApplication(
+		return new Application(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			$this->newPayPalPayment( $payPalData ),

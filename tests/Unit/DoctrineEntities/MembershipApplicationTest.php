@@ -126,10 +126,8 @@ class MembershipApplicationTest extends TestCase {
 
 	public function testStatusConstantsExist() {
 		$this->assertNotNull( MembershipApplication::STATUS_MODERATION );
-		$this->assertNotNull( MembershipApplication::STATUS_ABORTED );
 		$this->assertNotNull( MembershipApplication::STATUS_CANCELED );
 		$this->assertNotNull( MembershipApplication::STATUS_CONFIRMED );
-		$this->assertNotNull( MembershipApplication::STATUS_DELETED );
 		$this->assertNotNull( MembershipApplication::STATUS_NEUTRAL );
 	}
 
@@ -177,26 +175,10 @@ class MembershipApplicationTest extends TestCase {
 		$this->assertTrue( $application->isCancelled() );
 	}
 
-	public function testGivenDeletedStatus_isDeletedReturnsTrue() {
-		$application = new MembershipApplication();
-		$application->setStatus( MembershipApplication::STATUS_DELETED );
-
-		$this->assertTrue( $application->isDeleted() );
-	}
-
 	public function testGivenDefaultStatus_isDeletedReturnsFalse() {
 		$application = new MembershipApplication();
 
 		$this->assertFalse( $application->isCancelled() );
-	}
-
-	public function testGivenModerationAndDeletedStatus_isDeletedReturnsTrue() {
-		$application = new MembershipApplication();
-		$application->setStatus(
-			MembershipApplication::STATUS_MODERATION + MembershipApplication::STATUS_DELETED
-		);
-
-		$this->assertTrue( $application->isDeleted() );
 	}
 
 	public function testDefaultDonationReceiptValue_isNull(): void {

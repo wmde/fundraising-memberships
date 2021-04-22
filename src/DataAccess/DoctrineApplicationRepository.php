@@ -187,10 +187,6 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 			$status += DoctrineApplication::STATUS_CANCELED;
 		}
 
-		if ( $application->isDeleted() ) {
-			$status += DoctrineApplication::STATUS_DELETED;
-		}
-
 		if ( $application->isConfirmed() || $this->isAutoConfirmed( $status, $application ) ) {
 			$status += DoctrineApplication::STATUS_CONFIRMED;
 		}
@@ -250,12 +246,25 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 				Euro::newFromFloat( $doctrineApplication->getPaymentAmount() ),
 				$this->newPaymentMethod( $doctrineApplication )
 			),
-			$doctrineApplication->needsModeration(),
-			$doctrineApplication->isCancelled(),
-			!$doctrineApplication->isUnconfirmed(),
-			$doctrineApplication->isDeleted(),
 			$doctrineApplication->getDonationReceipt()
 		);
+
+		if ( $doctrineApplication->needsModeration() ) {
+			$application->markForModeration();
+		}
+
+		if ( $doctrineApplication->isConfirmed() ) {
+			$application->confirm();
+		}
+
+		if ( $doctrineApplication->isCancelled() ) {
+			$application->cancel();
+		}
+
+		if ( $doctrineApplication->getExport() != null ) {
+			$application->setExported();
+		}
+
 		foreach ( $doctrineApplication->getIncentives() as $incentive ) {
 			$application->addIncentive( $incentive );
 		}

@@ -114,7 +114,8 @@ class HandleSubscriptionPaymentNotificationUseCase {
 	}
 
 	private function createChildApplication( Application $application, PayPalPaymentNotificationRequest $request ): ?Application {
-		$childApplication = Application::newApplication(
+		$childApplication = new Application(
+			null,
 			$application->getType(),
 			$application->getApplicant(),
 			new Payment(

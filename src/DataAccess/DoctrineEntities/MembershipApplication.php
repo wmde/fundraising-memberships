@@ -29,10 +29,9 @@ class MembershipApplication {
 
 	public const STATUS_CONFIRMED = 1;
 	public const STATUS_NEUTRAL = 0;
-	public const STATUS_DELETED = -1;
+	public const STATUS_CANCELED = -1;
 	public const STATUS_MODERATION = -2;
-	public const STATUS_ABORTED = -4;
-	public const STATUS_CANCELED = -8;
+	public const STATUS_CANCELLED_MODERATION = -3;
 
 	/**
 	 * @var int
@@ -725,20 +724,31 @@ class MembershipApplication {
 		return $this->data;
 	}
 
-	public function isUnconfirmed(): bool {
-		return $this->status === self::STATUS_NEUTRAL;
+	public function isConfirmed(): bool {
+		// TODO: I think this logic is wrong, does having any status make an application confirmed?
+		return $this->status !== self::STATUS_NEUTRAL;
 	}
 
+	/**
+	 * @deprecated This will be removed when the bitwise statuses are properly refactored out
+	 */
 	public function needsModeration(): bool {
-		return $this->status < 0 && abs( $this->status ) & abs( self::STATUS_MODERATION );
+		if ( $this->status >= 0 ) {
+			return false;
+		}
+
+		return in_array( $this->status, [ self::STATUS_MODERATION, self::STATUS_CANCELLED_MODERATION ] );
 	}
 
+	/**
+	 * @deprecated This will be removed when the bitwise statuses are properly refactored out
+	 */
 	public function isCancelled(): bool {
-		return $this->status < 0 && abs( $this->status ) & abs( self::STATUS_CANCELED );
-	}
+		if ( $this->status >= 0 ) {
+			return false;
+		}
 
-	public function isDeleted(): bool {
-		return $this->status < 0 && abs( $this->status ) & abs( self::STATUS_DELETED );
+		return in_array( $this->status, [ self::STATUS_CANCELED, self::STATUS_CANCELLED_MODERATION ] );
 	}
 
 	public function log( string $message ): self {

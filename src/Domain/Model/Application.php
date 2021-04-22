@@ -18,60 +18,25 @@ class Application {
 	public const ACTIVE_MEMBERSHIP = 'active';
 	public const SUSTAINING_MEMBERSHIP = 'sustaining';
 
-	private const NO_MODERATION_NEEDED = false;
-	private const NEEDS_MODERATION = true;
-
-	private const IS_CURRENT = false;
-	private const IS_CANCELLED = true;
-
-	private const IS_CONFIRMED = true;
-	private const IS_PENDING = false;
-
-	private const IS_NOT_DELETED = false;
-	private const IS_DELETED = true;
-
-	/**
-	 * @var int|null
-	 */
-	private $id;
+	private ?int $id;
 
 	private string $type;
 	private Applicant $applicant;
 	private Payment $payment;
-	private bool $needsModeration;
-	private bool $isCancelled;
-	private bool $isConfirmed;
-	private bool $isDeleted;
+	private bool $moderationNeeded = false;
+	private bool $cancelled = false;
+	private bool $confirmed = false;
+	private bool $exported = false;
 	private ?bool $donationReceipt;
 	/** @var Incentive[] */
-	private array $incentives;
+	private array $incentives = [];
 
-	public static function newApplication( string $type, Applicant $applicant, Payment $payment, ?bool $donationReceipt ): self {
-		return new self(
-			null,
-			$type,
-			$applicant,
-			$payment,
-			self::NO_MODERATION_NEEDED,
-			self::IS_CURRENT,
-			self::IS_PENDING,
-			self::IS_NOT_DELETED,
-			$donationReceipt
-		);
-	}
-
-	public function __construct( ?int $id, string $type, Applicant $applicant, Payment $payment,
-		bool $needsModeration, bool $isCancelled, bool $isConfirmed, bool $isDeleted, ?bool $donationReceipt ) {
+	public function __construct( ?int $id, string $type, Applicant $applicant, Payment $payment, ?bool $donationReceipt ) {
 		$this->id = $id;
 		$this->type = $type;
 		$this->applicant = $applicant;
 		$this->payment = $payment;
-		$this->needsModeration = $needsModeration;
-		$this->isCancelled = $isCancelled;
-		$this->isConfirmed = $isConfirmed;
-		$this->isDeleted = $isDeleted;
 		$this->donationReceipt = $donationReceipt;
-		$this->incentives = [];
 	}
 
 	public function getId(): ?int {
@@ -110,28 +75,59 @@ class Application {
 		$this->id = $id;
 	}
 
-	public function cancel(): void {
-		$this->isCancelled = self::IS_CANCELLED;
-	}
-
 	public function markForModeration(): void {
-		$this->needsModeration = self::NEEDS_MODERATION;
+		$this->moderationNeeded = true;
 	}
 
-	public function isCancelled(): bool {
-		return $this->isCancelled === self::IS_CANCELLED;
+	public function approve(): void {
+		$this->moderationNeeded = false;
 	}
 
 	public function needsModeration(): bool {
-		return $this->needsModeration === self::NEEDS_MODERATION;
+		return $this->moderationNeeded;
+	}
+
+	public function cancel(): void {
+		if ( !$this->isCancellable() ) {
+			throw new \LogicException( 'Can only cancel new donations' );
+		}
+		$this->cancelled = true;
+	}
+
+	public function isCancelled(): bool {
+		return $this->cancelled;
 	}
 
 	public function isConfirmed(): bool {
-		return $this->isConfirmed === self::IS_CONFIRMED;
+		return $this->confirmed;
+	}
+
+	private function isCancellable(): bool {
+		if ( $this->isCancelled() ) {
+			return false;
+		}
+
+		if ( $this->exported ) {
+			return false;
+		}
+
+		if ( $this->payment->getPaymentMethod()->hasExternalProvider() ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public function confirm(): void {
-		$this->isConfirmed = self::IS_CONFIRMED;
+		$this->confirmed = true;
+	}
+
+	public function setExported(): void {
+		$this->exported = true;
+	}
+
+	public function isExported(): bool {
+		return $this->exported;
 	}
 
 	public function confirmSubscriptionCreated(): void {
@@ -152,14 +148,6 @@ class Application {
 
 	private function statusAllowsForBooking(): bool {
 		return !$this->isConfirmed() || $this->needsModeration() || $this->isCancelled();
-	}
-
-	public function markAsDeleted(): void {
-		$this->isDeleted = self::IS_DELETED;
-	}
-
-	public function isDeleted(): bool {
-		return $this->isDeleted;
 	}
 
 	public function notifyOfFirstPaymentDate( string $firstPaymentDate ): void {

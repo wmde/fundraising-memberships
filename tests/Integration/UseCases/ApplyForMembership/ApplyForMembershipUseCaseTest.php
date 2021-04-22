@@ -315,10 +315,10 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		return $policyValidator;
 	}
 
-	public function testWhenUsingBlacklistedEmailAddress_moderationIsAutomaticallyDeleted(): void {
+	public function testWhenUsingForbiddenEmailAddress_applicationIsCancelledAutomatically(): void {
 		$this->policyValidator = $this->newAutoDeletingPolicyValidator();
 		$this->newUseCase()->applyForMembership( $this->newValidRequest() );
-		$this->assertTrue( $this->repository->getApplicationById( 1 )->isDeleted() );
+		$this->assertTrue( $this->repository->getApplicationById( 1 )->isCancelled() );
 	}
 
 	public function testWhenUsingPayPalPayment_delayInDaysIsPersisted(): void {
