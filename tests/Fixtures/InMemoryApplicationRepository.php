@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Fixtures;
 
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
@@ -16,18 +16,18 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplic
 class InMemoryApplicationRepository implements ApplicationRepository {
 
 	/**
-	 * @var Application[]
+	 * @var MembershipApplication[]
 	 */
 	private $applications = [];
 
 	private $nextNewId = 1;
 
 	/**
-	 * @param Application $application
+	 * @param MembershipApplication $application
 	 *
 	 * @throws StoreMembershipApplicationException
 	 */
-	public function storeApplication( Application $application ): void {
+	public function storeApplication( MembershipApplication $application ): void {
 		if ( !$application->hasId() ) {
 			$application->assignId( $this->nextNewId++ );
 		}
@@ -38,10 +38,10 @@ class InMemoryApplicationRepository implements ApplicationRepository {
 	/**
 	 * @param int $id
 	 *
-	 * @return Application|null
+	 * @return MembershipApplication|null
 	 * @throws GetMembershipApplicationException
 	 */
-	public function getApplicationById( int $id ): ?Application {
+	public function getApplicationById( int $id ): ?MembershipApplication {
 		return array_key_exists( $id, $this->applications ) ? $this->applications[$id] : null;
 	}
 

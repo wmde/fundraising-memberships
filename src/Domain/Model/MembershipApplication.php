@@ -13,7 +13,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
  * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class Application {
+class MembershipApplication {
 
 	public const ACTIVE_MEMBERSHIP = 'active';
 	public const SUSTAINING_MEMBERSHIP = 'sustaining';

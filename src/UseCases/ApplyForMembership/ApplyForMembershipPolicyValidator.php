@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\FunValidators\Validators\TextPolicyValidator;
 
 /**
@@ -23,12 +23,12 @@ class ApplyForMembershipPolicyValidator {
 		$this->emailAddressBlacklist = $emailAddressBlacklist;
 	}
 
-	public function needsModeration( Application $application ): bool {
+	public function needsModeration( MembershipApplication $application ): bool {
 		return $this->yearlyAmountExceedsLimit( $application ) ||
 			$this->addressContainsBadWords( $application );
 	}
 
-	public function isAutoDeleted( Application $application ): bool {
+	public function isAutoDeleted( MembershipApplication $application ): bool {
 		foreach ( $this->emailAddressBlacklist as $blacklistEntry ) {
 			if ( preg_match( $blacklistEntry, $application->getApplicant()->getEmailAddress()->getFullAddress() ) ) {
 				return true;
@@ -38,12 +38,12 @@ class ApplyForMembershipPolicyValidator {
 		return false;
 	}
 
-	private function yearlyAmountExceedsLimit( Application $application ): bool {
+	private function yearlyAmountExceedsLimit( MembershipApplication $application ): bool {
 		return $application->getPayment()->getYearlyAmount()->getEuroFloat()
 			> self::YEARLY_PAYMENT_MODERATION_THRESHOLD_IN_EURO;
 	}
 
-	private function addressContainsBadWords( Application $application ): bool {
+	private function addressContainsBadWords( MembershipApplication $application ): bool {
 		$applicant = $application->getApplicant();
 		$harmless = $this->textPolicyValidator->textIsHarmless( $applicant->getName()->getFirstName() ) &&
 			$this->textPolicyValidator->textIsHarmless( $applicant->getName()->getLastName() ) &&

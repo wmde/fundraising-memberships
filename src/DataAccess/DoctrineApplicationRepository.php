@@ -8,26 +8,20 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use Psr\Log\NullLogger;
 use Traversable;
-use WMDE\EmailAddress\EmailAddress;
-use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\Exception\UnknownIncentive;
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\LegacyToDomainConverter;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
-use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
-use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Payment;
-use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
@@ -45,7 +39,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		$this->entityManager = $entityManager;
 	}
 
-	public function storeApplication( Application $application ): void {
+	public function storeApplication( MembershipApplication $application ): void {
 		if ( $application->hasId() ) {
 			$this->updateApplication( $application );
 		} else {
@@ -53,7 +47,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		}
 	}
 
-	private function insertApplication( Application $application ): void {
+	private function insertApplication( MembershipApplication $application ): void {
 		$doctrineApplication = new DoctrineApplication();
 		$this->updateDoctrineApplication( $doctrineApplication, $application );
 		$this->table->persistApplication( $doctrineApplication );
@@ -61,7 +55,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		$application->assignId( $doctrineApplication->getId() );
 	}
 
-	private function updateApplication( Application $application ): void {
+	private function updateApplication( MembershipApplication $application ): void {
 		try {
 			$this->table->modifyApplication(
 				$application->getId(),
@@ -75,7 +69,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		}
 	}
 
-	private function updateDoctrineApplication( DoctrineApplication $doctrineApplication, Application $application ): void {
+	private function updateDoctrineApplication( DoctrineApplication $doctrineApplication, MembershipApplication $application ): void {
 		$doctrineApplication->setId( $application->getId() );
 		$doctrineApplication->setMembershipType( $application->getType() );
 
@@ -177,7 +171,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		$application->setIncentives( $incentiveCollection );
 	}
 
-	private function getDoctrineStatus( Application $application ): int {
+	private function getDoctrineStatus( MembershipApplication $application ): int {
 		$status = DoctrineApplication::STATUS_NEUTRAL;
 
 		if ( $application->needsModeration() ) {
@@ -195,11 +189,11 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		return $status;
 	}
 
-	private function isAutoConfirmed( int $status, Application $application ): bool {
+	private function isAutoConfirmed( int $status, MembershipApplication $application ): bool {
 		return $status === DoctrineApplication::STATUS_NEUTRAL && $this->isDirectDebitPayment( $application );
 	}
 
-	private function isDirectDebitPayment( Application $application ): bool {
+	private function isDirectDebitPayment( MembershipApplication $application ): bool {
 		return $application->getPayment()->getPaymentMethod()->getId() === PaymentMethod::DIRECT_DEBIT;
 	}
 
@@ -214,10 +208,10 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 	/**
 	 * @param int $id
 	 *
-	 * @return Application|null
+	 * @return MembershipApplication|null
 	 * @throws GetMembershipApplicationException
 	 */
-	public function getApplicationById( int $id ): ?Application {
+	public function getApplicationById( int $id ): ?MembershipApplication {
 		$application = $this->table->getApplicationOrNullById( $id );
 
 		if ( $application === null ) {

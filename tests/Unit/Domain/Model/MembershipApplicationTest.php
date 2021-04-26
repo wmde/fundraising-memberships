@@ -10,7 +10,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 
 /**
- * @covers \WMDE\Fundraising\MembershipContext\Domain\Model\Application
+ * @covers \WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication
  *
  * @license GPL-2.0-or-later
  */

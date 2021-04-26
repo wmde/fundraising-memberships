@@ -6,7 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ShowAppl
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FailingAuthorizer;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FakeApplicationRepository;
@@ -54,7 +54,7 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		$this->repository->storeApplication( $this->newApplication() );
 	}
 
-	private function newApplication(): Application {
+	private function newApplication(): MembershipApplication {
 		$application = ValidMembershipApplication::newDomainEntity();
 
 		$application->assignId( self::APPLICATION_ID );

@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ShowApplicationConfirmation;
 
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationPresenter;
 
 /**
@@ -19,7 +19,7 @@ class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirm
 	private $accessViolationWasShown = false;
 	private $shownTechnicalError;
 
-	public function presentConfirmation( Application $application, string $updateToken ): void {
+	public function presentConfirmation( MembershipApplication $application, string $updateToken ): void {
 		if ( $this->application !== null ) {
 			throw new \RuntimeException( 'Presenter should only be invoked once' );
 		}
@@ -28,7 +28,7 @@ class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirm
 		$this->updateToken = $updateToken;
 	}
 
-	public function getShownApplication(): Application {
+	public function getShownApplication(): MembershipApplication {
 		return $this->application;
 	}
 

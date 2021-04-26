@@ -5,7 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication;
 
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
@@ -53,7 +53,7 @@ class CancelMembershipApplicationUseCase {
 		return $this->newSuccessResponse( $request );
 	}
 
-	private function getApplicationById( int $id ): ?Application {
+	private function getApplicationById( int $id ): ?MembershipApplication {
 		try {
 			return $this->repository->getApplicationById( $id );
 		}
@@ -70,14 +70,14 @@ class CancelMembershipApplicationUseCase {
 		return new CancellationResponse( $request->getApplicationId(), CancellationResponse::IS_SUCCESS );
 	}
 
-	private function sendConfirmationEmail( Application $application ): void {
+	private function sendConfirmationEmail( MembershipApplication $application ): void {
 		$this->mailer->sendMail(
 			$application->getApplicant()->getEmailAddress(),
 			$this->getConfirmationMailTemplateArguments( $application )
 		);
 	}
 
-	private function getConfirmationMailTemplateArguments( Application $application ): array {
+	private function getConfirmationMailTemplateArguments( MembershipApplication $application ): array {
 		return [
 			'applicationId' => $application->getId(),
 			'membershipApplicant' => [

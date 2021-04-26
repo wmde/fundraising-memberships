@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\HandleSubscriptionPaymentN
 use Psr\Log\LoggerInterface;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Payment;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
@@ -52,7 +52,7 @@ class HandleSubscriptionPaymentNotificationUseCase {
 	}
 
 	private function handleRequestForPayment( PayPalPaymentNotificationRequest $request,
-											  Application $application ): PaypalNotificationResponse {
+											  MembershipApplication $application ): PaypalNotificationResponse {
 		if ( !( $application->getPayment()->getPaymentMethod() instanceof PayPalPayment ) ) {
 			return $this->createUnhandledResponse( 'Trying to handle IPN for non-PayPal membership application' );
 		}
@@ -113,8 +113,8 @@ class HandleSubscriptionPaymentNotificationUseCase {
 			->setPaymentTimestamp( $request->getPaymentTimestamp() );
 	}
 
-	private function createChildApplication( Application $application, PayPalPaymentNotificationRequest $request ): ?Application {
-		$childApplication = new Application(
+	private function createChildApplication( MembershipApplication $application, PayPalPaymentNotificationRequest $request ): ?MembershipApplication {
+		$childApplication = new MembershipApplication(
 			null,
 			$application->getType(),
 			$application->getApplicant(),
@@ -137,7 +137,7 @@ class HandleSubscriptionPaymentNotificationUseCase {
 		return $childApplication;
 	}
 
-	private function transactionAlreadyProcessed( Application $application, PayPalPaymentNotificationRequest $request ): bool {
+	private function transactionAlreadyProcessed( MembershipApplication $application, PayPalPaymentNotificationRequest $request ): bool {
 		/** @var PayPalPayment $payment */
 		$payment = $application->getPayment()->getPaymentMethod();
 		return $payment->getPayPalData()->hasChildPayment( $request->getTransactionId() );

@@ -9,8 +9,8 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Payment;
 use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
@@ -24,8 +24,8 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
  */
 class MembershipApplicationBuilder {
 
-	public function newApplicationFromRequest( ApplyForMembershipRequest $request ): Application {
-		$application = new Application(
+	public function newApplicationFromRequest( ApplyForMembershipRequest $request ): MembershipApplication {
+		$application = new MembershipApplication(
 			null,
 			$request->getMembershipType(),
 			$this->newApplicant( $request ),
@@ -100,7 +100,7 @@ class MembershipApplicationBuilder {
 		throw new \RuntimeException( 'Unsupported payment type' );
 	}
 
-	private function addIncentives( Application $application, ApplyForMembershipRequest $request ): Application {
+	private function addIncentives( MembershipApplication $application, ApplyForMembershipRequest $request ): MembershipApplication {
 		foreach ( $request->getIncentives() as $incentiveName ) {
 			$application->addIncentive( new Incentive( $incentiveName ) );
 		}

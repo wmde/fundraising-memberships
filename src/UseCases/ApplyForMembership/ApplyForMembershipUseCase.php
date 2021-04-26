@@ -6,7 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
@@ -95,18 +95,18 @@ class ApplyForMembershipUseCase {
 		);
 	}
 
-	private function newApplicationFromRequest( ApplyForMembershipRequest $request ): Application {
+	private function newApplicationFromRequest( ApplyForMembershipRequest $request ): MembershipApplication {
 		return ( new MembershipApplicationBuilder() )->newApplicationFromRequest( $request );
 	}
 
-	private function sendConfirmationEmail( Application $application ): void {
+	private function sendConfirmationEmail( MembershipApplication $application ): void {
 		$this->mailer->sendMail(
 			$application->getApplicant()->getEmailAddress(),
 			( new MailTemplateValueBuilder() )->buildValuesForTemplate( $application )
 		);
 	}
 
-	public function isAutoConfirmed( Application $application ): bool {
+	public function isAutoConfirmed( MembershipApplication $application ): bool {
 		return $application->getPayment()->getPaymentMethod()->getId() === PaymentMethod::DIRECT_DEBIT;
 	}
 }

@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Domain\Repositories;
 
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 
 /**
  * @license GPL-2.0-or-later
@@ -17,19 +17,19 @@ interface ApplicationRepository {
 	 * This means the id of new applications needs to be null. The id can be accessed by calling getId on
 	 * the passed in MembershipApplication.
 	 *
-	 * @param Application $application
+	 * @param MembershipApplication $application
 	 *
 	 * @throws StoreMembershipApplicationException
 	 */
-	public function storeApplication( Application $application ): void;
+	public function storeApplication( MembershipApplication $application ): void;
 
 	/**
 	 * @param int $id
 	 *
-	 * @return Application|null
+	 * @return MembershipApplication|null
 	 *
 	 * @throws GetMembershipApplicationException
 	 */
-	public function getApplicationById( int $id ): ?Application;
+	public function getApplicationById( int $id ): ?MembershipApplication;
 
 }

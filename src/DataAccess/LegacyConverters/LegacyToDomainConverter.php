@@ -10,7 +10,7 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApp
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Payment;
 use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
@@ -21,8 +21,8 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
 class LegacyToDomainConverter {
-	public function createFromLegacyObject( DoctrineApplication $doctrineApplication ): Application {
-		$application = new Application(
+	public function createFromLegacyObject( DoctrineApplication $doctrineApplication ): MembershipApplication {
+		$application = new MembershipApplication(
 			$doctrineApplication->getId(),
 			$doctrineApplication->getMembershipType(),
 			new Applicant(
