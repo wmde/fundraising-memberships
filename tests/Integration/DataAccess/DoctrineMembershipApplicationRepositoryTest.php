@@ -72,7 +72,7 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 		return $donation;
 	}
 
-	public function testIdGetsAssigned(): void {
+	public function testStoringAMembershipApplicationCreatesAndAssignsId(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 
 		$this->newRepository()->storeApplication( $application );
@@ -136,50 +136,6 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 			$application,
 			$repository->getApplicationById( self::MEMBERSHIP_APPLICATION_ID )
 		);
-	}
-
-	public function testWhenPersistingDeletedApplication_exceptionIsThrown(): void {
-		$application = ValidMembershipApplication::newDomainEntity();
-		$application->assignId( self::ID_OF_APPLICATION_NOT_IN_DB );
-
-		$repository = $this->newRepository();
-
-		$this->expectException( StoreMembershipApplicationException::class );
-		$repository->storeApplication( $application );
-	}
-
-	public function testWhenPersistingApplicationWithModerationFlag_doctrineApplicationHasFlag(): void {
-		$application = ValidMembershipApplication::newDomainEntity();
-		$application->markForModeration();
-
-		$this->newRepository()->storeApplication( $application );
-		$doctrineApplication = $this->getApplicationFromDatabase( $application->getId() );
-
-		$this->assertTrue( $doctrineApplication->needsModeration() );
-		$this->assertFalse( $doctrineApplication->isCancelled() );
-	}
-
-	public function testWhenPersistingApplicationWithCancelledFlag_doctrineApplicationHasFlag(): void {
-		$application = ValidMembershipApplication::newDomainEntity();
-		$application->cancel();
-
-		$this->newRepository()->storeApplication( $application );
-		$doctrineApplication = $this->getApplicationFromDatabase( $application->getId() );
-
-		$this->assertFalse( $doctrineApplication->needsModeration() );
-		$this->assertTrue( $doctrineApplication->isCancelled() );
-	}
-
-	public function testWhenPersistingCancelledModerationApplication_doctrineApplicationHasFlags(): void {
-		$application = ValidMembershipApplication::newDomainEntity();
-		$application->markForModeration();
-		$application->cancel();
-
-		$this->newRepository()->storeApplication( $application );
-		$doctrineApplication = $this->getApplicationFromDatabase( $application->getId() );
-
-		$this->assertTrue( $doctrineApplication->needsModeration() );
-		$this->assertTrue( $doctrineApplication->isCancelled() );
 	}
 
 	public function testGivenDoctrineApplicationWithCancelledFlag_initialStatusIsPreserved(): void {
