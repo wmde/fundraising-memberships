@@ -9,3 +9,5 @@ vendor/
 .idea/
 
 .phpunit.result.cache
+
+coverage
