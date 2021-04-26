@@ -183,39 +183,6 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 		$this->assertTrue( $doctrineApplication->isCancelled() );
 	}
 
-	public function testGivenDoctrineApplicationWithModerationAndCancelled_domainEntityHasFlags(): void {
-		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
-		$doctrineApplication->setStatus( DoctrineApplication::STATUS_CANCELED + DoctrineApplication::STATUS_MODERATION );
-
-		$this->storeDoctrineApplication( $doctrineApplication );
-		$application = $this->newRepository()->getApplicationById( $doctrineApplication->getId() );
-
-		$this->assertTrue( $application->needsModeration() );
-		$this->assertTrue( $application->isCancelled() );
-	}
-
-	public function testGivenDoctrineApplicationWithModerationFlag_domainEntityHasFlag(): void {
-		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
-		$doctrineApplication->setStatus( DoctrineApplication::STATUS_MODERATION );
-
-		$this->storeDoctrineApplication( $doctrineApplication );
-		$application = $this->newRepository()->getApplicationById( $doctrineApplication->getId() );
-
-		$this->assertTrue( $application->needsModeration() );
-		$this->assertFalse( $application->isCancelled() );
-	}
-
-	public function testGivenDoctrineApplicationWithCancelledFlag_domainEntityHasFlag(): void {
-		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
-		$doctrineApplication->setStatus( DoctrineApplication::STATUS_CANCELED );
-
-		$this->storeDoctrineApplication( $doctrineApplication );
-		$application = $this->newRepository()->getApplicationById( $doctrineApplication->getId() );
-
-		$this->assertFalse( $application->needsModeration() );
-		$this->assertTrue( $application->isCancelled() );
-	}
-
 	public function testGivenDoctrineApplicationWithCancelledFlag_initialStatusIsPreserved(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->cancel();
