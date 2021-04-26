@@ -725,8 +725,7 @@ class MembershipApplication {
 	}
 
 	public function isConfirmed(): bool {
-		// TODO: I think this logic is wrong, does having any status make an application confirmed?
-		return $this->status !== self::STATUS_NEUTRAL;
+		return $this->status === self::STATUS_CONFIRMED;
 	}
 
 	/**
