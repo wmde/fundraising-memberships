@@ -20,6 +20,7 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedMembershipTokenGenera
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedPaymentDelayCalculator;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\InMemoryApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TemplateBasedMailerSpy;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TestIncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
@@ -112,7 +113,8 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 			$this->tracker,
 			$this->piwikTracker,
 			$this->newFixedPaymentDelayCalculator(),
-			$this->eventEmitter
+			$this->eventEmitter,
+			new TestIncentiveFinder()
 		);
 	}
 

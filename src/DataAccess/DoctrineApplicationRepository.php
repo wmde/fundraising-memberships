@@ -9,9 +9,7 @@ use Psr\Log\NullLogger;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\DomainToLegacyConverter;
-use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\IncentiveFinder;
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\LegacyToDomainConverter;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
@@ -21,14 +19,12 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplic
 /**
  * @license GPL-2.0-or-later
  */
-class DoctrineApplicationRepository implements ApplicationRepository, IncentiveFinder {
+class DoctrineApplicationRepository implements ApplicationRepository {
 
 	private DoctrineApplicationTable $table;
-	private EntityManager $entityManager;
 
 	public function __construct( EntityManager $entityManager ) {
 		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
-		$this->entityManager = $entityManager;
 	}
 
 	public function storeApplication( MembershipApplication $application ): void {
@@ -63,7 +59,7 @@ class DoctrineApplicationRepository implements ApplicationRepository, IncentiveF
 
 	private function updateDoctrineApplication( DoctrineApplication $doctrineApplication, MembershipApplication $application ): void {
 		$converter = new DomainToLegacyConverter();
-		$converter->convert( $doctrineApplication, $application, $this );
+		$converter->convert( $doctrineApplication, $application );
 	}
 
 	/**
@@ -85,10 +81,5 @@ class DoctrineApplicationRepository implements ApplicationRepository, IncentiveF
 
 		$converter = new LegacyToDomainConverter();
 		return $converter->createFromLegacyObject( $application );
-	}
-
-	public function findIncentiveByName( string $name ): ?Incentive {
-		$incentiveRepo = $this->entityManager->getRepository( Incentive::class );
-		return $incentiveRepo->findOneBy( [ 'name' => $name ] );
 	}
 }

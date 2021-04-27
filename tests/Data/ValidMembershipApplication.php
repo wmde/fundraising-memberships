@@ -161,19 +161,6 @@ class ValidMembershipApplication {
 		);
 	}
 
-	public static function newApplicationWithIncentives(): MembershipApplication {
-		$self = ( new self() );
-		$application = new MembershipApplication(
-			null,
-			self::MEMBERSHIP_TYPE,
-			$self->newApplicant( $self->newPersonApplicantName() ),
-			$self->newPayment(),
-			self::OPTS_INTO_DONATION_RECEIPT
-		);
-		$application->addIncentive( self::newIncentive() );
-		return $application;
-	}
-
 	private function newApplicantWithEmailAddress( ApplicantName $name, string $emailAddress ): Applicant {
 		return new Applicant(
 			$name,

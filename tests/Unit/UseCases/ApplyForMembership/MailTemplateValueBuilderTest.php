@@ -34,9 +34,12 @@ class MailTemplateValueBuilderTest extends TestCase {
 	}
 
 	public function testBuildValuesForMembershipWithIncentives(): void {
+		$incentive = ValidMembershipApplication::newIncentive();
+		$application = ValidMembershipApplication::newCompanyApplication();
+		$application->addIncentive( $incentive );
 		$builder = new MailTemplateValueBuilder();
 
-		$values = $builder->buildValuesForTemplate( ValidMembershipApplication::newApplicationWithIncentives() );
+		$values = $builder->buildValuesForTemplate( $application );
 
 		$this->assertEquals( [ ValidMembershipApplication::INCENTIVE_NAME ], $values['incentives'] );
 	}

@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
+use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
@@ -33,12 +34,13 @@ class ApplyForMembershipUseCase {
 	private ApplicationPiwikTracker $piwikTracker;
 	private PaymentDelayCalculator $paymentDelayCalculator;
 	private EventEmitter $eventEmitter;
+	private IncentiveFinder $incentiveFinder;
 
 	public function __construct( ApplicationRepository $repository,
 		ApplicationTokenFetcher $tokenFetcher, TemplateMailerInterface $mailer,
 		MembershipApplicationValidator $validator, ApplyForMembershipPolicyValidator $policyValidator,
 		ApplicationTracker $tracker, ApplicationPiwikTracker $piwikTracker,
-		PaymentDelayCalculator $paymentDelayCalculator, EventEmitter $eventEmitter ) {
+		PaymentDelayCalculator $paymentDelayCalculator, EventEmitter $eventEmitter, IncentiveFinder $incentiveFinder ) {
 		$this->repository = $repository;
 		$this->tokenFetcher = $tokenFetcher;
 		$this->mailer = $mailer;
@@ -48,6 +50,7 @@ class ApplyForMembershipUseCase {
 		$this->piwikTracker = $piwikTracker;
 		$this->paymentDelayCalculator = $paymentDelayCalculator;
 		$this->eventEmitter = $eventEmitter;
+		$this->incentiveFinder = $incentiveFinder;
 	}
 
 	public function applyForMembership( ApplyForMembershipRequest $request ): ApplyForMembershipResponse {
@@ -96,7 +99,7 @@ class ApplyForMembershipUseCase {
 	}
 
 	private function newApplicationFromRequest( ApplyForMembershipRequest $request ): MembershipApplication {
-		return ( new MembershipApplicationBuilder() )->newApplicationFromRequest( $request );
+		return ( new MembershipApplicationBuilder( $this->incentiveFinder ) )->newApplicationFromRequest( $request );
 	}
 
 	private function sendConfirmationEmail( MembershipApplication $application ): void {

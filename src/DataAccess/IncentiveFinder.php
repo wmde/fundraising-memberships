@@ -1,6 +1,6 @@
 <?php
 
-namespace WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters;
+namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 

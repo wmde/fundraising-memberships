@@ -7,7 +7,6 @@ namespace WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
-use WMDE\Fundraising\MembershipContext\DataAccess\Exception\UnknownIncentive;
 use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
@@ -19,13 +18,13 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
 class DomainToLegacyConverter {
-	public function convert( DoctrineApplication $doctrineApplication, MembershipApplication $application, IncentiveFinder $finder ): void {
+	public function convert( DoctrineApplication $doctrineApplication, MembershipApplication $application ): void {
 		$doctrineApplication->setId( $application->getId() );
 		$doctrineApplication->setMembershipType( $application->getType() );
 
 		$this->setApplicantFields( $doctrineApplication, $application->getApplicant() );
 		$this->setPaymentFields( $doctrineApplication, $application->getPayment() );
-		$doctrineApplication->setIncentives( $this->convertIncentives( $finder, $application->getIncentives() ) );
+		$doctrineApplication->setIncentives( $this->convertIncentives( $application->getIncentives() ) );
 		$doctrineApplication->setDonationReceipt( $application->getDonationReceipt() );
 
 		$doctrineStatus = $this->getDoctrineStatus( $application );
@@ -33,18 +32,10 @@ class DomainToLegacyConverter {
 		$doctrineApplication->setStatus( $doctrineStatus );
 	}
 
-	private function convertIncentives( IncentiveFinder $finder, \Traversable $incentives ): Collection {
+	private function convertIncentives( \Traversable $incentives ): Collection {
 		$incentiveCollection = new ArrayCollection();
 		foreach ( $incentives as $incentive ) {
-			if ( $incentive->getId() !== null ) {
-				$incentiveCollection->add( $incentive );
-				continue;
-			}
-			$foundIncentive = $finder->findIncentiveByName( $incentive->getName() );
-			if ( $foundIncentive === null ) {
-				throw new UnknownIncentive( sprintf( 'Incentive "%s" not found', $incentive->getName() ) );
-			}
-			$incentiveCollection->add( $foundIncentive );
+			$incentiveCollection->add( $incentive );
 		}
 		return $incentiveCollection;
 	}

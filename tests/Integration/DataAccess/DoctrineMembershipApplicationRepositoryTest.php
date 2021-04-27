@@ -168,19 +168,12 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 		$this->newRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID );
 	}
 
-	public function testGivenNonexistentIncentive_savingTheApplicationIsRejected(): void {
-		$this->expectException( UnknownIncentive::class );
-
-		$application = ValidMembershipApplication::newApplicationWithIncentives();
-
-		$this->newRepository()->storeApplication( $application );
-	}
-
 	public function testApplicationWithIncentivesHasIncentivesAfterRoundtrip(): void {
 		$incentive = ValidMembershipApplication::newIncentive();
 		$this->entityManager->persist( $incentive );
 		$this->entityManager->flush();
-		$application = ValidMembershipApplication::newApplicationWithIncentives();
+		$application = ValidMembershipApplication::newCompanyApplication();
+		$application->addIncentive( $incentive );
 		$repo = $this->newRepository();
 		$repo->storeApplication( $application );
 
