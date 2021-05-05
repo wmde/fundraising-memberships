@@ -94,6 +94,10 @@ class MembershipApplication {
 		$this->cancelled = true;
 	}
 
+	public function restore() {
+		$this->cancelled = false;
+	}
+
 	public function isCancelled(): bool {
 		return $this->cancelled;
 	}
