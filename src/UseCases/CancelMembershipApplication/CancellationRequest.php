@@ -22,7 +22,7 @@ class CancellationRequest {
 		return $this->applicationId;
 	}
 
-	public function isAuthorizedRequest(): bool {
+	public function initiatedByApplicant(): bool {
 		return $this->authorizedUser !== null;
 	}
 

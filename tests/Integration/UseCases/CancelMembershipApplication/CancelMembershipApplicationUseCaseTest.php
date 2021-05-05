@@ -165,4 +165,20 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 		$this->assertContains( $message, $logs );
 	}
 
+	public function testWhenApplicantRequestsCancellation_SendsConfirmationEmail() {
+		$this->newUseCase()->cancelApplication(
+			new CancellationRequest( $this->cancelableApplication->getId() )
+		);
+
+		$this->assertCount( 1, $this->mailer->getSendMailCalls() );
+	}
+
+	public function testWhenAuthorizedUserCancels_doesNotSendConfirmationEmail() {
+		$this->newUseCase()->cancelApplication(
+			new CancellationRequest( $this->cancelableApplication->getId(), self::AUTH_USER_NAME )
+		);
+
+		$this->assertCount( 0, $this->mailer->getSendMailCalls() );
+	}
+
 }

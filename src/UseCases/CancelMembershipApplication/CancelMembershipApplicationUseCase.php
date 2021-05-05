@@ -53,7 +53,9 @@ class CancelMembershipApplicationUseCase {
 			catch ( StoreMembershipApplicationException $ex ) {
 				return $this->newFailureResponse( $request );
 			}
-			$this->sendConfirmationEmail( $application );
+			if ( !$request->initiatedByApplicant() ) {
+				$this->sendConfirmationEmail( $application );
+			}
 		}
 
 		$this->membershipApplicationEventLogger->log( $request->getApplicationId(), $this->getLogMessage( $request ) );
@@ -62,7 +64,7 @@ class CancelMembershipApplicationUseCase {
 	}
 
 	public function getLogMessage( CancellationRequest $cancellationRequest ): string {
-		if ( $cancellationRequest->isAuthorizedRequest() ) {
+		if ( $cancellationRequest->initiatedByApplicant() ) {
 			return sprintf( self::LOG_MESSAGE_ADMIN_STATUS_CHANGE, $cancellationRequest->getUserName() );
 		}
 		return self::LOG_MESSAGE_FRONTEND_STATUS_CHANGE;

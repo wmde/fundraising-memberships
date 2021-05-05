@@ -22,7 +22,7 @@ class CancellationRequestTest extends TestCase {
 	public function testRequestWithUserIsAuthorized(): void {
 		$request = new CancellationRequest( 42,  self::AUTH_USER_NAME );
 
-		$this->assertTrue( $request->isAuthorizedRequest() );
+		$this->assertTrue( $request->initiatedByApplicant() );
 	}
 
 	public function testOnGetUnauthorizedRequestUserName_throwsException(): void {
