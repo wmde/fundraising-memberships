@@ -10,7 +10,6 @@ use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\Exception\UnknownIncentive;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
@@ -73,7 +72,7 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 		return $donation;
 	}
 
-	public function testIdGetsAssigned(): void {
+	public function testStoringAMembershipApplicationCreatesAndAssignsId(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 
 		$this->newRepository()->storeApplication( $application );
@@ -139,83 +138,6 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 		);
 	}
 
-	public function testWhenPersistingDeletedApplication_exceptionIsThrown(): void {
-		$application = ValidMembershipApplication::newDomainEntity();
-		$application->assignId( self::ID_OF_APPLICATION_NOT_IN_DB );
-
-		$repository = $this->newRepository();
-
-		$this->expectException( StoreMembershipApplicationException::class );
-		$repository->storeApplication( $application );
-	}
-
-	public function testWhenPersistingApplicationWithModerationFlag_doctrineApplicationHasFlag(): void {
-		$application = ValidMembershipApplication::newDomainEntity();
-		$application->markForModeration();
-
-		$this->newRepository()->storeApplication( $application );
-		$doctrineApplication = $this->getApplicationFromDatabase( $application->getId() );
-
-		$this->assertTrue( $doctrineApplication->needsModeration() );
-		$this->assertFalse( $doctrineApplication->isCancelled() );
-	}
-
-	public function testWhenPersistingApplicationWithCancelledFlag_doctrineApplicationHasFlag(): void {
-		$application = ValidMembershipApplication::newDomainEntity();
-		$application->cancel();
-
-		$this->newRepository()->storeApplication( $application );
-		$doctrineApplication = $this->getApplicationFromDatabase( $application->getId() );
-
-		$this->assertFalse( $doctrineApplication->needsModeration() );
-		$this->assertTrue( $doctrineApplication->isCancelled() );
-	}
-
-	public function testWhenPersistingCancelledModerationApplication_doctrineApplicationHasFlags(): void {
-		$application = ValidMembershipApplication::newDomainEntity();
-		$application->markForModeration();
-		$application->cancel();
-
-		$this->newRepository()->storeApplication( $application );
-		$doctrineApplication = $this->getApplicationFromDatabase( $application->getId() );
-
-		$this->assertTrue( $doctrineApplication->needsModeration() );
-		$this->assertTrue( $doctrineApplication->isCancelled() );
-	}
-
-	public function testGivenDoctrineApplicationWithModerationAndCancelled_domainEntityHasFlags(): void {
-		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
-		$doctrineApplication->setStatus( DoctrineApplication::STATUS_CANCELED + DoctrineApplication::STATUS_MODERATION );
-
-		$this->storeDoctrineApplication( $doctrineApplication );
-		$application = $this->newRepository()->getApplicationById( $doctrineApplication->getId() );
-
-		$this->assertTrue( $application->needsModeration() );
-		$this->assertTrue( $application->isCancelled() );
-	}
-
-	public function testGivenDoctrineApplicationWithModerationFlag_domainEntityHasFlag(): void {
-		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
-		$doctrineApplication->setStatus( DoctrineApplication::STATUS_MODERATION );
-
-		$this->storeDoctrineApplication( $doctrineApplication );
-		$application = $this->newRepository()->getApplicationById( $doctrineApplication->getId() );
-
-		$this->assertTrue( $application->needsModeration() );
-		$this->assertFalse( $application->isCancelled() );
-	}
-
-	public function testGivenDoctrineApplicationWithCancelledFlag_domainEntityHasFlag(): void {
-		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
-		$doctrineApplication->setStatus( DoctrineApplication::STATUS_CANCELED );
-
-		$this->storeDoctrineApplication( $doctrineApplication );
-		$application = $this->newRepository()->getApplicationById( $doctrineApplication->getId() );
-
-		$this->assertFalse( $application->needsModeration() );
-		$this->assertTrue( $application->isCancelled() );
-	}
-
 	public function testGivenDoctrineApplicationWithCancelledFlag_initialStatusIsPreserved(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->cancel();
@@ -246,19 +168,12 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 		$this->newRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID );
 	}
 
-	public function testGivenNonexistentIncentive_savingTheApplicationIsRejected(): void {
-		$this->expectException( UnknownIncentive::class );
-
-		$application = ValidMembershipApplication::newApplicationWithIncentives();
-
-		$this->newRepository()->storeApplication( $application );
-	}
-
 	public function testApplicationWithIncentivesHasIncentivesAfterRoundtrip(): void {
 		$incentive = ValidMembershipApplication::newIncentive();
 		$this->entityManager->persist( $incentive );
 		$this->entityManager->flush();
-		$application = ValidMembershipApplication::newApplicationWithIncentives();
+		$application = ValidMembershipApplication::newCompanyApplication();
+		$application->addIncentive( $incentive );
 		$repo = $this->newRepository();
 		$repo->storeApplication( $application );
 

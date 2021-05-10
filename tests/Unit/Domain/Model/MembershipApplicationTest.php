@@ -10,11 +10,11 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 
 /**
- * @covers \WMDE\Fundraising\MembershipContext\Domain\Model\Application
+ * @covers \WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication
  *
  * @license GPL-2.0-or-later
  */
-class ApplicationTest extends TestCase {
+class MembershipApplicationTest extends TestCase {
 
 	public function testIdIsNullWhenNotAssigned(): void {
 		$this->assertNull( ValidMembershipApplication::newDomainEntity()->getId() );
@@ -80,6 +80,29 @@ class ApplicationTest extends TestCase {
 		$this->assertSame( $firstIncentive, $incentives[0] );
 		$this->assertSame( $secondIncentive, $incentives[1] );
 		$this->assertSame( $thirdIncentive, $incentives[2] );
+	}
+
+	public function testGivenCancelledApplication_cannotBeCancelledAgain(): void {
+		$application = ValidMembershipApplication::newDomainEntity();
+		$application->cancel();
+
+		$this->expectException( \LogicException::class );
+		$application->cancel();
+	}
+
+	public function testGivenExportedApplication_cannotBeCancelled(): void {
+		$application = ValidMembershipApplication::newDomainEntity();
+		$application->setExported();
+
+		$this->expectException( \LogicException::class );
+		$application->cancel();
+	}
+
+	public function testApplicationWithExternalPayment_cannotBeCancelled(): void {
+		$application = ValidMembershipApplication::newDomainEntityUsingPayPal();
+
+		$this->expectException( \LogicException::class );
+		$application->cancel();
 	}
 
 }

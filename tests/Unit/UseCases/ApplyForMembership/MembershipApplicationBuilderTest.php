@@ -9,6 +9,7 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TestIncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationBuilder;
@@ -29,7 +30,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 	public function testCompanyMembershipRequestGetsBuildCorrectly(): void {
 		$request = $this->newCompanyMembershipRequest();
 
-		$application = ( new MembershipApplicationBuilder() )->newApplicationFromRequest( $request );
+		$application = ( new MembershipApplicationBuilder( new TestIncentiveFinder() ) )->newApplicationFromRequest( $request );
 
 		$this->assertIsExpectedCompanyPersonName( $application->getApplicant()->getName() );
 		$this->assertIsExpectedAddress( $application->getApplicant()->getPhysicalAddress() );
@@ -140,7 +141,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 	public function testWhenNoBirthDateAndPhoneNumberIsGiven_membershipApplicationIsStillBuiltCorrectly(): void {
 		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS );
 
-		$application = ( new MembershipApplicationBuilder() )->newApplicationFromRequest( $request );
+		$application = ( new MembershipApplicationBuilder( new TestIncentiveFinder() ) )->newApplicationFromRequest( $request );
 
 		$this->assertIsExpectedCompanyPersonName( $application->getApplicant()->getName() );
 		$this->assertIsExpectedAddress( $application->getApplicant()->getPhysicalAddress() );
@@ -154,7 +155,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 	public function testWhenBuildingCompanyApplication_salutationFieldIsSet(): void {
 		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS );
 
-		$application = ( new MembershipApplicationBuilder() )->newApplicationFromRequest( $request );
+		$application = ( new MembershipApplicationBuilder( new TestIncentiveFinder() ) )->newApplicationFromRequest( $request );
 
 		$this->assertSame( ApplicantName::COMPANY_SALUTATION, $application->getApplicant()->getName()->getSalutation() );
 	}
@@ -162,7 +163,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 	public function testWhenBuildingApplicationIncentivesAreSet(): void {
 		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS, [ 'inner_peace', 'a_better_world' ] );
 
-		$application = ( new MembershipApplicationBuilder() )->newApplicationFromRequest( $request );
+		$application = ( new MembershipApplicationBuilder( new TestIncentiveFinder() ) )->newApplicationFromRequest( $request );
 		$incentives = iterator_to_array( $application->getIncentives() );
 
 		$this->assertCount( 2, $incentives );

@@ -6,7 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Infrastructure;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
@@ -30,13 +30,13 @@ class LoggingApplicationRepository implements ApplicationRepository {
 	}
 
 	/**
-	 * @see MembershipApplicationRepository::storeApplication
-	 *
-	 * @param Application $application
+	 * @param MembershipApplication $application
 	 *
 	 * @throws StoreMembershipApplicationException
+	 * @see MembershipApplicationRepository::storeApplication
+	 *
 	 */
-	public function storeApplication( Application $application ): void {
+	public function storeApplication( MembershipApplication $application ): void {
 		try {
 			$this->repository->storeApplication( $application );
 		}
@@ -49,11 +49,11 @@ class LoggingApplicationRepository implements ApplicationRepository {
 	/**
 	 * @param int $id
 	 *
-	 * @return Application|null
+	 * @return MembershipApplication|null
 	 *
 	 * @throws GetMembershipApplicationException
 	 */
-	public function getApplicationById( int $id ): ?Application {
+	public function getApplicationById( int $id ): ?MembershipApplication {
 		try {
 			return $this->repository->getApplicationById( $id );
 		}

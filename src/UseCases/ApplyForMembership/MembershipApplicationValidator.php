@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeResult;
@@ -77,7 +77,7 @@ class MembershipApplicationValidator {
 
 	private function validateMembershipType(): void {
 		$membershiptype = $this->request->getMembershipType();
-		if ( $membershiptype !== Application::ACTIVE_MEMBERSHIP && $membershiptype !== Application::SUSTAINING_MEMBERSHIP ) {
+		if ( $membershiptype !== MembershipApplication::ACTIVE_MEMBERSHIP && $membershiptype !== MembershipApplication::SUSTAINING_MEMBERSHIP ) {
 			$this->violations[Result::SOURCE_APPLICANT_MEMBERSHIP_TYPE] = Result::VIOLATION_INVALID_MEMBERSHIP_TYPE;
 		}
 	}

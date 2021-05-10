@@ -4,12 +4,12 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 
 class MailTemplateValueBuilder {
 
-	public function buildValuesForTemplate( Application $application ): array {
+	public function buildValuesForTemplate( MembershipApplication $application ): array {
 		$incentives = [];
 		/* @var Incentive $incentive */
 		foreach ( $application->getIncentives() as $incentive ) {

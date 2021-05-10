@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation;
 
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 
 /**
  * @license GPL-2.0-or-later
@@ -12,7 +12,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
  */
 interface ShowApplicationConfirmationPresenter {
 
-	public function presentConfirmation( Application $application, string $updateToken ): void;
+	public function presentConfirmation( MembershipApplication $application, string $updateToken ): void;
 
 	public function presentApplicationWasAnonymized(): void;
 

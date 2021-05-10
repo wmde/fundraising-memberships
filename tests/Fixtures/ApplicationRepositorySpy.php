@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Fixtures;
 
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 
 /**
@@ -16,19 +16,19 @@ class ApplicationRepositorySpy extends FakeApplicationRepository {
 	private $storeApplicationCalls = [];
 	private $getApplicationCalls = [];
 
-	public function __construct( Application ...$applications ) {
+	public function __construct( MembershipApplication ...$applications ) {
 		parent::__construct( ...$applications );
 		$this->storeApplicationCalls = [];
 	}
 
-	public function storeApplication( Application $application ): void {
+	public function storeApplication( MembershipApplication $application ): void {
 		// protect against the application being changed later
 		$this->storeApplicationCalls[] = clone $application;
 		parent::storeApplication( $application );
 	}
 
 	/**
-	 * @return Application[]
+	 * @return MembershipApplication[]
 	 */
 	public function getStoreApplicationCalls(): array {
 		return $this->storeApplicationCalls;
@@ -37,10 +37,10 @@ class ApplicationRepositorySpy extends FakeApplicationRepository {
 	/**
 	 * @param int $id
 	 *
-	 * @return Application|null
+	 * @return MembershipApplication|null
 	 * @throws GetMembershipApplicationException
 	 */
-	public function getApplicationById( int $id ): ?Application {
+	public function getApplicationById( int $id ): ?MembershipApplication {
 		$this->getApplicationCalls[] = $id;
 		return parent::getApplicationById( $id );
 	}

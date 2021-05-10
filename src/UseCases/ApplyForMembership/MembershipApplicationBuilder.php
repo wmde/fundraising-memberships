@@ -6,13 +6,16 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\MembershipContext\DataAccess\Exception\UnknownIncentive;
+use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Payment;
 use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TestIncentiveFinder;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
@@ -24,14 +27,21 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
  */
 class MembershipApplicationBuilder {
 
-	public function newApplicationFromRequest( ApplyForMembershipRequest $request ): Application {
-		$application = Application::newApplication(
+	private IncentiveFinder $incentiveFinder;
+
+	public function __construct( IncentiveFinder $incentiveFinder ) {
+		$this->incentiveFinder = $incentiveFinder;
+	}
+
+	public function newApplicationFromRequest( ApplyForMembershipRequest $request ): MembershipApplication {
+		$application = new MembershipApplication(
+			null,
 			$request->getMembershipType(),
 			$this->newApplicant( $request ),
 			$this->newPayment( $request ),
 			$request->getOptsIntoDonationReceipt()
 		);
-		$application = $this->addIncentives( $application, $request );
+		$this->addIncentives( $application, $request );
 		return $application;
 	}
 
@@ -99,11 +109,14 @@ class MembershipApplicationBuilder {
 		throw new \RuntimeException( 'Unsupported payment type' );
 	}
 
-	private function addIncentives( Application $application, ApplyForMembershipRequest $request ): Application {
+	private function addIncentives( MembershipApplication $application, ApplyForMembershipRequest $request ) {
 		foreach ( $request->getIncentives() as $incentiveName ) {
+			$foundIncentive = $this->incentiveFinder->findIncentiveByName( $incentiveName );
+			if ( $foundIncentive === null ) {
+				throw new UnknownIncentive( sprintf( 'Incentive "%s" not found', $incentiveName ) );
+			}
 			$application->addIncentive( new Incentive( $incentiveName ) );
 		}
-		return $application;
 	}
 
 }

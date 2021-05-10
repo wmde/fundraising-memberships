@@ -11,8 +11,8 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApp
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Payment;
 use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
@@ -46,7 +46,7 @@ class ValidMembershipApplication {
 	public const APPLICANT_EMAIL_ADDRESS = 'jeroendedauw@gmail.com';
 	public const APPLICANT_PHONE_NUMBER = '1337-1337-1337';
 
-	public const MEMBERSHIP_TYPE = Application::SUSTAINING_MEMBERSHIP;
+	public const MEMBERSHIP_TYPE = MembershipApplication::SUSTAINING_MEMBERSHIP;
 	public const PAYMENT_TYPE_PAYPAL = 'PPL';
 	public const PAYMENT_TYPE_DIRECT_DEBIT = 'BEZ';
 	public const PAYMENT_PERIOD_IN_MONTHS = 3;
@@ -68,9 +68,10 @@ class ValidMembershipApplication {
 	public const OPTS_INTO_DONATION_RECEIPT = true;
 	public const INCENTIVE_NAME = 'eternal_thankfulness';
 
-	public static function newDomainEntity(): Application {
+	public static function newDomainEntity(): MembershipApplication {
 		$self = ( new self() );
-		return Application::newApplication(
+		return new MembershipApplication(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			$self->newPayment(),
@@ -78,15 +79,16 @@ class ValidMembershipApplication {
 		);
 	}
 
-	public static function newAutoConfirmedDomainEntity(): Application {
+	public static function newAutoConfirmedDomainEntity(): MembershipApplication {
 		$application = self::newDomainEntity();
 		$application->confirm();
 		return $application;
 	}
 
-	public static function newCompanyApplication(): Application {
+	public static function newCompanyApplication(): MembershipApplication {
 		$self = ( new self() );
-		return Application::newApplication(
+		return new MembershipApplication(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newCompanyApplicantName() ),
 			$self->newPaymentWithHighAmount( self::PAYMENT_PERIOD_IN_MONTHS, self::COMPANY_PAYMENT_AMOUNT_IN_EURO ),
@@ -94,9 +96,10 @@ class ValidMembershipApplication {
 		);
 	}
 
-	public static function newApplicationWithTooHighQuarterlyAmount(): Application {
+	public static function newApplicationWithTooHighQuarterlyAmount(): MembershipApplication {
 		$self = ( new self() );
-		return Application::newApplication(
+		return new MembershipApplication(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			$self->newPaymentWithHighAmount( self::PAYMENT_PERIOD_IN_MONTHS, self::TOO_HIGH_QUARTERLY_PAYMENT_AMOUNT_IN_EURO ),
@@ -104,9 +107,10 @@ class ValidMembershipApplication {
 		);
 	}
 
-	public static function newApplicationWithTooHighYearlyAmount(): Application {
+	public static function newApplicationWithTooHighYearlyAmount(): MembershipApplication {
 		$self = ( new self() );
-		return Application::newApplication(
+		return new MembershipApplication(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			$self->newPaymentWithHighAmount( 12, self::TOO_HIGH_YEARLY_PAYMENT_AMOUNT_IN_EURO ),
@@ -114,17 +118,18 @@ class ValidMembershipApplication {
 		);
 	}
 
-	public static function newDomainEntityUsingPayPal( PayPalData $payPalData = null ): Application {
+	public static function newDomainEntityUsingPayPal( PayPalData $payPalData = null ): MembershipApplication {
 		return ( new self() )->createApplicationUsingPayPal( $payPalData );
 	}
 
-	public static function newConfirmedSubscriptionDomainEntity(): Application {
+	public static function newConfirmedSubscriptionDomainEntity(): MembershipApplication {
 		$self = ( new self() );
 
 		$payPalData = ( new PayPalData() )
 			->setSubscriberId( 'subscription_id' );
 
-		$application = Application::newApplication(
+		$application = new MembershipApplication(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			$self->newPayPalPayment( $payPalData ),
@@ -145,26 +150,15 @@ class ValidMembershipApplication {
 		);
 	}
 
-	public static function newDomainEntityWithEmailAddress( string $emailAddress ): Application {
+	public static function newDomainEntityWithEmailAddress( string $emailAddress ): MembershipApplication {
 		$self = ( new self() );
-		return Application::newApplication(
+		return new MembershipApplication(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicantWithEmailAddress( $self->newPersonApplicantName(), $emailAddress ),
 			$self->newPayment(),
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
-	}
-
-	public static function newApplicationWithIncentives(): Application {
-		$self = ( new self() );
-		$application = Application::newApplication(
-			self::MEMBERSHIP_TYPE,
-			$self->newApplicant( $self->newPersonApplicantName() ),
-			$self->newPayment(),
-			self::OPTS_INTO_DONATION_RECEIPT
-		);
-		$application->addIncentive( self::newIncentive() );
-		return $application;
 	}
 
 	private function newApplicantWithEmailAddress( ApplicantName $name, string $emailAddress ): Applicant {
@@ -177,9 +171,10 @@ class ValidMembershipApplication {
 		);
 	}
 
-	private function createApplicationUsingPayPal( PayPalData $payPalData = null ): Application {
+	private function createApplicationUsingPayPal( PayPalData $payPalData = null ): MembershipApplication {
 		$self = ( new self() );
-		return Application::newApplication(
+		return new MembershipApplication(
+			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			$this->newPayPalPayment( $payPalData ),

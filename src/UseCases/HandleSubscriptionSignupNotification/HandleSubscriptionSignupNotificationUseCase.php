@@ -6,7 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\HandleSubscriptionSignupNo
 
 use Psr\Log\LoggerInterface;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
@@ -49,7 +49,7 @@ class HandleSubscriptionSignupNotificationUseCase {
 
 	private function handleRequestForMembershipApplication(
 		SubscriptionSignupRequest $request,
-		Application $application ): PaypalNotificationResponse {
+		MembershipApplication $application ): PaypalNotificationResponse {
 		$paymentMethod = $application->getPayment()->getPaymentMethod();
 
 		if ( !( $paymentMethod instanceof PayPalPayment ) ) {
@@ -93,7 +93,7 @@ class HandleSubscriptionSignupNotificationUseCase {
 		] );
 	}
 
-	private function sendConfirmationEmail( Application $application ): void {
+	private function sendConfirmationEmail( MembershipApplication $application ): void {
 		try {
 			$this->mailer->sendMail(
 				$application->getApplicant()->getEmailAddress(),

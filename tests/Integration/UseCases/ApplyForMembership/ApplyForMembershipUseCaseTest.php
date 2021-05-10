@@ -20,6 +20,7 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedMembershipTokenGenera
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedPaymentDelayCalculator;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\InMemoryApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TemplateBasedMailerSpy;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TestIncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
@@ -112,7 +113,8 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 			$this->tracker,
 			$this->piwikTracker,
 			$this->newFixedPaymentDelayCalculator(),
-			$this->eventEmitter
+			$this->eventEmitter,
+			new TestIncentiveFinder()
 		);
 	}
 
@@ -315,10 +317,10 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		return $policyValidator;
 	}
 
-	public function testWhenUsingBlacklistedEmailAddress_moderationIsAutomaticallyDeleted(): void {
+	public function testWhenUsingForbiddenEmailAddress_applicationIsCancelledAutomatically(): void {
 		$this->policyValidator = $this->newAutoDeletingPolicyValidator();
 		$this->newUseCase()->applyForMembership( $this->newValidRequest() );
-		$this->assertTrue( $this->repository->getApplicationById( 1 )->isDeleted() );
+		$this->assertTrue( $this->repository->getApplicationById( 1 )->isCancelled() );
 	}
 
 	public function testWhenUsingPayPalPayment_delayInDaysIsPersisted(): void {

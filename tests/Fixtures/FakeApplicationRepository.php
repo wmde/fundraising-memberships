@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Fixtures;
 
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
@@ -22,7 +22,7 @@ class FakeApplicationRepository implements ApplicationRepository {
 	private $throwOnWrite = false;
 	private $throwAnonymizedOnRead = false;
 
-	public function __construct( Application ...$applications ) {
+	public function __construct( MembershipApplication ...$applications ) {
 		foreach ( $applications as $application ) {
 			$this->storeApplication( $application );
 		}
@@ -40,7 +40,7 @@ class FakeApplicationRepository implements ApplicationRepository {
 		$this->throwAnonymizedOnRead = true;
 	}
 
-	public function storeApplication( Application $application ): void {
+	public function storeApplication( MembershipApplication $application ): void {
 		if ( $this->throwOnWrite ) {
 			throw new StoreMembershipApplicationException();
 		}
@@ -51,7 +51,7 @@ class FakeApplicationRepository implements ApplicationRepository {
 		$this->applications[$application->getId()] = unserialize( serialize( $application ) );
 	}
 
-	public function getApplicationById( int $id ): ?Application {
+	public function getApplicationById( int $id ): ?MembershipApplication {
 		if ( $this->throwAnonymizedOnRead ) {
 			throw new ApplicationAnonymizedException();
 		}

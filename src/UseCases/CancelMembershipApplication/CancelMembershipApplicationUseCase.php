@@ -5,10 +5,11 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication;
 
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Application;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
+use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogger;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 
 /**
@@ -17,15 +18,20 @@ use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
  */
 class CancelMembershipApplicationUseCase {
 
-	private $authorizer;
-	private $repository;
-	private $mailer;
+	public const LOG_MESSAGE_FRONTEND_STATUS_CHANGE = 'frontend: cancellation';
+	public const LOG_MESSAGE_ADMIN_STATUS_CHANGE = 'cancelled by user: %s';
 
-	public function __construct( ApplicationAuthorizer $authorizer,
-		ApplicationRepository $repository, TemplateMailerInterface $mailer ) {
+	private ApplicationAuthorizer $authorizer;
+	private ApplicationRepository $repository;
+	private TemplateMailerInterface $mailer;
+	private MembershipApplicationEventLogger $membershipApplicationEventLogger;
+
+	public function __construct( ApplicationAuthorizer $authorizer, ApplicationRepository $repository,
+		TemplateMailerInterface $mailer, MembershipApplicationEventLogger $membershipApplicationEventLogger ) {
 		$this->authorizer = $authorizer;
 		$this->repository = $repository;
 		$this->mailer = $mailer;
+		$this->membershipApplicationEventLogger = $membershipApplicationEventLogger;
 	}
 
 	public function cancelApplication( CancellationRequest $request ): CancellationResponse {
@@ -47,13 +53,24 @@ class CancelMembershipApplicationUseCase {
 			catch ( StoreMembershipApplicationException $ex ) {
 				return $this->newFailureResponse( $request );
 			}
-			$this->sendConfirmationEmail( $application );
+			if ( !$request->initiatedByApplicant() ) {
+				$this->sendConfirmationEmail( $application );
+			}
 		}
+
+		$this->membershipApplicationEventLogger->log( $request->getApplicationId(), $this->getLogMessage( $request ) );
 
 		return $this->newSuccessResponse( $request );
 	}
 
-	private function getApplicationById( int $id ): ?Application {
+	public function getLogMessage( CancellationRequest $cancellationRequest ): string {
+		if ( $cancellationRequest->initiatedByApplicant() ) {
+			return sprintf( self::LOG_MESSAGE_ADMIN_STATUS_CHANGE, $cancellationRequest->getUserName() );
+		}
+		return self::LOG_MESSAGE_FRONTEND_STATUS_CHANGE;
+	}
+
+	private function getApplicationById( int $id ): ?MembershipApplication {
 		try {
 			return $this->repository->getApplicationById( $id );
 		}
@@ -70,14 +87,14 @@ class CancelMembershipApplicationUseCase {
 		return new CancellationResponse( $request->getApplicationId(), CancellationResponse::IS_SUCCESS );
 	}
 
-	private function sendConfirmationEmail( Application $application ): void {
+	private function sendConfirmationEmail( MembershipApplication $application ): void {
 		$this->mailer->sendMail(
 			$application->getApplicant()->getEmailAddress(),
 			$this->getConfirmationMailTemplateArguments( $application )
 		);
 	}
 
-	private function getConfirmationMailTemplateArguments( Application $application ): array {
+	private function getConfirmationMailTemplateArguments( MembershipApplication $application ): array {
 		return [
 			'applicationId' => $application->getId(),
 			'membershipApplicant' => [
