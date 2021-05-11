@@ -4,7 +4,9 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ModerateMembershipApplication;
 
-class ModerateMembershipApplicationResponse {
+use WMDE\Fundraising\MembershipContext\UseCases\SimpleResponse;
+
+class ModerateMembershipApplicationResponse implements SimpleResponse {
 	public const SUCCESS = 'success';
 	public const FAILURE = 'failure';
 
@@ -16,11 +18,11 @@ class ModerateMembershipApplicationResponse {
 		$this->state = $state;
 	}
 
-	public function getMembershipApplication(): int {
+	public function getMembershipApplicationId(): int {
 		return $this->membershipApplicationId;
 	}
 
-	public function moderationChangeSucceeded(): bool {
+	public function isSuccess(): bool {
 		return $this->state !== self::FAILURE;
 	}
 }

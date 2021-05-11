@@ -33,7 +33,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 		$response = $useCase->markMembershipApplicationAsModerated( 1, self::AUTH_USER_NAME );
 
-		$this->assertFalse( $response->moderationChangeSucceeded() );
+		$this->assertFalse( $response->isSuccess() );
 	}
 
 	public function testApproveNonExistentMembershipApplication_actionFails() {
@@ -41,7 +41,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 		$response = $useCase->approveMembershipApplication( 1, self::AUTH_USER_NAME );
 
-		$this->assertFalse( $response->moderationChangeSucceeded() );
+		$this->assertFalse( $response->isSuccess() );
 	}
 
 	public function testSetModerateOnMembershipApplication_actionSucceeds() {
@@ -50,7 +50,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 		$response = $useCase->markMembershipApplicationAsModerated( 1, self::AUTH_USER_NAME );
 
-		$this->assertTrue( $response->moderationChangeSucceeded() );
+		$this->assertTrue( $response->isSuccess() );
 	}
 
 	public function testSetModerateOnMembershipApplication_setsModerated() {
@@ -59,7 +59,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 		$response = $useCase->markMembershipApplicationAsModerated( 1, self::AUTH_USER_NAME );
 
-		$this->assertTrue( $response->moderationChangeSucceeded() );
+		$this->assertTrue( $response->isSuccess() );
 	}
 
 	public function testSetModerateOnMembershipApplication_returnsMembershipApplicationId() {
@@ -68,7 +68,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 		$response = $useCase->markMembershipApplicationAsModerated( 1, self::AUTH_USER_NAME );
 
-		$this->assertSame( 1, $response->getMembershipApplication() );
+		$this->assertSame( 1, $response->getMembershipApplicationId() );
 	}
 
 	public function testSetModerateOnMembershipApplicationThatIsMarkedForModeration_actionFails() {
@@ -78,7 +78,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 		$response = $useCase->markMembershipApplicationAsModerated( 1, self::AUTH_USER_NAME );
 
-		$this->assertFalse( $response->moderationChangeSucceeded() );
+		$this->assertFalse( $response->isSuccess() );
 	}
 
 	public function testSetModerateOnCancelledMembershipApplication_actionFails() {
@@ -88,7 +88,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 		$response = $useCase->markMembershipApplicationAsModerated( 1, self::AUTH_USER_NAME );
 
-		$this->assertFalse( $response->moderationChangeSucceeded() );
+		$this->assertFalse( $response->isSuccess() );
 	}
 
 	public function testApproveMembershipApplication_removesModeratedStatus() {
@@ -108,7 +108,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 		$response = $useCase->approveMembershipApplication( 1, self::AUTH_USER_NAME );
 
-		$this->assertFalse( $response->moderationChangeSucceeded() );
+		$this->assertFalse( $response->isSuccess() );
 	}
 
 	public function testOnModerateMembershipApplication_adminUserNameIsWrittenAsLogEntry(): void {
