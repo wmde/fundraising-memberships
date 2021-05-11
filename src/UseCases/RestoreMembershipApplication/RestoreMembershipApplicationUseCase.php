@@ -23,11 +23,11 @@ class RestoreMembershipApplicationUseCase {
 		$membershipApplication = $this->applicationRepository->getApplicationById( $membershipApplicationId );
 
 		if ( $membershipApplication === null ) {
-			return $this->newRestoreFailureResponse( $membershipApplicationId );
+			return RestoreMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
 		}
 
 		if ( !$membershipApplication->isCancelled() ) {
-			return $this->newRestoreFailureResponse( $membershipApplicationId );
+			return RestoreMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
 		}
 
 		$membershipApplication->restore();
@@ -38,20 +38,6 @@ class RestoreMembershipApplicationUseCase {
 			sprintf( self::LOG_MESSAGE_MARKED_AS_RESTORED, $authorizedUser )
 		);
 
-		return $this->newRestoreSuccessResponse( $membershipApplicationId );
-	}
-
-	private function newRestoreFailureResponse( int $membershipApplicationId ): RestoreMembershipApplicationResponse {
-		return new RestoreMembershipApplicationResponse(
-			$membershipApplicationId,
-			RestoreMembershipApplicationResponse::FAILURE
-		);
-	}
-
-	private function newRestoreSuccessResponse( int $membershipApplicationId ): RestoreMembershipApplicationResponse {
-		return new RestoreMembershipApplicationResponse(
-			$membershipApplicationId,
-			RestoreMembershipApplicationResponse::SUCCESS
-		);
+		return RestoreMembershipApplicationResponse::newSuccessResponse( $membershipApplicationId );
 	}
 }

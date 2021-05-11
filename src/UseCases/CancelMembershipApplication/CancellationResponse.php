@@ -14,10 +14,7 @@ class CancellationResponse implements SimpleResponse {
 	private int $applicationId;
 	private bool $success;
 
-	public const IS_SUCCESS = true;
-	public const IS_FAILURE = false;
-
-	public function __construct( int $applicationId, bool $isSuccess ) {
+	private function __construct( int $applicationId, bool $isSuccess ) {
 		$this->applicationId = $applicationId;
 		$this->success = $isSuccess;
 	}
@@ -28,6 +25,14 @@ class CancellationResponse implements SimpleResponse {
 
 	public function isSuccess(): bool {
 		return $this->success;
+	}
+
+	public static function newSuccessResponse( int $membershipApplicationId ): self {
+		return new self( $membershipApplicationId, true );
+	}
+
+	public static function newFailureResponse( int $membershipApplicationId ): self {
+		return new self( $membershipApplicationId, false );
 	}
 
 }
