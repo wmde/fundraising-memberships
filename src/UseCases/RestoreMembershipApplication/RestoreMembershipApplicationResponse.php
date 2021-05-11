@@ -4,7 +4,9 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\RestoreMembershipApplication;
 
-class RestoreMembershipApplicationResponse {
+use WMDE\Fundraising\MembershipContext\UseCases\SimpleResponse;
+
+class RestoreMembershipApplicationResponse implements SimpleResponse {
 
 	public const SUCCESS = 'success';
 	public const FAILURE = 'failure';
@@ -17,11 +19,11 @@ class RestoreMembershipApplicationResponse {
 		$this->state = $state;
 	}
 
-	public function getMembershipApplication(): int {
+	public function getMembershipApplicationId(): int {
 		return $this->membershipApplicationId;
 	}
 
-	public function restoreSucceeded(): bool {
+	public function isSuccess(): bool {
 		return $this->state !== self::FAILURE;
 	}
 }

@@ -31,7 +31,7 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 
 		$response = $useCase->restoreApplication( 999, self::AUTH_USER_NAME );
 
-		$this->assertFalse( $response->restoreSucceeded() );
+		$this->assertFalse( $response->isSuccess() );
 	}
 
 	public function testOnRestoreMembershipApplication_actionSucceeds() {
@@ -41,7 +41,7 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 
 		$response = $useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
 
-		$this->assertTrue( $response->restoreSucceeded() );
+		$this->assertTrue( $response->isSuccess() );
 	}
 
 	public function testOnRestoreMembershipApplication_removesCancelledStatus() {
@@ -61,7 +61,7 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 
 		$response = $useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
 
-		$this->assertSame( 1, $response->getMembershipApplication() );
+		$this->assertSame( 1, $response->getMembershipApplicationId() );
 	}
 
 	public function testOnRestoreOnNonCancelledMembershipApplication_actionFails() {
@@ -70,7 +70,7 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 
 		$response = $useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
 
-		$this->assertFalse( $response->restoreSucceeded() );
+		$this->assertFalse( $response->isSuccess() );
 	}
 
 	public function testOnRestoreMembershipApplication_adminUserNameIsWrittenInLogEntry(): void {

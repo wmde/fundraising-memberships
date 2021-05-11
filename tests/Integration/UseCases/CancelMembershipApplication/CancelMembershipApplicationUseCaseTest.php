@@ -49,7 +49,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 			new CancellationRequest( self::ID_OF_NON_EXISTING_APPLICATION )
 		);
 
-		$this->assertFalse( $response->cancellationWasSuccessful() );
+		$this->assertFalse( $response->isSuccess() );
 	}
 
 	private function newUseCase(): CancelMembershipApplicationUseCase {
@@ -77,7 +77,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 			new CancellationRequest( $this->cancelableApplication->getId() )
 		);
 
-		$this->assertTrue( $response->cancellationWasSuccessful() );
+		$this->assertTrue( $response->isSuccess() );
 		$this->assertSame(
 			$this->cancelableApplication->getId(),
 			$response->getMembershipApplicationId()
@@ -91,7 +91,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 			new CancellationRequest( $this->cancelableApplication->getId() )
 		);
 
-		$this->assertFalse( $response->cancellationWasSuccessful() );
+		$this->assertFalse( $response->isSuccess() );
 	}
 
 	public function testWhenSaveFails_cancellationFails() {
@@ -101,7 +101,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 			new CancellationRequest( $this->cancelableApplication->getId() )
 		);
 
-		$this->assertFalse( $response->cancellationWasSuccessful() );
+		$this->assertFalse( $response->isSuccess() );
 	}
 
 	public function testWhenApplicationGetsCancelled_confirmationEmailIsSent(): void {
@@ -138,7 +138,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 		$response = $this->newUseCase()->cancelApplication( new CancellationRequest( $application->getId() ) );
 
 		$this->assertEmpty( $this->mailer->getSendMailCalls() );
-		$this->assertTrue( $response->cancellationWasSuccessful() );
+		$this->assertTrue( $response->isSuccess() );
 	}
 
 	public function testWhenGivenAuthorizedUser_logsUserName() {
