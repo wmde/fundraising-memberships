@@ -7,15 +7,12 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ModerateMembershipApplicat
 use WMDE\Fundraising\MembershipContext\UseCases\SimpleResponse;
 
 class ModerateMembershipApplicationResponse implements SimpleResponse {
-	public const SUCCESS = 'success';
-	public const FAILURE = 'failure';
-
 	private int $membershipApplicationId;
-	private string $state;
+	private bool $success;
 
-	public function __construct( int $membershipApplicationId, string $state ) {
+	private function __construct( int $membershipApplicationId, bool $isSuccess ) {
 		$this->membershipApplicationId = $membershipApplicationId;
-		$this->state = $state;
+		$this->success = $isSuccess;
 	}
 
 	public function getMembershipApplicationId(): int {
@@ -23,6 +20,14 @@ class ModerateMembershipApplicationResponse implements SimpleResponse {
 	}
 
 	public function isSuccess(): bool {
-		return $this->state !== self::FAILURE;
+		return $this->success;
+	}
+
+	public static function newSuccessResponse( int $membershipApplicationId ): self {
+		return new self( $membershipApplicationId, true );
+	}
+
+	public static function newFailureResponse( int $membershipApplicationId ): self {
+		return new self( $membershipApplicationId, false );
 	}
 }

@@ -24,15 +24,15 @@ class ModerateMembershipApplicationUseCase {
 		$membershipApplication = $this->applicationRepository->getApplicationById( $membershipApplicationId );
 
 		if ( $membershipApplication === null ) {
-			return $this->newModerationFailureResponse( $membershipApplicationId );
+			return ModerateMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
 		}
 
 		if ( $membershipApplication->needsModeration() ) {
-			return $this->newModerationFailureResponse( $membershipApplicationId );
+			return ModerateMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
 		}
 
 		if ( $membershipApplication->isCancelled() ) {
-			return $this->newModerationFailureResponse( $membershipApplicationId );
+			return ModerateMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
 		}
 
 		$membershipApplication->markForModeration();
@@ -43,18 +43,18 @@ class ModerateMembershipApplicationUseCase {
 			sprintf( self::LOG_MESSAGE_MARKED_FOR_MODERATION, $authorizedUser )
 		);
 
-		return $this->newModerationSuccessResponse( $membershipApplicationId );
+		return ModerateMembershipApplicationResponse::newSuccessResponse( $membershipApplicationId );
 	}
 
 	public function approveMembershipApplication( int $membershipApplicationId, string $authorizedUser ): ModerateMembershipApplicationResponse {
 		$membershipApplication = $this->applicationRepository->getApplicationById( $membershipApplicationId );
 
 		if ( $membershipApplication === null ) {
-			return $this->newModerationFailureResponse( $membershipApplicationId );
+			return ModerateMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
 		}
 
 		if ( !$membershipApplication->needsModeration() ) {
-			return $this->newModerationFailureResponse( $membershipApplicationId );
+			return ModerateMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
 		}
 
 		$membershipApplication->approve();
@@ -65,20 +65,7 @@ class ModerateMembershipApplicationUseCase {
 			sprintf( self::LOG_MESSAGE_MARKED_AS_APPROVED, $authorizedUser )
 		);
 
-		return $this->newModerationSuccessResponse( $membershipApplicationId );
+		return ModerateMembershipApplicationResponse::newSuccessResponse( $membershipApplicationId );
 	}
 
-	private function newModerationFailureResponse( int $membershipApplicationId ): ModerateMembershipApplicationResponse {
-		return new ModerateMembershipApplicationResponse(
-			$membershipApplicationId,
-			ModerateMembershipApplicationResponse::FAILURE
-		);
-	}
-
-	private function newModerationSuccessResponse( int $membershipApplicationId ): ModerateMembershipApplicationResponse {
-		return new ModerateMembershipApplicationResponse(
-			$membershipApplicationId,
-			ModerateMembershipApplicationResponse::SUCCESS
-		);
-	}
 }

@@ -35,14 +35,15 @@ class CancelMembershipApplicationUseCase {
 	}
 
 	public function cancelApplication( CancellationRequest $request ): CancellationResponse {
-		if ( !$this->authorizer->canModifyApplication( $request->getApplicationId() ) ) {
-			return $this->newFailureResponse( $request );
+		$membershipApplicationId = $request->getApplicationId();
+		if ( !$this->authorizer->canModifyApplication( $membershipApplicationId ) ) {
+			return CancellationResponse::newFailureResponse( $membershipApplicationId );
 		}
 
-		$application = $this->getApplicationById( $request->getApplicationId() );
+		$application = $this->getApplicationById( $membershipApplicationId );
 
 		if ( $application === null ) {
-			return $this->newFailureResponse( $request );
+			return CancellationResponse::newFailureResponse( $membershipApplicationId );
 		}
 
 		if ( !$application->isCancelled() ) {
@@ -51,16 +52,16 @@ class CancelMembershipApplicationUseCase {
 				$this->repository->storeApplication( $application );
 			}
 			catch ( StoreMembershipApplicationException $ex ) {
-				return $this->newFailureResponse( $request );
+				return CancellationResponse::newFailureResponse( $membershipApplicationId );
 			}
 			if ( !$request->initiatedByApplicant() ) {
 				$this->sendConfirmationEmail( $application );
 			}
 		}
 
-		$this->membershipApplicationEventLogger->log( $request->getApplicationId(), $this->getLogMessage( $request ) );
+		$this->membershipApplicationEventLogger->log( $membershipApplicationId, $this->getLogMessage( $request ) );
 
-		return $this->newSuccessResponse( $request );
+		return CancellationResponse::newSuccessResponse( $membershipApplicationId );
 	}
 
 	public function getLogMessage( CancellationRequest $cancellationRequest ): string {
@@ -77,14 +78,6 @@ class CancelMembershipApplicationUseCase {
 		catch ( GetMembershipApplicationException $ex ) {
 			return null;
 		}
-	}
-
-	private function newFailureResponse( CancellationRequest $request ): CancellationResponse {
-		return new CancellationResponse( $request->getApplicationId(), CancellationResponse::IS_FAILURE );
-	}
-
-	private function newSuccessResponse( CancellationRequest $request ): CancellationResponse {
-		return new CancellationResponse( $request->getApplicationId(), CancellationResponse::IS_SUCCESS );
 	}
 
 	private function sendConfirmationEmail( MembershipApplication $application ): void {
