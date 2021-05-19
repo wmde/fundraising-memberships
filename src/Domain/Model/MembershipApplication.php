@@ -6,7 +6,9 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
 use RuntimeException;
 use Traversable;
+use WMDE\Fundraising\PaymentContext\Domain\Model\BookablePayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentTransactionData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
 /**
@@ -134,20 +136,18 @@ class MembershipApplication {
 		return $this->exported;
 	}
 
-	public function confirmSubscriptionCreated(): void {
-		if ( !$this->hasExternalPayment() ) {
-			throw new RuntimeException( 'Only external payments can be confirmed as booked' );
+	public function confirmSubscriptionCreated( PaymentTransactionData $paymentTransactionData ): void {
+		$paymentMethod = $this->getPayment()->getPaymentMethod();
+		if ( !( $paymentMethod instanceof BookablePayment ) ) {
+			throw new RuntimeException( 'Only bookable payments can be confirmed as booked' );
 		}
 
 		if ( !$this->statusAllowsForBooking() ) {
 			throw new RuntimeException( 'Only unconfirmed membership applications can be confirmed as booked' );
 		}
 
+		$paymentMethod->bookPayment( $paymentTransactionData );
 		$this->confirm();
-	}
-
-	public function hasExternalPayment(): bool {
-		return $this->getPayment()->getPaymentMethod()->getId() === PaymentMethod::PAYPAL;
 	}
 
 	private function statusAllowsForBooking(): bool {

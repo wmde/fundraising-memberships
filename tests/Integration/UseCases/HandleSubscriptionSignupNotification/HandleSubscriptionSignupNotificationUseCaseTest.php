@@ -26,10 +26,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\HandleSubscriptionSignupNotifica
  */
 class HandleSubscriptionSignupNotificationUseCaseTest extends TestCase {
 
-	/**
-	 * @var TemplateBasedMailerSpy
-	 */
-	private $mailerSpy;
+	private TemplateBasedMailerSpy $mailerSpy;
 
 	public function setUp(): void {
 		$this->mailerSpy = new TemplateBasedMailerSpy( $this );
