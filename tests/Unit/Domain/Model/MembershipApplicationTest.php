@@ -105,4 +105,22 @@ class MembershipApplicationTest extends TestCase {
 		$application->cancel();
 	}
 
+	public function testMembershipsWithNonBookablePaymentsAreAutomaticallyConfirmed(): void {
+		$application = ValidMembershipApplication::newDomainEntity();
+
+		$this->assertTrue( $application->isConfirmed() );
+	}
+
+	public function testMembershipsWithUnBookedPaymentsAreNotConfirmed(): void {
+		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( ValidMembershipApplication::newPayPalData() );
+
+		$this->assertFalse( $application->isConfirmed() );
+	}
+
+	public function testMembershipsWithBookedPaymentsAreConfirmed(): void {
+		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( ValidMembershipApplication::newBookedPayPalData() );
+
+		$this->assertTrue( $application->isConfirmed() );
+	}
+
 }

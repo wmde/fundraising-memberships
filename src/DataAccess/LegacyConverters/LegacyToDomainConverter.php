@@ -44,10 +44,6 @@ class LegacyToDomainConverter {
 			$application->markForModeration();
 		}
 
-		if ( $doctrineApplication->isConfirmed() ) {
-			$application->confirm();
-		}
-
 		if ( $doctrineApplication->isCancelled() ) {
 			$application->cancel();
 		}

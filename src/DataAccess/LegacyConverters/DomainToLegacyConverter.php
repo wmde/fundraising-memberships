@@ -120,11 +120,7 @@ class DomainToLegacyConverter {
 			return DoctrineApplication::STATUS_CANCELED;
 		}
 
-		if ( !$application->getPayment()->getPaymentMethod()->hasExternalProvider() ) {
-			return DoctrineApplication::STATUS_CONFIRMED;
-		}
-
-		if ( $application->getPayment()->getPaymentMethod()->paymentCompleted() ) {
+		if ( $application->isConfirmed() ) {
 			return DoctrineApplication::STATUS_CONFIRMED;
 		}
 

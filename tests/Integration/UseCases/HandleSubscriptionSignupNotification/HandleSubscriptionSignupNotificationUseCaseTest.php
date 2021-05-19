@@ -94,11 +94,10 @@ class HandleSubscriptionSignupNotificationUseCaseTest extends TestCase {
 		$this->assertFalse( $response->notificationWasHandled() );
 	}
 
-	public function testWhenStatusIsNotAllowedForConfirming_requestIsNotHandled(): void {
+	public function testWhenMembershipIsAlreadyConfirmed_requestIsNotHandled(): void {
 		$fakeRepository = new FakeApplicationRepository();
 
-		$application = ValidMembershipApplication::newDomainEntityUsingPayPal();
-		$application->confirm();
+		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( ValidMembershipApplication::newBookedPayPalData() );
 		$fakeRepository->storeApplication( $application );
 
 		$useCase = new HandleSubscriptionSignupNotificationUseCase(

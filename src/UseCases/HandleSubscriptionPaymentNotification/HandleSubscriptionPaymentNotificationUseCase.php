@@ -125,7 +125,6 @@ class HandleSubscriptionPaymentNotificationUseCase {
 			),
 			$application->getDonationReceipt()
 		);
-		$childApplication->confirm();
 
 		try {
 			$this->repository->storeApplication( $childApplication );
