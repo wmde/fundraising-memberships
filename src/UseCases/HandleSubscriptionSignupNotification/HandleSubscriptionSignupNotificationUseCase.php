@@ -60,10 +60,8 @@ class HandleSubscriptionSignupNotificationUseCase {
 			return $this->createUnhandledResponse( 'Wrong access code for membership application' );
 		}
 
-		$paymentMethod->addPayPalData( $this->newPayPalDataFromRequest( $request ) );
-
 		try {
-			$application->confirmSubscriptionCreated();
+			$application->confirmSubscriptionCreated( $this->newPayPalDataFromRequest( $request ) );
 		} catch ( \RuntimeException $ex ) {
 			return $this->createErrorResponse( $ex );
 		}
