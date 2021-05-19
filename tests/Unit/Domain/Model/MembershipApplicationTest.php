@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication
@@ -119,6 +120,50 @@ class MembershipApplicationTest extends TestCase {
 
 	public function testMembershipsWithBookedPaymentsAreConfirmed(): void {
 		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( ValidMembershipApplication::newBookedPayPalData() );
+
+		$this->assertTrue( $application->isConfirmed() );
+	}
+
+	public function testMembershipsThatAreAlreadyBookedCannotBeBookedAgain(): void {
+		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( ValidMembershipApplication::newBookedPayPalData() );
+
+		$this->expectException( RuntimeException::class );
+		$this->expectExceptionMessageMatches( '/Only unconfirmed membership applications/' );
+
+		$application->confirmSubscriptionCreated( new PayPalData() );
+	}
+
+	public function testMembershipsWithNonBookablePaymentsCannotBeBooked(): void {
+		$application = ValidMembershipApplication::newDomainEntity();
+
+		$this->expectException( RuntimeException::class );
+		$this->expectExceptionMessageMatches( '/Only bookable payments can be confirmed as booked/' );
+
+		$application->confirmSubscriptionCreated( new PayPalData() );
+	}
+
+	public function testModeratedMembershipsCannotBeBooked(): void {
+		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( ValidMembershipApplication::newPayPalData() );
+		$application->markForModeration();
+
+		$this->expectException( RuntimeException::class );
+		$this->expectExceptionMessageMatches( '/Only unconfirmed membership applications/' );
+
+		$application->confirmSubscriptionCreated( ValidMembershipApplication::newBookedPayPalData() );
+	}
+
+	public function testSubscriptionConfirmationBooksPayment(): void {
+		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( ValidMembershipApplication::newPayPalData() );
+
+		$application->confirmSubscriptionCreated( ValidMembershipApplication::newBookedPayPalData() );
+
+		$this->assertTrue( $application->getPayment()->getPaymentMethod()->paymentCompleted() );
+	}
+
+	public function testSubscriptionConfirmationConfirmsMembershipApplication(): void {
+		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( ValidMembershipApplication::newPayPalData() );
+
+		$application->confirmSubscriptionCreated( ValidMembershipApplication::newBookedPayPalData() );
 
 		$this->assertTrue( $application->isConfirmed() );
 	}
