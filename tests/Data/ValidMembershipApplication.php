@@ -61,6 +61,9 @@ class ValidMembershipApplication {
 	public const PAYMENT_BIC = 'INGDDEFFXXX';
 	public const PAYMENT_IBAN = 'DE12500105170648489890';
 
+	public const PAYPAL_TRANSACTION_ID = '61E67681CH3238416';
+	public const PAYPAL_PAYER_ID = 'HE373U84ENFYQ';
+
 	public const TEMPLATE_CAMPAIGN = 'test161012';
 	public const TEMPLATE_NAME = 'Some_Membership_Form_Template.twig';
 	public const FIRST_PAYMENT_DATE = '2021-02-01';
@@ -77,12 +80,6 @@ class ValidMembershipApplication {
 			$self->newPayment(),
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
-	}
-
-	public static function newAutoConfirmedDomainEntity(): MembershipApplication {
-		$application = self::newDomainEntity();
-		$application->confirm();
-		return $application;
 	}
 
 	public static function newCompanyApplication(): MembershipApplication {
@@ -125,19 +122,16 @@ class ValidMembershipApplication {
 	public static function newConfirmedSubscriptionDomainEntity(): MembershipApplication {
 		$self = ( new self() );
 
-		$payPalData = ( new PayPalData() )
+		$payPalData = self::newBookedPayPalData()
 			->setSubscriberId( 'subscription_id' );
 
-		$application = new MembershipApplication(
+		return new MembershipApplication(
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			$self->newPayPalPayment( $payPalData ),
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
-		$application->confirm();
-
-		return $application;
 	}
 
 	private function newApplicant( ApplicantName $name ): Applicant {
@@ -235,13 +229,20 @@ class ValidMembershipApplication {
 		return new Payment(
 			self::PAYMENT_PERIOD_IN_MONTHS,
 			Euro::newFromFloat( self::PAYMENT_AMOUNT_IN_EURO ),
-			new PayPalPayment( $payPalData ?: $this->newPayPalData() )
+			new PayPalPayment( $payPalData ?: self::newPayPalData() )
 		);
 	}
 
-	private function newPayPalData(): PayPalData {
+	public static function newPayPalData(): PayPalData {
 		$payPalData = new PayPalData();
 		$payPalData->setFirstPaymentDate( self::FIRST_PAYMENT_DATE );
+		return $payPalData;
+	}
+
+	public static function newBookedPayPalData(): PayPalData {
+		$payPalData = self::newPayPalData();
+		$payPalData->setPayerId( self::PAYPAL_PAYER_ID );
+		$payPalData->setPaymentId( self::PAYPAL_TRANSACTION_ID );
 		return $payPalData;
 	}
 

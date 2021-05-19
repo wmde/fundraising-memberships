@@ -27,7 +27,7 @@ class MembershipApplication {
 	private Payment $payment;
 	private bool $moderationNeeded = false;
 	private bool $cancelled = false;
-	private bool $confirmed = false;
+	private bool $confirmed = true;
 	private bool $exported = false;
 	private ?bool $donationReceipt;
 	/** @var Incentive[] */
@@ -39,6 +39,10 @@ class MembershipApplication {
 		$this->applicant = $applicant;
 		$this->payment = $payment;
 		$this->donationReceipt = $donationReceipt;
+		$paymentMethod = $payment->getPaymentMethod();
+		if ( $paymentMethod instanceof BookablePayment ) {
+			$this->confirmed = $paymentMethod->paymentCompleted();
+		}
 	}
 
 	public function getId(): ?int {
@@ -124,10 +128,6 @@ class MembershipApplication {
 		return true;
 	}
 
-	public function confirm(): void {
-		$this->confirmed = true;
-	}
-
 	public function setExported(): void {
 		$this->exported = true;
 	}
@@ -147,7 +147,7 @@ class MembershipApplication {
 		}
 
 		$paymentMethod->bookPayment( $paymentTransactionData );
-		$this->confirm();
+		$this->confirmed = true;
 	}
 
 	private function statusAllowsForBooking(): bool {

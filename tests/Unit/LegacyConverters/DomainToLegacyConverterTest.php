@@ -46,8 +46,8 @@ class DomainToLegacyConverterTest extends TestCase {
 
 	public function testWhenPersistingApplicationWithConfirmedFlag_doctrineApplicationHasFlag(): void {
 		$doctrineApplication = new DoctrineApplication();
+		// Direct debit payments are auto-confirmed
 		$application = ValidMembershipApplication::newDomainEntity();
-		$application->confirm();
 
 		$converter = new DomainToLegacyConverter();
 		$converter->convert( $doctrineApplication, $application );
