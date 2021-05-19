@@ -151,7 +151,8 @@ class MembershipApplication {
 	}
 
 	private function statusAllowsForBooking(): bool {
-		return !$this->isConfirmed() || $this->needsModeration() || $this->isCancelled();
+		return !$this->isConfirmed() &&
+			!$this->needsModeration();
 	}
 
 	public function notifyOfFirstPaymentDate( string $firstPaymentDate ): void {
