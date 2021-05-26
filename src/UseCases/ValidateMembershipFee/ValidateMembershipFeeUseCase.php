@@ -15,13 +15,10 @@ class ValidateMembershipFeeUseCase {
 	public const APPLICANT_TYPE_COMPANY = 'firma';
 	public const APPLICANT_TYPE_PERSON = 'person';
 
-	/**
-	 * @var Euro
-	 */
-	private $membershipFee;
+	private Euro $membershipFee;
 
-	private $paymentIntervalInMonths;
-	private $applicantType;
+	private int $paymentIntervalInMonths;
+	private string $applicantType;
 
 	public function validate( ValidateFeeRequest $request ): ValidateFeeResult {
 		$this->membershipFee = $request->getMembershipFee();

@@ -9,7 +9,7 @@ class ValidateFeeResult {
 	public const ERROR_TOO_LOW = 'error-too-low';
 	public const ERROR_INTERVAL_INVALID = 'error-interval-invalid';
 
-	private $errorCode;
+	private ?string $errorCode;
 
 	public static function newSuccessResponse(): self {
 		return new self();

@@ -26,7 +26,6 @@ class ApplicationValidationResult {
 
 	public const VIOLATION_TOO_LOW = 'too-low';
 	public const VIOLATION_WRONG_LENGTH = 'wrong-length';
-	public const VIOLATION_NOT_MONEY = 'not-money';
 	public const VIOLATION_MISSING = 'missing';
 	public const VIOLATION_IBAN_BLOCKED = 'iban-blocked';
 	public const VIOLATION_NOT_DATE = 'not-date';
@@ -34,7 +33,7 @@ class ApplicationValidationResult {
 	public const VIOLATION_NOT_EMAIL = 'not-email';
 	public const VIOLATION_INVALID_MEMBERSHIP_TYPE = 'invalid-membership-type';
 
-	private $violations;
+	private array $violations;
 
 	/**
 	 * @param string[] $violations ApplicationValidationResult::SOURCE_ => ApplicationValidationResult::VIOLATION_

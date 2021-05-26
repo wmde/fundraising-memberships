@@ -21,22 +21,19 @@ use WMDE\FunValidators\Validators\EmailValidator;
  */
 class MembershipApplicationValidator {
 
-	private $feeValidator;
-	private $bankDataValidator;
-	private $ibanBlocklist;
-	private $emailValidator;
+	private ValidateMembershipFeeUseCase $feeValidator;
+	private BankDataValidator $bankDataValidator;
+	private IbanBlocklist $ibanBlocklist;
+	private EmailValidator $emailValidator;
 
-	/**
-	 * @var ApplyForMembershipRequest
-	 */
-	private $request;
+	private ApplyForMembershipRequest $request;
 
 	/**
 	 * @var string[] ApplicationValidationResult::SOURCE_ => ApplicationValidationResult::VIOLATION_
 	 */
-	private $violations;
+	private array $violations;
 
-	private $maximumFieldLengths = [
+	private array $maximumFieldLengths = [
 		Result::SOURCE_APPLICANT_PHONE_NUMBER => 30,
 		Result::SOURCE_APPLICANT_EMAIL => 250,
 		Result::SOURCE_APPLICANT_COMPANY => 100,

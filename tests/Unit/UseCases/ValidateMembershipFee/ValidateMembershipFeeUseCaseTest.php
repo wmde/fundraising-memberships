@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ValidateMembershipFee;
 
+use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeResult;
@@ -14,7 +15,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMe
  *
  * @license GPL-2.0-or-later
  */
-class ValidateMembershipFeeUseCaseTest extends \PHPUnit\Framework\TestCase {
+class ValidateMembershipFeeUseCaseTest extends TestCase {
 
 	public function testGivenValidRequest_validationSucceeds(): void {
 		$response = $this->newUseCase()->validate(
