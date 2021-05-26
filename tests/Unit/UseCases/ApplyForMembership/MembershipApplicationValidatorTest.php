@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
+use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplicationRequest;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\SucceedingEmailValidator;
@@ -22,13 +23,12 @@ use WMDE\FunValidators\ValidationResult;
 use WMDE\FunValidators\Validators\EmailValidator;
 
 /**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase
+ * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator
+ * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult
  *
  * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
+class MembershipApplicationValidatorTest extends TestCase {
 
 	private const BLOCKED_IBAN = 'LU761111000872960000';
 
@@ -65,25 +65,39 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 		);
 	}
 
-	public function testWhenFeeValidationFails_overallValidationAlsoFails(): void {
-		$this->feeValidator = $this->newFailingFeeValidator();
+	/**
+	 * @dataProvider failingFeeResults
+	 */
+	public function testWhenFeeValidationFails_overallValidationAlsoFails( ValidateFeeResult $failingResult, Result $expectedResult ): void {
+		$this->feeValidator = $this->failingFeeValidator( $failingResult );
 
 		$response = $this->newValidator()->validate( $this->newValidRequest() );
 
-		$this->assertEquals( $this->newFeeViolationResult(), $response );
+		$this->assertEquals( $expectedResult, $response );
 	}
 
 	private function newEmptyIbanBlocklist(): IbanBlocklist {
 		return new IbanBlocklist( [] );
 	}
 
-	private function newFailingFeeValidator(): ValidateMembershipFeeUseCase {
+	private function failingFeeValidator( ValidateFeeResult $failingResult ): ValidateMembershipFeeUseCase {
 		$feeValidator = $this->createMock( ValidateMembershipFeeUseCase::class );
 
 		$feeValidator->method( 'validate' )
-			->willReturn( ValidateFeeResult::newTooLowResponse() );
+			->willReturn( $failingResult );
 
 		return $feeValidator;
+	}
+
+	public function failingFeeResults(): iterable {
+		yield [
+			ValidateFeeResult::newTooLowResponse(),
+			new Result( [ Result::SOURCE_PAYMENT_AMOUNT => Result::VIOLATION_TOO_LOW ] )
+		];
+		yield [
+			ValidateFeeResult::newIntervalInvalidResponse(),
+			new Result( [ Result::SOURCE_INTERVAL => Result::VIOLATION_INVALID_INTERVAL ] )
+		];
 	}
 
 	private function newSucceedingFeeValidator(): ValidateMembershipFeeUseCase {
@@ -97,12 +111,6 @@ class MembershipApplicationValidatorTest extends \PHPUnit\Framework\TestCase {
 
 	private function newValidRequest(): ApplyForMembershipRequest {
 		return ValidMembershipApplicationRequest::newValidRequest();
-	}
-
-	private function newFeeViolationResult(): Result {
-		return new Result( [
-			Result::SOURCE_PAYMENT_AMOUNT => Result::VIOLATION_TOO_LOW
-		] );
 	}
 
 	private function newSucceedingBankDataValidator(): BankDataValidator {

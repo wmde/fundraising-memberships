@@ -11,6 +11,7 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 class ApplicationValidationResult {
 
 	public const SOURCE_PAYMENT_AMOUNT = 'amount';
+	public const SOURCE_INTERVAL = 'interval';
 	public const SOURCE_APPLICANT_DATE_OF_BIRTH = 'applicant-dob';
 	public const SOURCE_APPLICANT_PHONE_NUMBER = 'applicant-phone';
 	public const SOURCE_APPLICANT_EMAIL = 'applicant-email';
@@ -26,15 +27,15 @@ class ApplicationValidationResult {
 
 	public const VIOLATION_TOO_LOW = 'too-low';
 	public const VIOLATION_WRONG_LENGTH = 'wrong-length';
-	public const VIOLATION_NOT_MONEY = 'not-money';
 	public const VIOLATION_MISSING = 'missing';
 	public const VIOLATION_IBAN_BLOCKED = 'iban-blocked';
 	public const VIOLATION_NOT_DATE = 'not-date';
 	public const VIOLATION_NOT_PHONE_NUMBER = 'not-phone';
 	public const VIOLATION_NOT_EMAIL = 'not-email';
 	public const VIOLATION_INVALID_MEMBERSHIP_TYPE = 'invalid-membership-type';
+	public const VIOLATION_INVALID_INTERVAL = 'interval-invalid';
 
-	private $violations;
+	private array $violations;
 
 	/**
 	 * @param string[] $violations ApplicationValidationResult::SOURCE_ => ApplicationValidationResult::VIOLATION_
