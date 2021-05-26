@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
+use LogicException;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateFeeRequest;
@@ -87,12 +88,18 @@ class MembershipApplicationValidator {
 				->withInterval( $this->request->getPaymentIntervalInMonths() )
 		);
 
-		if ( !$result->isSuccessful() ) {
-			$this->addPaymentAmountViolation(
-				[
-					ValidateFeeResult::ERROR_TOO_LOW => ApplicationValidationResult::VIOLATION_TOO_LOW
-				][$result->getErrorCode()]
-			);
+		if ( $result->isSuccessful() ) {
+			return;
+		}
+		switch ( $result->getErrorCode() ) {
+			case ValidateFeeResult::ERROR_TOO_LOW:
+				$this->violations[ApplicationValidationResult::SOURCE_PAYMENT_AMOUNT] = ApplicationValidationResult::VIOLATION_TOO_LOW;
+				break;
+			case  ValidateFeeResult::ERROR_INTERVAL_INVALID:
+				$this->violations[ApplicationValidationResult::SOURCE_INTERVAL] = ApplicationValidationResult::VIOLATION_INVALID_INTERVAL;
+				break;
+			default:
+				throw new LogicException( sprintf( 'Unknown fee validation error code: %s', var_export( $result->getErrorCode(), true ) ) );
 		}
 	}
 

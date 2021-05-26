@@ -24,12 +24,11 @@ class ValidateFeeResult {
 	}
 
 	private static function newErrorResponse( string $errorCode ): self {
-		$result = new self();
-		$result->errorCode = $errorCode;
-		return $result;
+		return new self( $errorCode );
 	}
 
-	private function __construct() {
+	private function __construct( ?string $errorCode = null ) {
+		$this->errorCode = $errorCode;
 	}
 
 	public function isSuccessful(): bool {
