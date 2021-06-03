@@ -83,7 +83,6 @@ class ApplyForMembershipUseCase {
 		// TODO: handle exceptions
 		$this->piwikTracker->trackApplication( $application->getId(), $request->getPiwikTrackingString() );
 
-		// TODO: handle exceptions
 		if ( $this->isAutoConfirmed( $application ) ) {
 			$this->sendConfirmationEmail( $application );
 		}
