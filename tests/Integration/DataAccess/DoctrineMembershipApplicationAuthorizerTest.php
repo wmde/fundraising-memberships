@@ -65,7 +65,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	 */
 	public function testWhenApplicationWithTokenExists(): void {
 		$application = new MembershipApplication();
-		$application->modifyDataObject( function ( MembershipApplicationData $data ): void {
+		$application->modifyDataObject( static function ( MembershipApplicationData $data ): void {
 			$data->setUpdateToken( self::CORRECT_UPDATE_TOKEN );
 			$data->setAccessToken( self::CORRECT_ACCESS_TOKEN );
 		} );
