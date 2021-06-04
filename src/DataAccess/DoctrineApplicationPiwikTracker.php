@@ -30,7 +30,7 @@ class DoctrineApplicationPiwikTracker implements ApplicationPiwikTracker {
 		try {
 			$this->table->modifyApplication(
 				$applicationId,
-				function ( MembershipApplication $application ) use ( $trackingString ) {
+				static function ( MembershipApplication $application ) use ( $trackingString ) {
 					$application->setTracking( $trackingString );
 				}
 			);

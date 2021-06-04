@@ -95,7 +95,7 @@ class MembershipApplicationValidator {
 			case ValidateFeeResult::ERROR_TOO_LOW:
 				$this->violations[ApplicationValidationResult::SOURCE_PAYMENT_AMOUNT] = ApplicationValidationResult::VIOLATION_TOO_LOW;
 				break;
-			case  ValidateFeeResult::ERROR_INTERVAL_INVALID:
+			case ValidateFeeResult::ERROR_INTERVAL_INVALID:
 				$this->violations[ApplicationValidationResult::SOURCE_INTERVAL] = ApplicationValidationResult::VIOLATION_INVALID_INTERVAL;
 				break;
 			default:

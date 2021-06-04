@@ -113,7 +113,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		$this->expectException( GetMembershipApplicationException::class );
 		$this->getTable()->modifyApplication(
 			self::UNKNOWN_ID,
-			function ( MembershipApplication $application ) {
+			static function ( MembershipApplication $application ) {
 			}
 		);
 	}
@@ -128,7 +128,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		$this->expectException( StoreMembershipApplicationException::class );
 		$table->modifyApplication(
 			$application->getId(),
-			function ( MembershipApplication $application ) {
+			static function ( MembershipApplication $application ) {
 			}
 		);
 	}
@@ -151,7 +151,7 @@ class DoctrineApplicationTableTest extends TestCase {
 
 		$table->modifyApplication(
 			$application->getId(),
-			function ( MembershipApplication $app ) {
+			static function ( MembershipApplication $app ) {
 				$app->setComment( 'Such a comment' );
 			}
 		);
@@ -190,7 +190,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		$this->entityManager = ThrowingEntityManager::newInstance( $this );
 
 		try {
-			$this->getTable()->modifyApplication( self::IRRELEVANT_ID, function () {
+			$this->getTable()->modifyApplication( self::IRRELEVANT_ID, static function () {
 			} );
 		}
 		catch ( \Exception $ex ) {

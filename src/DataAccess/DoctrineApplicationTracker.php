@@ -31,7 +31,7 @@ class DoctrineApplicationTracker implements ApplicationTracker {
 		try {
 			$this->table->modifyApplication(
 				$applicationId,
-				function ( MembershipApplication $application ) use ( $trackingInfo ) {
+				static function ( MembershipApplication $application ) use ( $trackingInfo ) {
 					$data = $application->getDecodedData();
 					$data['confirmationPageCampaign'] = $trackingInfo->getCampaignCode();
 					$data['confirmationPage'] = $trackingInfo->getKeyword();

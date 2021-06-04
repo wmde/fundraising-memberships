@@ -108,7 +108,7 @@ class MembershipApplicationTest extends TestCase {
 			'pink' => 'fluffy',
 		] );
 
-		$application->modifyDataObject( function ( MembershipApplicationData $data ) {
+		$application->modifyDataObject( static function ( MembershipApplicationData $data ) {
 			$data->setAccessToken( 'foo' );
 			$data->setUpdateToken( 'bar' );
 		} );
