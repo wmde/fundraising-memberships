@@ -5,9 +5,11 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
 use PHPUnit\Framework\TestCase;
+use ReflectionObject;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
+use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TestIncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
@@ -30,7 +32,8 @@ class MembershipApplicationBuilderTest extends TestCase {
 	public function testCompanyMembershipRequestGetsBuildCorrectly(): void {
 		$request = $this->newCompanyMembershipRequest();
 
-		$application = ( new MembershipApplicationBuilder( new TestIncentiveFinder() ) )->newApplicationFromRequest( $request );
+		$testIncentiveFinder = new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] );
+		$application = ( new MembershipApplicationBuilder( $testIncentiveFinder ) )->newApplicationFromRequest( $request );
 
 		$this->assertIsExpectedCompanyPersonName( $application->getApplicant()->getName() );
 		$this->assertIsExpectedAddress( $application->getApplicant()->getPhysicalAddress() );
@@ -141,7 +144,8 @@ class MembershipApplicationBuilderTest extends TestCase {
 	public function testWhenNoBirthDateAndPhoneNumberIsGiven_membershipApplicationIsStillBuiltCorrectly(): void {
 		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS );
 
-		$application = ( new MembershipApplicationBuilder( new TestIncentiveFinder() ) )->newApplicationFromRequest( $request );
+		$testIncentiveFinder = new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] );
+		$application = ( new MembershipApplicationBuilder( $testIncentiveFinder ) )->newApplicationFromRequest( $request );
 
 		$this->assertIsExpectedCompanyPersonName( $application->getApplicant()->getName() );
 		$this->assertIsExpectedAddress( $application->getApplicant()->getPhysicalAddress() );
@@ -155,18 +159,42 @@ class MembershipApplicationBuilderTest extends TestCase {
 	public function testWhenBuildingCompanyApplication_salutationFieldIsSet(): void {
 		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS );
 
-		$application = ( new MembershipApplicationBuilder( new TestIncentiveFinder() ) )->newApplicationFromRequest( $request );
+		$testIncentiveFinder = new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] );
+		$application = ( new MembershipApplicationBuilder( $testIncentiveFinder ) )->newApplicationFromRequest( $request );
 
 		$this->assertSame( ApplicantName::COMPANY_SALUTATION, $application->getApplicant()->getName()->getSalutation() );
 	}
 
 	public function testWhenBuildingApplicationIncentivesAreSet(): void {
-		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS, [ 'inner_peace', 'a_better_world' ] );
+		$incentives = [
+			$this->newIncentiveWithNameAndId( 'inner_peace', 1 ),
+			$this->newIncentiveWithNameAndId( 'a_better_world', 2 )
+		];
 
-		$application = ( new MembershipApplicationBuilder( new TestIncentiveFinder() ) )->newApplicationFromRequest( $request );
-		$incentives = iterator_to_array( $application->getIncentives() );
+		$incentiveFinder = new TestIncentiveFinder( $incentives );
 
-		$this->assertCount( 2, $incentives );
+		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS, array_map(
+			fn( $incentive ) => $incentive->getName(),
+			$incentives
+		) );
+
+		$application = ( new MembershipApplicationBuilder( $incentiveFinder ) )->newApplicationFromRequest( $request );
+		$applicationIncentives = iterator_to_array( $application->getIncentives() );
+
+		$this->assertCount( 2, $applicationIncentives );
+		$this->assertSame( $incentives[0], $applicationIncentives[0] );
+		$this->assertSame( $incentives[1], $applicationIncentives[1] );
+	}
+
+	private function newIncentiveWithNameAndId( string $name, int $id ): Incentive {
+		$incentive = new Incentive( $name );
+
+		$reflectionObject = new ReflectionObject( $incentive );
+		$reflectionProperty = $reflectionObject->getProperty( 'id' );
+		$reflectionProperty->setAccessible( true );
+		$reflectionProperty->setValue( $incentive, $id );
+
+		return $incentive;
 	}
 
 }
