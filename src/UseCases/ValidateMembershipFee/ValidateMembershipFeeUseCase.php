@@ -25,7 +25,7 @@ class ValidateMembershipFeeUseCase {
 		$this->paymentIntervalInMonths = $request->getPaymentIntervalInMonths();
 		$this->applicantType = $request->getApplicantType();
 
-		if ( $this->paymentIntervalInMonths < 1 ) {
+		if ( !in_array( $this->paymentIntervalInMonths, [ 1, 3, 6, 12 ] ) ) {
 			return ValidateFeeResult::newIntervalInvalidResponse();
 		}
 
