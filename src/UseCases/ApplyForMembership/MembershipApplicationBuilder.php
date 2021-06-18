@@ -115,7 +115,7 @@ class MembershipApplicationBuilder {
 			if ( $foundIncentive === null ) {
 				throw new UnknownIncentive( sprintf( 'Incentive "%s" not found', $incentiveName ) );
 			}
-			$application->addIncentive( new Incentive( $incentiveName ) );
+			$application->addIncentive( $foundIncentive );
 		}
 	}
 

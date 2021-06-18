@@ -11,6 +11,7 @@ use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
+use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
@@ -116,7 +117,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 			$this->piwikTracker,
 			$this->newFixedPaymentDelayCalculator(),
 			$this->eventEmitter,
-			new TestIncentiveFinder()
+			new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] )
 		);
 	}
 
