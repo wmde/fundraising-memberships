@@ -3,17 +3,17 @@
 	"license": "GPL-2.0-or-later",
 	"description": "Bounded Context for the Wikimedia Deutschland fundraising membership subdomain",
 	"require": {
-		"php": ">=7.4",
+		"php": ">=8.0",
 
 		"doctrine/orm": "~2.7",
 		"gedmo/doctrine-extensions": "^3.0",
 
 		"psr/log": "~1.0",
 
-		"wmde/fundraising-payments": "~3.0",
+		"wmde/fundraising-payments": "~4.0",
 		"wmde/euro": "~1.0",
 		"wmde/email-address": "~1.0",
-		"wmde/fun-validators": "~3.0.0",
+		"wmde/fun-validators": "~4.0.0",
 		"wmde/freezable-value-object": "~2.0"
 	},
 	"repositories": [
