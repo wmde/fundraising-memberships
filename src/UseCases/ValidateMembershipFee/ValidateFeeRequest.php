@@ -11,9 +11,9 @@ class ValidateFeeRequest {
 	public const PERSON_APPLICANT = 'person';
 	public const COMPANY_APPLICANT = 'firma';
 
-	private $membershipFee;
-	private $paymentIntervalInMonths;
-	private $applicantType;
+	private Euro $membershipFee;
+	private int $paymentIntervalInMonths;
+	private string $applicantType;
 
 	public static function newInstance(): self {
 		return new self();
@@ -33,7 +33,7 @@ class ValidateFeeRequest {
 
 	public function withApplicantType( string $applicantType ): self {
 		$request = clone $this;
-		$request->applicantType = $applicantType;
+		$request->applicantType = trim( $applicantType );
 		return $request;
 	}
 

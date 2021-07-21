@@ -73,7 +73,7 @@ class ApplyForMembershipRequest {
 	}
 
 	public function setApplicantCompanyName( string $applicantCompanyName ): void {
-		$this->applicantCompanyName = $applicantCompanyName;
+		$this->applicantCompanyName = trim( $applicantCompanyName );
 	}
 
 	public function getApplicantSalutation(): string {
@@ -82,7 +82,7 @@ class ApplyForMembershipRequest {
 
 	public function setApplicantSalutation( string $applicantSalutation ): void {
 		$this->assertIsWritable();
-		$this->applicantSalutation = $applicantSalutation;
+		$this->applicantSalutation = trim( $applicantSalutation );
 	}
 
 	public function getApplicantTitle(): string {
@@ -91,7 +91,7 @@ class ApplyForMembershipRequest {
 
 	public function setApplicantTitle( string $applicantTitle ): void {
 		$this->assertIsWritable();
-		$this->applicantTitle = $applicantTitle;
+		$this->applicantTitle = trim( $applicantTitle );
 	}
 
 	public function getApplicantFirstName(): string {
@@ -100,7 +100,7 @@ class ApplyForMembershipRequest {
 
 	public function setApplicantFirstName( string $applicantFirstName ): void {
 		$this->assertIsWritable();
-		$this->applicantFirstName = $applicantFirstName;
+		$this->applicantFirstName = trim( $applicantFirstName );
 	}
 
 	public function getApplicantLastName(): string {
@@ -109,7 +109,7 @@ class ApplyForMembershipRequest {
 
 	public function setApplicantLastName( string $applicantLastName ): void {
 		$this->assertIsWritable();
-		$this->applicantLastName = $applicantLastName;
+		$this->applicantLastName = trim( $applicantLastName );
 	}
 
 	public function getApplicantStreetAddress(): string {
@@ -118,7 +118,7 @@ class ApplyForMembershipRequest {
 
 	public function setApplicantStreetAddress( string $applicantStreetAddress ): void {
 		$this->assertIsWritable();
-		$this->applicantStreetAddress = $applicantStreetAddress;
+		$this->applicantStreetAddress = trim( $applicantStreetAddress );
 	}
 
 	public function getApplicantPostalCode(): string {
@@ -127,7 +127,7 @@ class ApplyForMembershipRequest {
 
 	public function setApplicantPostalCode( string $applicantPostalCode ): void {
 		$this->assertIsWritable();
-		$this->applicantPostalCode = $applicantPostalCode;
+		$this->applicantPostalCode = trim( $applicantPostalCode );
 	}
 
 	public function getApplicantCity(): string {
@@ -136,7 +136,7 @@ class ApplyForMembershipRequest {
 
 	public function setApplicantCity( string $applicantCity ): void {
 		$this->assertIsWritable();
-		$this->applicantCity = $applicantCity;
+		$this->applicantCity = trim( $applicantCity );
 	}
 
 	public function getApplicantCountryCode(): string {
@@ -145,7 +145,7 @@ class ApplyForMembershipRequest {
 
 	public function setApplicantCountryCode( string $applicantCountryCode ): void {
 		$this->assertIsWritable();
-		$this->applicantCountryCode = $applicantCountryCode;
+		$this->applicantCountryCode = trim( $applicantCountryCode );
 	}
 
 	public function getApplicantEmailAddress(): string {
@@ -154,7 +154,7 @@ class ApplyForMembershipRequest {
 
 	public function setApplicantEmailAddress( string $applicantEmailAddress ): void {
 		$this->assertIsWritable();
-		$this->applicantEmailAddress = $applicantEmailAddress;
+		$this->applicantEmailAddress = trim( $applicantEmailAddress );
 	}
 
 	public function getApplicantPhoneNumber(): string {
@@ -163,7 +163,7 @@ class ApplyForMembershipRequest {
 
 	public function setApplicantPhoneNumber( string $applicantPhoneNumber ): void {
 		$this->assertIsWritable();
-		$this->applicantPhoneNumber = $applicantPhoneNumber;
+		$this->applicantPhoneNumber = trim( $applicantPhoneNumber );
 	}
 
 	public function getApplicantDateOfBirth(): string {
@@ -172,7 +172,7 @@ class ApplyForMembershipRequest {
 
 	public function setApplicantDateOfBirth( string $applicantDateOfBirth ): void {
 		$this->assertIsWritable();
-		$this->applicantDateOfBirth = $applicantDateOfBirth;
+		$this->applicantDateOfBirth = trim( $applicantDateOfBirth );
 	}
 
 	public function getPaymentIntervalInMonths(): int {
@@ -217,7 +217,7 @@ class ApplyForMembershipRequest {
 
 	public function setPiwikTrackingString( string $piwikTrackingString ): void {
 		$this->assertIsWritable();
-		$this->piwikTrackingString = $piwikTrackingString;
+		$this->piwikTrackingString = trim( $piwikTrackingString );
 	}
 
 	public function getPaymentType(): string {
@@ -226,7 +226,7 @@ class ApplyForMembershipRequest {
 
 	public function setPaymentType( string $paymentType ): void {
 		$this->assertIsWritable();
-		$this->paymentType = $paymentType;
+		$this->paymentType = trim( $paymentType );
 	}
 
 	public function getOptsIntoDonationReceipt(): bool {
