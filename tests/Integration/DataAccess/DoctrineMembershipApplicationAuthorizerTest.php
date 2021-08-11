@@ -129,6 +129,22 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
 	}
 
+	public function testGivenMembershipWithoutTokenAndEmptyAccessToken_accessAuthorizationFails(): void {
+		$application = new MembershipApplication();
+		$this->storeApplication( $application );
+		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
+
+		$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
+	}
+
+	public function testGivenMembershipWithoutTokenAndEmptyUpdateToken_updateAuthorizationFails(): void {
+		$application = new MembershipApplication();
+		$this->storeApplication( $application );
+		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
+
+		$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
+	}
+
 	public function testGivenMembershipWithoutToken_accessAuthorizationFails(): void {
 		$application = new MembershipApplication();
 		$this->storeApplication( $application );
