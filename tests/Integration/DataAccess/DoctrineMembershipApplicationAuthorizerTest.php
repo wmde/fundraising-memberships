@@ -121,28 +121,20 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		);
 	}
 
-	/**
-	 * @slowThreshold 400
-	 */
-	public function testWhenApplicationWithoutTokenExists(): void {
+	public function testGivenMembershipWithoutToken_updateAuthorizationFails(): void {
 		$application = new MembershipApplication();
 		$this->storeApplication( $application );
+		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
 
-		$this->specify(
-			'given correct application id and a token, update authorization fails',
-			function () use ( $application ): void {
-				$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
-				$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
-			}
-		);
+		$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
+	}
 
-		$this->specify(
-			'given correct application id and a token, access authorization fails',
-			function () use ( $application ): void {
-				$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
-				$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
-			}
-		);
+	public function testGivenMembershipWithoutToken_accessAuthorizationFails(): void {
+		$application = new MembershipApplication();
+		$this->storeApplication( $application );
+		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
+
+		$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
 	}
 
 	/**
