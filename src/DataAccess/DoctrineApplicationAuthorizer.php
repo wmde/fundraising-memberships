@@ -13,15 +13,14 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicat
 
 /**
  * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DoctrineApplicationAuthorizer implements ApplicationAuthorizer {
 
-	private $table;
-	private $updateToken;
-	private $accessToken;
+	private DoctrineApplicationTable $table;
+	private string $updateToken;
+	private string $accessToken;
 
-	public function __construct( EntityManager $entityManager, string $updateToken = null, string $accessToken = null ) {
+	public function __construct( EntityManager $entityManager, string $updateToken = '', string $accessToken = '' ) {
 		// TODO: Add non-null logger
 		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
 		$this->updateToken = $updateToken;
