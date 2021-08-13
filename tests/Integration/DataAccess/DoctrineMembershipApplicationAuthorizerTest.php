@@ -27,6 +27,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	private const CORRECT_ACCESS_TOKEN = 'CorrectAccessToken';
 	private const WRONG__UPDATE_TOKEN = 'WrongUpdateToken';
 	private const WRONG_ACCESS_TOKEN = 'WrongAccessToken';
+	private const EMPTY_TOKEN = '';
 	private const MEANINGLESS_APPLICATION_ID = 1337;
 	private const ID_OF_WRONG_APPLICATION = 42;
 
@@ -36,7 +37,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		$this->entityManager = TestEnvironment::newInstance()->getEntityManager();
 	}
 
-	private function newAuthorizer( string $updateToken = null, string $accessToken = null ): ApplicationAuthorizer {
+	private function newAuthorizer( string $updateToken = '', string $accessToken = '' ): ApplicationAuthorizer {
 		return new DoctrineApplicationAuthorizer( $this->entityManager, $updateToken, $accessToken );
 	}
 
@@ -98,7 +99,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		$this->specify(
 			'given correct application id and correct token, access authorization succeeds',
 			function () use ( $application ): void {
-				$authorizer = $this->newAuthorizer( null, self::CORRECT_ACCESS_TOKEN );
+				$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, self::CORRECT_ACCESS_TOKEN );
 				$this->assertTrue( $authorizer->canAccessApplication( $application->getId() ) );
 			}
 		);
@@ -106,7 +107,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		$this->specify(
 			'given wrong application id and correct token, access authorization fails',
 			function (): void {
-				$authorizer = $this->newAuthorizer( null, self::CORRECT_ACCESS_TOKEN );
+				$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, self::CORRECT_ACCESS_TOKEN );
 				$this->assertFalse( $authorizer->canAccessApplication( self::ID_OF_WRONG_APPLICATION ) );
 			}
 		);
@@ -114,34 +115,42 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		$this->specify(
 			'given correct application id and wrong token, access authorization fails',
 			function () use ( $application ): void {
-				$authorizer = $this->newAuthorizer( null, self::WRONG_ACCESS_TOKEN );
+				$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, self::WRONG_ACCESS_TOKEN );
 				$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
 			}
 		);
 	}
 
-	/**
-	 * @slowThreshold 400
-	 */
-	public function testWhenApplicationWithoutTokenExists(): void {
+	public function testGivenMembershipWithoutToken_updateAuthorizationFails(): void {
 		$application = new MembershipApplication();
 		$this->storeApplication( $application );
+		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
 
-		$this->specify(
-			'given correct application id and a token, update authorization fails',
-			function () use ( $application ): void {
-				$authorizer = $this->newAuthorizer( 'SomeToken', null );
-				$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
-			}
-		);
+		$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
+	}
 
-		$this->specify(
-			'given correct application id and a token, access authorization fails',
-			function () use ( $application ): void {
-				$authorizer = $this->newAuthorizer( null, 'SomeToken' );
-				$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
-			}
-		);
+	public function testGivenMembershipWithoutTokenAndEmptyAccessToken_accessAuthorizationFails(): void {
+		$application = new MembershipApplication();
+		$this->storeApplication( $application );
+		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
+
+		$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
+	}
+
+	public function testGivenMembershipWithoutTokenAndEmptyUpdateToken_updateAuthorizationFails(): void {
+		$application = new MembershipApplication();
+		$this->storeApplication( $application );
+		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
+
+		$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
+	}
+
+	public function testGivenMembershipWithoutToken_accessAuthorizationFails(): void {
+		$application = new MembershipApplication();
+		$this->storeApplication( $application );
+		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
+
+		$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
 	}
 
 	/**
