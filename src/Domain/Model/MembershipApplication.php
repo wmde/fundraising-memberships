@@ -7,7 +7,6 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 use RuntimeException;
 use Traversable;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookablePayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentTransactionData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
