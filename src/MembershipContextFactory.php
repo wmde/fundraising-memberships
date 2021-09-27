@@ -9,7 +9,6 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\Mapping\Driver\XmlDriver;
-use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
 use Gedmo\Timestampable\TimestampableListener;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
@@ -26,14 +25,10 @@ class MembershipContextFactory {
 	 * Use this constant for MappingDriverChain::addDriver
 	 */
 	public const ENTITY_NAMESPACE = 'WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities';
-
 	public const DOMAIN_ENTITY_NAMESPACE = 'WMDE\Fundraising\MembershipContext\Domain\Model';
 
-	private const ENTITY_PATHS = [
-		__DIR__ . '/DataAccess/DoctrineEntities/'
-	];
-
-	private const DOCTRINE_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DoctrineClassMapping';
+	private const DOCTRINE_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DoctrineClassMapping/';
+	private const DOMAIN_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DomainClassMapping/';
 
 	private array $config;
 	private Configuration $doctrineConfig;
@@ -48,11 +43,8 @@ class MembershipContextFactory {
 
 	public function newMappingDriver(): MappingDriverChain {
 		$driver = new MappingDriverChain();
-		// We're only calling this for the side effect of adding Mapping/Driver/DoctrineAnnotations.php
-		// to the AnnotationRegistry. When AnnotationRegistry is deprecated with Doctrine Annotations 2.0,
-		// instantiate AnnotationReader directly instead.
-		$driver->addDriver( $this->doctrineConfig->newDefaultAnnotationDriver( self::ENTITY_PATHS, false ), self::ENTITY_NAMESPACE );
-		$driver->addDriver( new XmlDriver( self::DOCTRINE_CLASS_MAPPING_DIRECTORY ), self::DOMAIN_ENTITY_NAMESPACE );
+		$driver->addDriver( new XmlDriver( self::DOCTRINE_CLASS_MAPPING_DIRECTORY ), self::ENTITY_NAMESPACE );
+		$driver->addDriver( new XmlDriver( self::DOMAIN_CLASS_MAPPING_DIRECTORY ), self::DOMAIN_ENTITY_NAMESPACE );
 		return $driver;
 	}
 
