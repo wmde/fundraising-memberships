@@ -7,24 +7,9 @@ namespace WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 
-/**
- * @since 2.0
- *
- * @ORM\Table(
- *     name="request",
- *     indexes={
- *			@ORM\Index(name="m_email", columns={"email"}, flags={"fulltext"}),
- *          @ORM\Index(name="m_name", columns={"name"}, flags={"fulltext"}),
- *     		@ORM\Index(name="m_ort", columns={"ort"}, flags={"fulltext"})
- *     }
- *	 )
- * @ORM\Entity
- */
 class MembershipApplication {
 
 	public const STATUS_CONFIRMED = 1;
@@ -33,23 +18,15 @@ class MembershipApplication {
 	public const STATUS_MODERATION = -2;
 	public const STATUS_CANCELLED_MODERATION = -3;
 
-	/**
-	 * @var int
-	 *
-	 * @ORM\Column(name="id", type="integer")
-	 * @ORM\Id
-	 * @ORM\GeneratedValue(strategy="IDENTITY")
-	 */
-	private $id;
+	private ?int $id = null;
 
 	/**
 	 * FIXME: this should not be nullable
 	 *
 	 * @var int
 	 *
-	 * @ORM\Column(name="status", type="smallint", options={"default":0}, nullable=true)
 	 */
-	private $status = 0;
+	private int $status = 0;
 
 	/**
 	 * This is no longer written by the fundraising frontend.
@@ -57,251 +34,80 @@ class MembershipApplication {
 	 * Until we remove all references to this field in the backend, the field is not removed but just marked as deprecated.
 	 *
 	 * @deprecated
-	 * @var integer|null
-	 *
-	 * @ORM\Column(name="donation_id", type="integer", nullable=true)
 	 */
-	private $donationId;
+	private ?int $donationId = null;
 
-	/**
-	 * @var DateTime
-	 *
-	 * @Gedmo\Timestampable(on="create")
-	 * @ORM\Column(name="timestamp", type="datetime")
-	 */
-	private $creationTime;
+	private ?DateTime $creationTime = null;
 
-	/**
-	 * @var string|null
-	 *
-	 * @ORM\Column(name="anrede", type="string", length=16, nullable=true)
-	 */
-	private $applicantSalutation;
+	private ?string $applicantSalutation = null;
 
-	/**
-	 * @var string|null
-	 *
-	 * @ORM\Column(name="firma", type="string", length=100, nullable=true)
-	 */
-	private $company;
+	private ?string $company = null;
 
-	/**
-	 * @var string|null
-	 *
-	 * @ORM\Column(name="titel", type="string", length=16, nullable=true)
-	 */
-	private $applicantTitle;
+	private ?string $applicantTitle = null;
 
-	/**
-	 * @var string
-	 *
-	 * @ORM\Column(name="name", type="string", length=250, options={"default":""}, nullable=false)
-	 */
-	private $probablyUnusedNameField = '';
+	private string $probablyUnusedNameField = '';
 
-	/**
-	 * @var string
-	 *
-	 * @ORM\Column(name="vorname", type="string", length=50, options={"default":""}, nullable=false)
-	 */
-	private $applicantFirstName = '';
+	private string $applicantFirstName = '';
 
-	/**
-	 * @var string
-	 *
-	 * @ORM\Column(name="nachname", type="string", length=50, options={"default":""}, nullable=false)
-	 */
-	private $applicantLastName = '';
+	private string $applicantLastName = '';
 
-	/**
-	 * @var string|null
-	 *
-	 * @ORM\Column(name="strasse", type="string", length=100, nullable=true)
-	 */
-	private $address;
+	private ?string $address = null;
 
-	/**
-	 * @var string|null
-	 *
-	 * @ORM\Column(name="plz", type="string", length=8, nullable=true)
-	 */
-	private $postcode;
+	private ?string $postcode = null;
 
-	/**
-	 * @var string|null
-	 *
-	 * @ORM\Column(name="ort", type="string", length=100, nullable=true)
-	 */
-	private $city;
+	private ?string $city = null;
 
-	/**
-	 * @var string|null
-	 *
-	 * @ORM\Column(name="country", type="string", length=8, options={"default":""}, nullable=true)
-	 */
-	private $country = '';
+	private string $country = '';
 
-	/**
-	 * @var string
-	 *
-	 * @ORM\Column(name="email", type="string", length=250, options={"default":""}, nullable=false)
-	 */
-	private $applicantEmailAddress = '';
+	private string $applicantEmailAddress = '';
 
-	/**
-	 * @var string
-	 *
-	 * @ORM\Column(name="phone", type="string", length=30, options={"default":""}, nullable=false)
-	 */
-	private $applicantPhoneNumber = '';
+	private string $applicantPhoneNumber = '';
 
-	/**
-	 * Date of birth
-	 *
-	 * @var DateTime|null
-	 *
-	 * @ORM\Column(name="dob", type="date", nullable=true)
-	 */
-	private $applicantDateOfBirth;
+	private ?DateTime $applicantDateOfBirth = null;
 
-	/**
-	 * @var string
-	 *
-	 * @ORM\Column(name="wikimedium_shipping", type="string", options={"default":""}, nullable=false)
-	 */
-	private $wikimediumShipping = 'none';
+	private string $wikimediumShipping = 'none';
 
-	/**
-	 * @var string
-	 *
-	 * @ORM\Column(name="membership_type", type="string", options={"default":"sustaining"}, nullable=false)
-	 */
-	private $membershipType = 'sustaining';
+	private string $membershipType = 'sustaining';
 
-	/**
-	 * @var string
-	 *
-	 * @ORM\Column(name="payment_type", type="string", options={"default":"BEZ"}, nullable=false)
-	 */
-	private $paymentType = 'BEZ';
+	private string $paymentType = 'BEZ';
 
-	/**
-	 * @var int
-	 *
-	 * @ORM\Column(name="membership_fee", type="integer", options={"default":0}, nullable=false)
-	 */
-	private $paymentAmountInEuro = 0;
+	private int $paymentAmountInEuro = 0;
 
 	/**
 	 * FIXME: this should not be nullable
 	 *
 	 * @var int
 	 *
-	 * @ORM\Column(name="membership_fee_interval", type="smallint", options={"default":12}, nullable=true)
 	 */
-	private $paymentIntervalInMonths = 12;
+	private int $paymentIntervalInMonths = 12;
 
-	/**
-	 * @var string
-	 *
-	 * @ORM\Column(name="account_number", type="string", length=16, options={"default":""}, nullable=false)
-	 */
-	private $paymentBankAccount = '';
+	private string $paymentBankAccount = '';
 
-	/**
-	 * @var string
-	 *
-	 * @ORM\Column(name="bank_name", type="string", length=100, options={"default":""}, nullable=false)
-	 */
-	private $paymentBankName = '';
+	private string $paymentBankName = '';
 
-	/**
-	 * @var string
-	 *
-	 * @ORM\Column(name="bank_code", type="string", length=16, options={"default":""}, nullable=false)
-	 */
-	private $paymentBankCode = '';
+	private string $paymentBankCode = '';
 
-	/**
-	 * @var string|null
-	 *
-	 * @ORM\Column(name="iban", type="string", length=32, options={"default":""}, nullable=true)
-	 */
-	private $paymentIban = '';
+	private string $paymentIban = '';
 
-	/**
-	 * @var string|null
-	 *
-	 * @ORM\Column(name="bic", type="string", length=32, options={"default":""}, nullable=true)
-	 */
-	private $paymentBic = '';
+	private string $paymentBic = '';
 
-	/**
-	 * @var string
-	 *
-	 * @ORM\Column(name="account_holder", type="string", length=50, options={"default":""}, nullable=false)
-	 */
-	private $paymentBankAccountHolder = '';
+	private string $paymentBankAccountHolder = '';
 
-	/**
-	 * @var string
-	 *
-	 * @ORM\Column(name="comment", type="text", options={"default":""}, nullable=false)
-	 */
-	private $comment = '';
+	private string $comment = '';
 
-	/**
-	 * @var DateTime|null
-	 *
-	 * @ORM\Column(name="export", type="datetime", nullable=true)
-	 */
-	private $export;
+	private ?DateTime $export = null;
 
-	/**
-	 * @var DateTime|null
-	 *
-	 * @ORM\Column(name="backup", type="datetime", nullable=true)
-	 */
-	private $backup;
+	private ?DateTime $backup = null;
 
-	/**
-	 * @var bool
-	 *
-	 * @ORM\Column(name="wikilogin", type="boolean", options={"default":0}, nullable=false)
-	 */
-	private $wikilogin = false;
+	private bool $wikilogin = false;
 
-	/**
-	 * @var string|null
-	 *
-	 * @ORM\Column(name="tracking", type="string", length=50, nullable=true)
-	 */
-	private $tracking;
+	private ?string $tracking = null;
 
-	/**
-	 * @var string|null
-	 *
-	 * @ORM\Column(name="data", type="text", nullable=true)
-	 */
-	private $data;
+	private ?string $data = null;
 
-	/**
-	 * @var bool|null
-	 *
-	 * @ORM\Column(name="donation_receipt", type="boolean", nullable=true)
-	 */
-	private $donationReceipt;
+	private ?bool $donationReceipt = null;
 
-	/**
-	 * @var Collection<Incentive>
-	 *
-	 * @ORM\ManyToMany(targetEntity="WMDE\Fundraising\MembershipContext\Domain\Model\Incentive")
-	 * @ORM\JoinTable(name="membership_incentive",
-	 *      joinColumns={@ORM\JoinColumn(name="membership_id", referencedColumnName="id")},
-	 *      inverseJoinColumns={@ORM\JoinColumn(name="incentive_id", referencedColumnName="id")}
-	 *      )
-	 */
-	private $incentives;
+	private Collection|ArrayCollection $incentives;
 
 	public function __construct() {
 		$this->incentives = new ArrayCollection();
@@ -576,23 +382,23 @@ class MembershipApplication {
 		return $this->paymentBankCode;
 	}
 
-	public function setPaymentIban( ?string $paymentIban ): self {
+	public function setPaymentIban( string $paymentIban ): self {
 		$this->paymentIban = $paymentIban;
 
 		return $this;
 	}
 
-	public function getPaymentIban(): ?string {
+	public function getPaymentIban(): string {
 		return $this->paymentIban;
 	}
 
-	public function setPaymentBic( ?string $paymentBic ): self {
+	public function setPaymentBic( string $paymentBic ): self {
 		$this->paymentBic = $paymentBic;
 
 		return $this;
 	}
 
-	public function getPaymentBic(): ?string {
+	public function getPaymentBic(): string {
 		return $this->paymentBic;
 	}
 
@@ -704,13 +510,13 @@ class MembershipApplication {
 		return $this->status;
 	}
 
-	public function setCountry( ?string $country ): self {
+	public function setCountry( string $country ): self {
 		$this->country = $country;
 
 		return $this;
 	}
 
-	public function getCountry(): ?string {
+	public function getCountry(): string {
 		return $this->country;
 	}
 

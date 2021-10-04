@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd" xmlns:gedmo="http://gediminasm.org/schemas/orm/doctrine-extensions-mapping">
+  <entity name="WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication" table="request">
+    <indexes>
+      <index name="m_email" columns="email" flags="fulltext"/>
+      <index name="m_name" columns="name" flags="fulltext"/>
+      <index name="m_ort" columns="ort" flags="fulltext"/>
+    </indexes>
+    <id name="id" type="integer" column="id">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="status" type="smallint" column="status" nullable="true">
+      <options>
+        <option name="default">0</option>
+      </options>
+    </field>
+    <field name="donationId" type="integer" column="donation_id" nullable="true"/>
+    <field name="creationTime" type="datetime" column="timestamp" nullable="false">
+      <gedmo:timestampable on="create"/>
+    </field>
+    <field name="applicantSalutation" type="string" column="anrede" length="16" nullable="true"/>
+    <field name="company" type="string" column="firma" length="100" nullable="true"/>
+    <field name="applicantTitle" type="string" column="titel" length="16" nullable="true"/>
+    <field name="probablyUnusedNameField" type="string" column="name" length="250" nullable="false">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="applicantFirstName" type="string" column="vorname" length="50" nullable="false">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="applicantLastName" type="string" column="nachname" length="50" nullable="false">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="address" type="string" column="strasse" length="100" nullable="true"/>
+    <field name="postcode" type="string" column="plz" length="8" nullable="true"/>
+    <field name="city" type="string" column="ort" length="100" nullable="true"/>
+    <field name="country" type="string" column="country" length="8" nullable="true">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="applicantEmailAddress" type="string" column="email" length="250" nullable="false">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="applicantPhoneNumber" type="string" column="phone" length="30" nullable="false">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="applicantDateOfBirth" type="date" column="dob" nullable="true"/>
+    <field name="wikimediumShipping" type="string" column="wikimedium_shipping" nullable="false">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="membershipType" type="string" column="membership_type" nullable="false">
+      <options>
+        <option name="default">sustaining</option>
+      </options>
+    </field>
+    <field name="paymentType" type="string" column="payment_type" nullable="false">
+      <options>
+        <option name="default">BEZ</option>
+      </options>
+    </field>
+    <field name="paymentAmountInEuro" type="integer" column="membership_fee" nullable="false">
+      <options>
+        <option name="default">0</option>
+      </options>
+    </field>
+    <field name="paymentIntervalInMonths" type="smallint" column="membership_fee_interval" nullable="true">
+      <options>
+        <option name="default">12</option>
+      </options>
+    </field>
+    <field name="paymentBankAccount" type="string" column="account_number" length="16" nullable="false">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="paymentBankName" type="string" column="bank_name" length="100" nullable="false">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="paymentBankCode" type="string" column="bank_code" length="16" nullable="false">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="paymentIban" type="string" column="iban" length="32" nullable="true">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="paymentBic" type="string" column="bic" length="32" nullable="true">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="paymentBankAccountHolder" type="string" column="account_holder" length="50" nullable="false">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="comment" type="text" column="comment" nullable="false">
+      <options>
+        <option name="default"/>
+      </options>
+    </field>
+    <field name="export" type="datetime" column="export" nullable="true"/>
+    <field name="backup" type="datetime" column="backup" nullable="true"/>
+    <field name="wikilogin" type="boolean" column="wikilogin" nullable="false">
+      <options>
+        <option name="default">0</option>
+      </options>
+    </field>
+    <field name="tracking" type="string" column="tracking" length="50" nullable="true"/>
+    <field name="data" type="text" column="data" nullable="true"/>
+    <field name="donationReceipt" type="boolean" column="donation_receipt" nullable="true"/>
+    <many-to-many field="incentives" target-entity="WMDE\Fundraising\MembershipContext\Domain\Model\Incentive" fetch="LAZY">
+      <join-table name="membership_incentive">
+        <join-columns>
+          <join-column name="membership_id" referenced-column-name="id"/>
+        </join-columns>
+        <inverse-join-columns>
+          <join-column name="incentive_id" referenced-column-name="id" nullable="1"/>
+        </inverse-join-columns>
+      </join-table>
+    </many-to-many>
+  </entity>
+</doctrine-mapping>
