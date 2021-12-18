@@ -20,10 +20,17 @@ use WMDE\Fundraising\PaymentContext\ResponseModel\PaypalNotificationResponse;
  */
 class HandleSubscriptionSignupNotificationUseCase {
 
-	private $repository;
-	private $authorizationService;
-	private $mailer;
-	private $logger;
+	private ApplicationRepository $repository;
+	private ApplicationAuthorizer $authorizationService;
+	private TemplateMailerInterface $mailer;
+
+	/**
+	 * Not used at the moment, might remove this in the future
+	 *
+	 * @deprecated
+	 * @phpstan-ignore-next-line
+	 */
+	private LoggerInterface $logger;
 
 	public function __construct( ApplicationRepository $repository, ApplicationAuthorizer $authorizationService,
 		TemplateMailerInterface $mailer, LoggerInterface $logger ) {

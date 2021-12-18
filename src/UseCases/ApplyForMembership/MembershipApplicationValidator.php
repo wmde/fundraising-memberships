@@ -74,8 +74,8 @@ class MembershipApplicationValidator {
 	}
 
 	private function validateMembershipType(): void {
-		$membershiptype = $this->request->getMembershipType();
-		if ( $membershiptype !== MembershipApplication::ACTIVE_MEMBERSHIP && $membershiptype !== MembershipApplication::SUSTAINING_MEMBERSHIP ) {
+		$membershipType = $this->request->getMembershipType();
+		if ( $membershipType !== MembershipApplication::ACTIVE_MEMBERSHIP && $membershipType !== MembershipApplication::SUSTAINING_MEMBERSHIP ) {
 			$this->violations[Result::SOURCE_APPLICANT_MEMBERSHIP_TYPE] = Result::VIOLATION_INVALID_MEMBERSHIP_TYPE;
 		}
 	}
@@ -101,10 +101,6 @@ class MembershipApplicationValidator {
 			default:
 				throw new LogicException( sprintf( 'Unknown fee validation error code: %s', var_export( $result->getErrorCode(), true ) ) );
 		}
-	}
-
-	private function addPaymentAmountViolation( string $violation ) {
-		$this->violations[ApplicationValidationResult::SOURCE_PAYMENT_AMOUNT] = $violation;
 	}
 
 	private function getApplicantType(): string {

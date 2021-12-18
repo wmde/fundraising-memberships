@@ -31,6 +31,12 @@ class MembershipContextFactory {
 	private const DOMAIN_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DomainClassMapping/';
 
 	private array $config;
+
+	/**
+	 * @deprecated This is unused and should be removed
+	 * @var Configuration
+	 * @phpstan-ignore-next-line
+	 */
 	private Configuration $doctrineConfig;
 
 	private ?MembershipTokenGenerator $tokenGenerator;
