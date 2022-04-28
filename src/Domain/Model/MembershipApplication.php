@@ -6,8 +6,9 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
 use RuntimeException;
 use Traversable;
+use WMDE\Fundraising\MembershipContext\RefactoringException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookablePayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentTransactionData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
 /**
@@ -41,9 +42,9 @@ class MembershipApplication {
 		$this->applicant = $applicant;
 		$this->payment = $payment;
 		$this->donationReceipt = $donationReceipt;
-		$paymentMethod = $payment->getPaymentMethod();
-		if ( $paymentMethod instanceof BookablePayment ) {
-			$this->confirmed = $paymentMethod->paymentCompleted();
+		// TODO: Make isBooked() method public on BookablePayment
+		if ( $this->payment instanceof BookablePayment ) {
+				$this->confirmed = $this->payment->getValuationDate() !== null;
 		}
 		$this->moderationReasons = [];
 	}
@@ -137,10 +138,6 @@ class MembershipApplication {
 			return false;
 		}
 
-		if ( $this->payment->getPaymentMethod()->hasExternalProvider() ) {
-			return false;
-		}
-
 		return true;
 	}
 
@@ -152,7 +149,10 @@ class MembershipApplication {
 		return $this->exported;
 	}
 
-	public function confirmSubscriptionCreated( PaymentTransactionData $paymentTransactionData ): void {
+	public function confirmSubscriptionCreated(): void {
+		// phpcs:disable Squiz.PHP.NonExecutableCode.Unreachable
+		throw new RefactoringException( 'TODO: your use case should call the payment booking with transaction data, this method is just for followup data changes' );
+
 		$paymentMethod = $this->getPayment()->getPaymentMethod();
 		if ( !( $paymentMethod instanceof BookablePayment ) ) {
 			throw new RuntimeException( 'Only bookable payments can be confirmed as booked' );
