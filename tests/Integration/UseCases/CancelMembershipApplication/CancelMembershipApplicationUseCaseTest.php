@@ -126,7 +126,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 			new CancellationRequest( self::ID_OF_NON_EXISTING_APPLICATION )
 		);
 
-		$this->assertEmpty( $this->mailer->getSendMailCalls() );
+		$this->assertCount( 0, $this->mailer->getSendMailCalls() );
 	}
 
 	public function testWhenApplicationIsAlreadyCancelled_onlySuccessResponseIsReturned(): void {
@@ -137,7 +137,7 @@ class CancelMembershipApplicationUseCaseTest extends \PHPUnit\Framework\TestCase
 
 		$response = $this->newUseCase()->cancelApplication( new CancellationRequest( $application->getId() ) );
 
-		$this->assertEmpty( $this->mailer->getSendMailCalls() );
+		$this->assertCount( 0, $this->mailer->getSendMailCalls() );
 		$this->assertTrue( $response->isSuccess() );
 	}
 
