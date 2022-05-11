@@ -52,7 +52,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 		$response = $this->newValidator()->validate( $validRequest );
 
 		$this->assertEquals( new Result(), $response );
-		$this->assertEmpty( $response->getViolationSources() );
+		$this->assertCount( 0, $response->getViolationSources() );
 		$this->assertTrue( $response->isSuccessful() );
 	}
 
@@ -378,7 +378,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 		$response = $this->newValidator()->validate( $validRequest );
 
 		$this->assertEquals( new Result(), $response );
-		$this->assertEmpty( $response->getViolationSources() );
+		$this->assertCount( 0, $response->getViolationSources() );
 		$this->assertTrue( $response->isSuccessful() );
 	}
 
