@@ -8,15 +8,11 @@ use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogger;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\CancelPaymentUseCase;
+use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\FailureResponse;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class CancelMembershipApplicationUseCase {
 
 	public const LOG_MESSAGE_FRONTEND_STATUS_CHANGE = 'frontend: cancellation';
@@ -43,14 +39,15 @@ class CancelMembershipApplicationUseCase {
 			return CancellationResponse::newFailureResponse( $membershipApplicationId );
 		}
 
+		$cancelPaymentResponse = $this->cancelPaymentUseCase->cancelPayment( $application->getPaymentId() );
+
+		if ( $cancelPaymentResponse instanceof FailureResponse ) {
+			return CancellationResponse::newFailureResponse( $membershipApplicationId );
+		}
+
 		if ( !$application->isCancelled() ) {
 			$application->cancel();
-			try {
-				$this->repository->storeApplication( $application );
-			}
-			catch ( StoreMembershipApplicationException $ex ) {
-				return CancellationResponse::newFailureResponse( $membershipApplicationId );
-			}
+			$this->repository->storeApplication( $application );
 			if ( !$request->initiatedByApplicant() ) {
 				$this->sendConfirmationEmail( $application );
 			}
