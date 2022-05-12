@@ -6,10 +6,6 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
 use RuntimeException;
 use Traversable;
-use WMDE\Fundraising\MembershipContext\RefactoringException;
-use WMDE\Fundraising\PaymentContext\Domain\Model\BookablePayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
 /**
  * @license GPL-2.0-or-later
@@ -24,25 +20,21 @@ class MembershipApplication {
 
 	private string $type;
 	private Applicant $applicant;
-	private Payment $payment;
+	private int $paymentId;
 	private bool $moderationNeeded = false;
 	private bool $cancelled = false;
-	private bool $confirmed = true;
+	private bool $confirmed = false;
 	private bool $exported = false;
 	private ?bool $donationReceipt;
 	/** @var Incentive[] */
 	private array $incentives = [];
 
-	public function __construct( ?int $id, string $type, Applicant $applicant, Payment $payment, ?bool $donationReceipt ) {
+	public function __construct( ?int $id, string $type, Applicant $applicant, int $paymentId, ?bool $donationReceipt ) {
 		$this->id = $id;
 		$this->type = $type;
 		$this->applicant = $applicant;
-		$this->payment = $payment;
+		$this->paymentId = $paymentId;
 		$this->donationReceipt = $donationReceipt;
-		// TODO: Make isBooked() method public on BookablePayment
-		if ( $this->payment instanceof BookablePayment ) {
-				$this->confirmed = $this->payment->getValuationDate() !== null;
-		}
 	}
 
 	public function getId(): ?int {
@@ -57,8 +49,8 @@ class MembershipApplication {
 		return $this->applicant;
 	}
 
-	public function getPayment(): Payment {
-		return $this->payment;
+	public function getPaymentId(): int {
+		return $this->paymentId;
 	}
 
 	public function getType(): string {
@@ -133,33 +125,16 @@ class MembershipApplication {
 	}
 
 	public function confirmSubscriptionCreated(): void {
-		// phpcs:disable Squiz.PHP.NonExecutableCode.Unreachable
-		throw new RefactoringException( 'TODO: your use case should call the payment booking with transaction data, this method is just for followup data changes' );
-
-		$paymentMethod = $this->getPayment()->getPaymentMethod();
-		if ( !( $paymentMethod instanceof BookablePayment ) ) {
-			throw new RuntimeException( 'Only bookable payments can be confirmed as booked' );
-		}
-
+		// TODO: Look at when moderation happens and see if this is still valid
 		if ( !$this->statusAllowsForBooking() ) {
-			throw new RuntimeException( 'Only unconfirmed membership applications can be confirmed as booked' );
+			throw new RuntimeException( 'Only unconfirmed and non-moderated membership applications can be confirmed as booked' );
 		}
 
-		$paymentMethod->bookPayment( $paymentTransactionData );
 		$this->confirmed = true;
 	}
 
 	private function statusAllowsForBooking(): bool {
-		return !$this->isConfirmed() &&
-			!$this->needsModeration();
-	}
-
-	public function notifyOfFirstPaymentDate( string $firstPaymentDate ): void {
-		$paymentMethod = $this->getPayment()->getPaymentMethod();
-
-		if ( $paymentMethod instanceof PayPalPayment ) {
-			$paymentMethod->getPayPalData()->setFirstPaymentDate( $firstPaymentDate );
-		}
+		return !$this->isConfirmed() && !$this->needsModeration();
 	}
 
 	public function addIncentive( Incentive $incentive ): void {
