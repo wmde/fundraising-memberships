@@ -8,14 +8,10 @@ use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class TemplateBasedMailerSpy implements TemplateMailerInterface {
 
-	private $testCase;
-	private $sendMailCalls = [];
+	private TestCase $testCase;
+	private array $sendMailCalls = [];
 
 	public function __construct( TestCase $testCase ) {
 		$this->testCase = $testCase;
@@ -29,8 +25,8 @@ class TemplateBasedMailerSpy implements TemplateMailerInterface {
 		return $this->sendMailCalls;
 	}
 
-	public function assertCalledOnceWith( EmailAddress $expectedEmail, array $expectedArguments ): void {
-		$this->assertCalledOnce();
+	public function expectToBeCalledOnceWith( EmailAddress $expectedEmail, array $expectedArguments ): void {
+		$this->expectToBeCalledOnce();
 
 		$this->testCase->assertEquals(
 			[
@@ -41,8 +37,12 @@ class TemplateBasedMailerSpy implements TemplateMailerInterface {
 		);
 	}
 
-	public function assertCalledOnce(): void {
+	public function expectToBeCalledOnce(): void {
 		$this->testCase->assertCount( 1, $this->sendMailCalls, 'Mailer should be called exactly once' );
+	}
+
+	public function expectToBeNotCalled(): void {
+		$this->testCase->assertCount( 0, $this->sendMailCalls, 'Mailer should not be called' );
 	}
 
 }

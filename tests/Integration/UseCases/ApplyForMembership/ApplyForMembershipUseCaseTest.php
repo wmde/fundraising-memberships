@@ -194,7 +194,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$this->markTestIncomplete( 'This test needs to be refactored after the use case is updated' );
 		$this->newUseCase()->applyForMembership( $this->newValidRequest() );
 
-		$this->mailer->assertCalledOnceWith(
+		$this->mailer->expectToBeCalledOnceWith(
 			new EmailAddress( ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS ),
 			[
 				'membershipType' => 'sustaining',
