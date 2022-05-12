@@ -13,8 +13,6 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
-use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 
 /**
  * newDomainEntity and newDoctrineEntity return equivalent objects.
@@ -72,7 +70,7 @@ class ValidMembershipApplication {
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
-			ValidPayments::newPayment(),
+			1,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
@@ -83,7 +81,7 @@ class ValidMembershipApplication {
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newCompanyApplicantName() ),
-			ValidPayments::newPaymentWithHighAmount( PaymentInterval::Quarterly, self::COMPANY_PAYMENT_AMOUNT_IN_EURO ),
+			1,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
@@ -94,10 +92,7 @@ class ValidMembershipApplication {
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
-			ValidPayments::newPaymentWithHighAmount(
-				PaymentInterval::Quarterly,
-				self::TOO_HIGH_QUARTERLY_PAYMENT_AMOUNT_IN_EURO
-			),
+			1,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
@@ -108,20 +103,9 @@ class ValidMembershipApplication {
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
-			ValidPayments::newPaymentWithHighAmount(
-				PaymentInterval::Yearly,
-				self::TOO_HIGH_YEARLY_PAYMENT_AMOUNT_IN_EURO
-			),
+			1,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
-	}
-
-	public static function newDomainEntityUsingPayPal(): MembershipApplication {
-		return ( new self() )->createApplicationWithPayment( ValidPayments::newPayPalPayment() );
-	}
-
-	public static function newBookedDomainEntityUsingPayPal(): MembershipApplication {
-		return ( new self() )->createApplicationWithPayment( ValidPayments::newBookedPayPalPayment() );
 	}
 
 	public static function newConfirmedSubscriptionDomainEntity(): MembershipApplication {
@@ -131,7 +115,7 @@ class ValidMembershipApplication {
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
-			ValidPayments::newPayPalPayment(),
+			1,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
@@ -152,7 +136,7 @@ class ValidMembershipApplication {
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicantWithEmailAddress( $self->newPersonApplicantName(), $emailAddress ),
-			ValidPayments::newPayment(),
+			1,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
@@ -164,17 +148,6 @@ class ValidMembershipApplication {
 			new EmailAddress( $emailAddress ),
 			new PhoneNumber( self::APPLICANT_PHONE_NUMBER ),
 			new \DateTime( self::APPLICANT_DATE_OF_BIRTH )
-		);
-	}
-
-	private function createApplicationWithPayment( Payment $payment ): MembershipApplication {
-		$self = ( new self() );
-		return new MembershipApplication(
-			null,
-			self::MEMBERSHIP_TYPE,
-			$self->newApplicant( $self->newPersonApplicantName() ),
-			$payment,
-			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
 
