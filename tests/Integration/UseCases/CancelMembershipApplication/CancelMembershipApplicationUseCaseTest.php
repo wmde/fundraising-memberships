@@ -6,8 +6,8 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\CancelMe
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
-use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogger;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
@@ -20,6 +20,8 @@ use WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\Canc
 use WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancellationResponse;
 use WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancelMembershipApplicationUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\CancelPaymentUseCase;
+use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\FailureResponse;
+use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\SuccessResponse;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancelMembershipApplicationUseCase
@@ -68,14 +70,24 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertFalse( $response->isSuccess() );
 	}
 
+	public function testWhenPaymentCancellationFails_cancellationFails(): void {
+		[ $repository, $application ] = $this->givenStoredCancelableApplication();
+		$cancelPaymentUseCase = $this->givenFailingCancelPaymentUseCase();
+		$useCase = $this->givenUseCase( repository: $repository, cancelPaymentUseCase: $cancelPaymentUseCase );
+
+		$response = $this->whenCancelApplicationRequestIsSent( $useCase, $application->getId() );
+
+		$this->assertFalse( $response->isSuccess() );
+	}
+
 	public function testWhenSaveFails_cancellationFails() {
 		[ $repository, $application ] = $this->givenStoredCancelableApplication();
 		$repository->throwOnWrite();
 		$useCase = $this->givenUseCase( repository: $repository );
 
-		$response = $this->whenCancelApplicationRequestIsSent( $useCase, $application->getId() );
+		$this->expectException( StoreMembershipApplicationException::class );
 
-		$this->assertFalse( $response->isSuccess() );
+		$this->whenCancelApplicationRequestIsSent( $useCase, $application->getId() );
 	}
 
 	public function testWhenCancellationFails_confirmationEmailIsNotSend(): void {
@@ -160,13 +172,14 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 		?ApplicationRepository $repository = null,
 		?TemplateMailerInterface $mailer = null,
 		?MembershipApplicationEventLogger $logger = null,
+		?CancelPaymentUseCase $cancelPaymentUseCase = null
 	): CancelMembershipApplicationUseCase {
 		return new CancelMembershipApplicationUseCase(
 			$authorizer ?? new SucceedingAuthorizer(),
 			$repository ?? new FakeApplicationRepository(),
 			$mailer ?? $this->createStub( TemplateMailerInterface::class ),
 			$logger ?? $this->createStub( MembershipApplicationEventLogger::class ),
-			$this->createStub( CancelPaymentUseCase::class )
+			$cancelPaymentUseCase ?? $this->givenSucceedingCancelPaymentUseCase()
 		);
 	}
 
@@ -199,6 +212,20 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 
 	private function givenEventLoggerSpy(): MembershipApplicationEventLoggerSpy {
 		return new MembershipApplicationEventLoggerSpy();
+	}
+
+	private function givenSucceedingCancelPaymentUseCase(): CancelPaymentUseCase {
+		$useCase = $this->createMock( CancelPaymentUseCase::class );
+		$useCase->method( 'cancelPayment' )
+			->willReturn( new SuccessResponse() );
+		return $useCase;
+	}
+
+	private function givenFailingCancelPaymentUseCase(): CancelPaymentUseCase {
+		$useCase = $this->createMock( CancelPaymentUseCase::class );
+		$useCase->method( 'cancelPayment' )
+			->willReturn( new FailureResponse( 'This payment is already cancelled' ) );
+		return $useCase;
 	}
 
 	private function expectLoggerToBeCalledOnceWithMessage( MembershipApplicationEventLoggerSpy $logger, string $message ): void {
