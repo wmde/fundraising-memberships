@@ -106,11 +106,6 @@
         <option name="default"/>
       </options>
     </field>
-    <field name="paymentBankAccountHolder" type="string" column="account_holder" length="50" nullable="false">
-      <options>
-        <option name="default"/>
-      </options>
-    </field>
     <field name="comment" type="text" column="comment" nullable="false">
       <options>
         <option name="default"/>

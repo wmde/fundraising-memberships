@@ -13,12 +13,12 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 
 /**
  * newDomainEntity and newDoctrineEntity return equivalent objects.
- *
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class ValidMembershipApplication {
 
@@ -40,13 +40,13 @@ class ValidMembershipApplication {
 	public const APPLICANT_PHONE_NUMBER = '1337-1337-1337';
 
 	public const MEMBERSHIP_TYPE = MembershipApplication::SUSTAINING_MEMBERSHIP;
-	public const PAYMENT_TYPE_PAYPAL = 'PPL';
-	public const PAYMENT_TYPE_DIRECT_DEBIT = 'BEZ';
-	public const PAYMENT_PERIOD_IN_MONTHS = 3;
+	public const PAYMENT_TYPE_PAYPAL = PaymentType::Paypal;
+	public const PAYMENT_TYPE_DIRECT_DEBIT = PaymentType::DirectDebit;
+	public const PAYMENT_PERIOD_IN_MONTHS = PaymentInterval::Quarterly;
 	public const PAYMENT_AMOUNT_IN_EURO = 10;
 	public const COMPANY_PAYMENT_AMOUNT_IN_EURO = 25;
-	public const TOO_HIGH_QUARTERLY_PAYMENT_AMOUNT_IN_EURO = 250.1;
-	public const TOO_HIGH_YEARLY_PAYMENT_AMOUNT_IN_EURO = 1000.1;
+	public const TOO_HIGH_QUARTERLY_PAYMENT_AMOUNT_IN_EUROCENTS = 25010;
+	public const TOO_HIGH_YEARLY_PAYMENT_AMOUNT_IN_EUROCENTS = 100010;
 
 	public const PAYMENT_ID = 1;
 
@@ -61,7 +61,6 @@ class ValidMembershipApplication {
 
 	public const TEMPLATE_CAMPAIGN = 'test161012';
 	public const TEMPLATE_NAME = 'Some_Membership_Form_Template.twig';
-	public const FIRST_PAYMENT_DATE = '2021-02-01';
 
 	public const OPTS_INTO_DONATION_RECEIPT = true;
 	public const INCENTIVE_NAME = 'eternal_thankfulness';
@@ -72,7 +71,7 @@ class ValidMembershipApplication {
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
-			1,
+			self::PAYMENT_ID,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
@@ -83,41 +82,18 @@ class ValidMembershipApplication {
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newCompanyApplicantName() ),
-			1,
+			self::PAYMENT_ID,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
 
-	public static function newApplicationWithTooHighQuarterlyAmount(): MembershipApplication {
+	public static function newApplication(): MembershipApplication {
 		$self = ( new self() );
 		return new MembershipApplication(
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
-			1,
-			self::OPTS_INTO_DONATION_RECEIPT
-		);
-	}
-
-	public static function newApplicationWithTooHighYearlyAmount(): MembershipApplication {
-		$self = ( new self() );
-		return new MembershipApplication(
-			null,
-			self::MEMBERSHIP_TYPE,
-			$self->newApplicant( $self->newPersonApplicantName() ),
-			1,
-			self::OPTS_INTO_DONATION_RECEIPT
-		);
-	}
-
-	public static function newConfirmedSubscriptionDomainEntity(): MembershipApplication {
-		$self = ( new self() );
-
-		return new MembershipApplication(
-			null,
-			self::MEMBERSHIP_TYPE,
-			$self->newApplicant( $self->newPersonApplicantName() ),
-			1,
+			self::PAYMENT_ID,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
@@ -138,7 +114,7 @@ class ValidMembershipApplication {
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicantWithEmailAddress( $self->newPersonApplicantName(), $emailAddress ),
-			1,
+			self::PAYMENT_ID,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
@@ -210,8 +186,8 @@ class ValidMembershipApplication {
 		$application->setApplicantDateOfBirth( new \DateTime( self::APPLICANT_DATE_OF_BIRTH ) );
 
 		$application->setMembershipType( self::MEMBERSHIP_TYPE );
-		$application->setPaymentType( self::PAYMENT_TYPE_DIRECT_DEBIT );
-		$application->setPaymentIntervalInMonths( self::PAYMENT_PERIOD_IN_MONTHS );
+		$application->setPaymentType( self::PAYMENT_TYPE_DIRECT_DEBIT->value );
+		$application->setPaymentIntervalInMonths( self::PAYMENT_PERIOD_IN_MONTHS->value );
 		$application->setPaymentAmount( self::PAYMENT_AMOUNT_IN_EURO );
 
 		$application->setPaymentBankAccount( self::PAYMENT_BANK_ACCOUNT );
@@ -244,6 +220,14 @@ class ValidMembershipApplication {
 
 	public static function newIncentive(): Incentive {
 		return new Incentive( self::INCENTIVE_NAME );
+	}
+
+	public static function newPaymentCreationRequest(): PaymentCreationRequest {
+		return new PaymentCreationRequest(
+			self::PAYMENT_AMOUNT_IN_EURO,
+			self::PAYMENT_PERIOD_IN_MONTHS->value,
+			self::PAYMENT_TYPE_DIRECT_DEBIT->value
+		);
 	}
 
 }

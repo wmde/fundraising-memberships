@@ -5,27 +5,8 @@ parameters:
 	# TODO remove these when working on the payment refactoring tasks
 	excludePaths:
 		analyse:
-			- tests/Unit/UseCases/ApplyForMembership/MembershipApplicationValidatorTest.php
-			- tests/Unit/UseCases/ApplyForMembership/MembershipApplicationBuilderTest.php
-			- tests/Unit/UseCases/ApplyForMembership/ApplyForMembershipRequestTest.php
-			- tests/Unit/UseCases/ApplyForMembership/ApplyForMembershipPolicyValidatorTest.php
 			- tests/Integration/UseCases/HandleSubscriptionSignupNotification/HandleSubscriptionSignupNotificationUseCaseTest.php
 			- tests/Integration/UseCases/HandleSubscriptionPaymentNotification/HandleSubscriptionPaymentNotificationUseCaseTest.php
-			- tests/Integration/UseCases/ApplyForMembership/ApplyForMembershipUseCaseTest.php
 			- tests/Integration/DoctrineEntities/MembershipApplicationInsertionTest.php
 			- tests/Integration/DataAccess/SerializedDataHandlingTest.php
-			- tests/Data/ValidMembershipApplicationRequest.php
 			- tests/Data/ValidPayPalNotificationRequest.php
-			- src/UseCases/HandleSubscriptionSignupNotification/HandleSubscriptionSignupNotificationUseCase.php
-			- src/UseCases/HandleSubscriptionPaymentNotification/HandleSubscriptionPaymentNotificationUseCase.php
-			- src/UseCases/ApplyForMembership/MembershipApplicationValidator.php
-			- src/UseCases/ApplyForMembership/MembershipApplicationBuilder.php
-			- src/UseCases/ApplyForMembership/Moderation/ModerationService.php
-			- src/UseCases/ApplyForMembership/Notification/MailMembershipApplicationNotifier.php
-			- src/UseCases/ApplyForMembership/ApplyForMembershipUseCase.php
-			- src/UseCases/ApplyForMembership/ApplyForMembershipRequest.php
-			- src/UseCases/ApplyForMembership/ApplyForMembershipPolicyValidator.php
-			- tests/Unit/UseCases/ApplyForMembership/MailMembershipApplicationNotifierTest.php
-			- tests/Unit/UseCases/ApplyForMembership/ModerationServiceTest.php
-			- src/UseCases/ApplyForMembership/MailTemplateValueBuilder.php
-			- tests/Unit/UseCases/ApplyForMembership/MailTemplateValueBuilderTest.php

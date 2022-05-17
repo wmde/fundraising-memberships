@@ -5,16 +5,19 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification;
 
 use WMDE\EmailAddress\EmailAddress;
+use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
+use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 class MailMembershipApplicationNotifier implements MembershipNotifier {
 
 	public function __construct(
 		private readonly TemplateMailerInterface $confirmationMailer,
 		private readonly TemplateMailerInterface $adminMailer,
+		private readonly GetPaymentUseCase $paymentRetriever,
 		private readonly string $adminEmailAddress
 	) {
 	}
@@ -28,9 +31,7 @@ class MailMembershipApplicationNotifier implements MembershipNotifier {
 	}
 
 	private function getTemplateArguments( MembershipApplication $application ): array {
-		$paymentInterval = $application->getPayment()->getIntervalInMonths();
-		$paymentAmount = $application->getPayment()->getAmount();
-		$paymentType = $application->getPayment()->getPaymentMethod()->getId();
+		$paymentValues = $this->paymentRetriever->getPaymentDataArray( $application->getPaymentId() );
 
 		$incentives = [];
 		/* @var Incentive $incentive */
@@ -40,10 +41,10 @@ class MailMembershipApplicationNotifier implements MembershipNotifier {
 		return [
 			'id' => $application->getId(),
 			'membershipType' => $application->getType(),
-			'membershipFee' => $paymentAmount->getEuroString(),
-			'membershipFeeInCents' => $paymentAmount->getEuroCents(),
-			'paymentIntervalInMonths' => $paymentInterval,
-			'paymentType' => $paymentType,
+			'membershipFee' => Euro::newFromCents( $paymentValues['amount'] )->getEuroString(),
+			'membershipFeeInCents' => $paymentValues['amount'],
+			'paymentIntervalInMonths' => $paymentValues['interval'],
+			'paymentType' => $paymentValues['paymentType'],
 			'salutation' => $application->getApplicant()->getName()->getSalutation(),
 			'title' => $application->getApplicant()->getName()->getTitle(),
 			'lastName' => $application->getApplicant()->getName()->getLastName(),

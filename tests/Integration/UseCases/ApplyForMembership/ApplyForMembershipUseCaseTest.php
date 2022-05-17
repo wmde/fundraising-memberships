@@ -4,14 +4,12 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ApplyForMembership;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
+use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
-use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
@@ -19,8 +17,9 @@ use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\EventEmitterSpy;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedApplicationTokenFetcher;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedPaymentDelayCalculator;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\InMemoryApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TemplateBasedMailerSpy;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TemplateMailerStub;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TestIncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
@@ -31,62 +30,26 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembe
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationResult;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MailMembershipApplicationNotifier;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MembershipNotifier;
-use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentDelayCalculator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse;
+use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipUseCase
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipResponse
- *
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @covers \WMDE\Fundraising\MembershipContext\Infrastructure\MembershipConfirmationMailer
  */
 class ApplyForMembershipUseCaseTest extends TestCase {
 
 	private const FIRST_APPLICATION_ID = 1;
 	private const ACCESS_TOKEN = 'Gimmeh all the access';
 	private const UPDATE_TOKEN = 'Lemme change all the stuff';
-	private const FIRST_PAYMENT_DATE = '2017-08-07';
-
-	/**
-	 * @var ApplicationRepository
-	 */
-	private $repository;
-
-	/**
-	 * @var MembershipNotifier&MockObject
-	 */
-	private MembershipNotifier $mailer;
-
-	private MembershipApplicationValidator $validator;
-
-	/**
-	 * @var ApplicationTracker
-	 */
-	private $tracker;
-
-	/**
-	 * @var ApplicationPiwikTracker
-	 */
-	private $piwikTracker;
-
-	private ModerationService $policyValidator;
-
-	private EventEmitter $eventEmitter;
-
-	public function setUp(): void {
-		$this->repository = new InMemoryApplicationRepository();
-		$this->mailer = $this->createMock( MembershipNotifier::class );
-		$this->validator = $this->newSucceedingValidator();
-		$this->policyValidator = $this->getSucceedingPolicyValidatorMock();
-		$this->tracker = $this->createMock( ApplicationTracker::class );
-		$this->piwikTracker = $this->createMock( ApplicationPiwikTracker::class );
-		$this->eventEmitter = $this->createMock( EventEmitter::class );
-	}
+	private const PAYMENT_PROVIDER_URL = 'https://paypal.example.com/';
 
 	private function newSucceedingValidator(): MembershipApplicationValidator {
 		$validator = $this->getMockBuilder( MembershipApplicationValidator::class )
@@ -99,26 +62,48 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		return $validator;
 	}
 
-	public function testGivenValidRequest_applicationSucceeds(): void {
-		$this->markTestIncomplete( 'This test needs to be refactored after the use case is updated' );
-		$response = $this->newUseCase()->applyForMembership( $this->newValidRequest() );
+	private function newSucceedingCreatePaymentUseCase(): CreatePaymentUseCase {
+		$useCaseMock = $this->createMock( CreatePaymentUseCase::class );
 
+		$successResponse = new SuccessResponse(
+			ValidMembershipApplication::PAYMENT_ID,
+			$this->createStub( PaymentProviderURLGenerator::class ),
+			true
+		);
+
+		$useCaseMock->method( 'createPayment' )->willReturn( $successResponse );
+		return $useCaseMock;
+	}
+
+	private function newSucceedingUnconfirmedCreatePaymentUseCase(): CreatePaymentUseCase {
+		$useCaseMock = $this->createMock( CreatePaymentUseCase::class );
+
+		$successResponse = new SuccessResponse(
+			ValidMembershipApplication::PAYMENT_ID,
+			$this->createStub( PaymentProviderURLGenerator::class ),
+			false
+		);
+
+		$useCaseMock->method( 'createPayment' )->willReturn( $successResponse );
+		return $useCaseMock;
+	}
+
+	private function newFailingCreatePaymentUseCase(): CreatePaymentUseCase {
+		$useCaseMock = $this->createMock( CreatePaymentUseCase::class );
+		$responseMock = new FailureResponse( "the payment was not successfull for some reason" );
+		$useCaseMock->method( 'createPayment' )->willReturn( $responseMock );
+		return $useCaseMock;
+	}
+
+	public function testGivenValidRequest_applicationSucceeds(): void {
+		$response = $this->makeUseCase()->applyForMembership( $this->newValidRequest() );
 		$this->assertTrue( $response->isSuccessful() );
 	}
 
-	private function newUseCase(): ApplyForMembershipUseCase {
-		return new ApplyForMembershipUseCase(
-			$this->repository,
-			$this->newTokenFetcher(),
-			$this->mailer,
-			$this->validator,
-			$this->policyValidator,
-			$this->tracker,
-			$this->piwikTracker,
-			$this->newFixedPaymentDelayCalculator(),
-			$this->eventEmitter,
-			new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] )
-		);
+	public function testGivenFailingPaymentInRequest_applicationIsNotSuccessful(): void {
+		$useCase = $this->makeUseCase( createPaymentUseCase: $this->newFailingCreatePaymentUseCase() );
+		$response = $useCase->applyForMembership( $this->newValidRequest() );
+		$this->assertFalse( $response->isSuccessful() );
 	}
 
 	private function newTokenFetcher(): ApplicationTokenFetcher {
@@ -126,12 +111,6 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 			self::ACCESS_TOKEN,
 			self::UPDATE_TOKEN
 		) );
-	}
-
-	private function newFixedPaymentDelayCalculator(): PaymentDelayCalculator {
-		return new FixedPaymentDelayCalculator(
-			new \DateTime( self::FIRST_PAYMENT_DATE )
-		);
 	}
 
 	private function newValidRequest(): ApplyForMembershipRequest {
@@ -151,30 +130,15 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$request->setApplicantEmailAddress( ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS );
 		$request->setApplicantPhoneNumber( ValidMembershipApplication::APPLICANT_PHONE_NUMBER );
 		$request->setApplicantDateOfBirth( ValidMembershipApplication::APPLICANT_DATE_OF_BIRTH );
-		$request->setPaymentType( ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT );
-		$request->setPaymentIntervalInMonths( ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS );
-		$request->setPaymentAmountInEuros( Euro::newFromInt( ValidMembershipApplication::PAYMENT_AMOUNT_IN_EURO ) );
-
-		$request->setBankData( $this->newValidBankData() );
 
 		$request->setTrackingInfo( $this->newTrackingInfo() );
 		$request->setPiwikTrackingString( 'foo/bar' );
 
 		$request->setOptsIntoDonationReceipt( true );
 
+		$request->setPaymentCreationRequest( ValidMembershipApplication::newPaymentCreationRequest() );
+
 		return $request->assertNoNullFields();
-	}
-
-	private function newValidBankData(): BankData {
-		$bankData = new BankData();
-
-		$bankData->setIban( new Iban( ValidMembershipApplication::PAYMENT_IBAN ) );
-		$bankData->setBic( ValidMembershipApplication::PAYMENT_BIC );
-		$bankData->setAccount( ValidMembershipApplication::PAYMENT_BANK_ACCOUNT );
-		$bankData->setBankCode( ValidMembershipApplication::PAYMENT_BANK_CODE );
-		$bankData->setBankName( ValidMembershipApplication::PAYMENT_BANK_NAME );
-
-		return $bankData->assertNoNullFields()->freeze();
 	}
 
 	private function newTrackingInfo(): MembershipApplicationTrackingInfo {
@@ -185,42 +149,43 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	}
 
 	public function testGivenValidRequest_applicationGetsPersisted(): void {
-		$this->markTestIncomplete( 'This test needs to be refactored after the use case is updated' );
-		$this->newUseCase()->applyForMembership( $this->newValidRequest() );
+		$repository = $this->makeMembershipRepositoryStub();
+		$this->makeUseCase( repository: $repository )->applyForMembership( $this->newValidRequest() );
 
 		$expectedApplication = ValidMembershipApplication::newDomainEntity();
+		$expectedApplication->confirm();
 		$expectedApplication->assignId( self::FIRST_APPLICATION_ID );
 
-		$application = $this->repository->getApplicationById( $expectedApplication->getId() );
+		$application = $repository->getApplicationById( $expectedApplication->getId() );
 		$this->assertNotNull( $application );
 
 		$this->assertEquals( $expectedApplication, $application );
 	}
 
 	public function testGivenValidRequest_confirmationEmailIsSent(): void {
-		$this->markTestIncomplete( 'This test needs to be refactored after the use case is updated' );
-		$this->mailer
-			->expects( $this->once() )
-			->method( 'sendConfirmationFor' )
-			->with( $this->callback(
-				fn( MembershipApplication $application ) => $application->getId() === self::FIRST_APPLICATION_ID
-			) );
-		$this->newUseCase()->applyForMembership( $this->newValidRequest() );
+		$mailerSpy = new TemplateBasedMailerSpy( $this );
+		$notifier = new MailMembershipApplicationNotifier(
+			$mailerSpy,
+			new TemplateMailerStub(),
+			$this->makePaymentRetriever(),
+			'mitglieder@wikimedia.de'
+		);
+
+		$this->makeUseCase( mailNotifier: $notifier )
+			->applyForMembership( $this->newValidRequest() );
+
+		$mailerSpy->expectToBeCalledOnce();
 	}
 
 	public function testGivenValidRequest_tokenIsGeneratedAndReturned(): void {
-		$this->markTestIncomplete( 'This test needs to be refactored after the use case is updated' );
-		$response = $this->newUseCase()->applyForMembership( $this->newValidRequest() );
+		$response = $this->makeUseCase()->applyForMembership( $this->newValidRequest() );
 
 		$this->assertSame( self::ACCESS_TOKEN, $response->getAccessToken() );
 		$this->assertSame( self::UPDATE_TOKEN, $response->getUpdateToken() );
 	}
 
 	public function testWhenValidationFails_failureResultIsReturned(): void {
-		$this->markTestIncomplete( 'This test needs to be refactored after the use case is updated' );
-		$this->validator = $this->newFailingValidator();
-
-		$response = $this->newUseCase()->applyForMembership( $this->newValidRequest() );
+		$response = $this->makeUseCase( validator: $this->newFailingValidator() )->applyForMembership( $this->newValidRequest() );
 
 		$this->assertFalse( $response->isSuccessful() );
 	}
@@ -247,17 +212,13 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	}
 
 	public function testGivenValidRequest_moderationIsNotNeeded(): void {
-		$this->markTestIncomplete( 'This test needs to be refactored after the use case is updated' );
-		$response = $this->newUseCase()->applyForMembership( $this->newValidRequest() );
+		$response = $this->makeUseCase()->applyForMembership( $this->newValidRequest() );
 
 		$this->assertFalse( $response->getMembershipApplication()->isMarkedForModeration() );
 	}
 
 	public function testGivenFailingPolicyValidator_moderationIsNeeded(): void {
-		$this->markTestIncomplete( 'This test needs to be refactored after the use case is updated' );
-		$this->policyValidator = $this->getFailingPolicyValidatorMock();
-
-		$response = $this->newUseCase()->applyForMembership( $this->newValidRequest() );
+		$response = $this->makeUseCase( policyValidator: $this->getFailingPolicyValidatorMock() )->applyForMembership( $this->newValidRequest() );
 		$this->assertTrue( $response->getMembershipApplication()->isMarkedForModeration() );
 	}
 
@@ -276,39 +237,16 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	}
 
 	public function testWhenApplicationIsUnconfirmed_confirmationEmailIsNotSent(): void {
-		$this->markTestIncomplete( 'This test needs to be refactored after the use case is updated' );
-		$this->mailer
-			->expects( $this->never() )
-			->method( 'sendConfirmationFor' );
-		$this->newUseCase()->applyForMembership( $this->newValidRequestForUnconfirmedApplication() );
-	}
+		$mailerSpy = new TemplateBasedMailerSpy( $this );
+		$notifier = new MailMembershipApplicationNotifier( $mailerSpy, new TemplateMailerStub(), $this->makePaymentRetriever(), 'mitglieder@wikimedia.de' );
+		$useCase = $this->makeUseCase(
+			createPaymentUseCase: $this->newSucceedingUnconfirmedCreatePaymentUseCase(),
+			mailNotifier: $notifier
+		);
 
-	private function newValidRequestForUnconfirmedApplication(): ApplyForMembershipRequest {
-		$request = new ApplyForMembershipRequest();
+		$useCase->applyForMembership( $this->newValidRequest() );
 
-		$request->setMembershipType( ValidMembershipApplication::MEMBERSHIP_TYPE );
-		$request->setApplicantCompanyName( '' );
-		$request->setMembershipType( ValidMembershipApplication::MEMBERSHIP_TYPE );
-		$request->setApplicantSalutation( ValidMembershipApplication::APPLICANT_SALUTATION );
-		$request->setApplicantTitle( ValidMembershipApplication::APPLICANT_TITLE );
-		$request->setApplicantFirstName( ValidMembershipApplication::APPLICANT_FIRST_NAME );
-		$request->setApplicantLastName( ValidMembershipApplication::APPLICANT_LAST_NAME );
-		$request->setApplicantStreetAddress( ValidMembershipApplication::APPLICANT_STREET_ADDRESS );
-		$request->setApplicantPostalCode( ValidMembershipApplication::APPLICANT_POSTAL_CODE );
-		$request->setApplicantCity( ValidMembershipApplication::APPLICANT_CITY );
-		$request->setApplicantCountryCode( ValidMembershipApplication::APPLICANT_COUNTRY_CODE );
-		$request->setApplicantEmailAddress( ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS );
-		$request->setApplicantPhoneNumber( ValidMembershipApplication::APPLICANT_PHONE_NUMBER );
-		$request->setApplicantDateOfBirth( ValidMembershipApplication::APPLICANT_DATE_OF_BIRTH );
-		$request->setPaymentType( ValidMembershipApplication::PAYMENT_TYPE_PAYPAL );
-		$request->setPaymentIntervalInMonths( ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS );
-		$request->setPaymentAmountInEuros( Euro::newFromInt( ValidMembershipApplication::PAYMENT_AMOUNT_IN_EURO ) );
-		$request->setBankData( new BankData() );
-
-		$request->setTrackingInfo( $this->newTrackingInfo() );
-		$request->setPiwikTrackingString( 'foo/bar' );
-
-		return $request->assertNoNullFields();
+		$this->assertCount( 0, $mailerSpy->getSendMailCalls() );
 	}
 
 	private function newAutoDeletingPolicyValidator(): ModerationService {
@@ -319,43 +257,101 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	}
 
 	public function testWhenUsingForbiddenEmailAddress_applicationIsCancelledAutomatically(): void {
-		$this->markTestIncomplete( 'This test needs to be refactored after the use case is updated' );
-		$this->policyValidator = $this->newAutoDeletingPolicyValidator();
-		$this->newUseCase()->applyForMembership( $this->newValidRequest() );
-		$this->assertTrue( $this->repository->getApplicationById( 1 )->isCancelled() );
-	}
-
-	public function testWhenUsingPayPalPayment_delayInDaysIsPersisted(): void {
-		$this->markTestIncomplete( 'This test needs to be refactored after the use case is updated' );
-		$request = $this->newValidRequest();
-		$request->setPaymentType( 'PPL' );
-		$this->newUseCase()->applyForMembership( $request );
-		/** @var PayPalPayment $payPalPayment */
-		$payPalPayment = $this->repository->getApplicationById( 1 )->getPayment()->getPaymentMethod();
-		$this->assertSame( self::FIRST_PAYMENT_DATE, $payPalPayment->getPayPalData()->getFirstPaymentDate() );
+		$repository = $this->makeMembershipRepositoryStub();
+		$this->makeUseCase(
+			repository: $repository,
+			policyValidator: $this->newAutoDeletingPolicyValidator()
+		)->applyForMembership( $this->newValidRequest() );
+		$this->assertTrue( $repository->getApplicationById( 1 )->isCancelled() );
 	}
 
 	public function testGivenDonationReceiptOptOutRequest_applicationHoldsThisValue(): void {
-		$this->markTestIncomplete( 'This test needs to be refactored after the use case is updated' );
+		$repository = $this->makeMembershipRepositoryStub();
 		$request = $this->newValidRequest();
 		$request->setOptsIntoDonationReceipt( false );
-		$this->newUseCase()->applyForMembership( $request );
+		$this->makeUseCase( repository: $repository )->applyForMembership( $request );
 
-		$application = $this->repository->getApplicationById( self::FIRST_APPLICATION_ID );
+		$application = $repository->getApplicationById( self::FIRST_APPLICATION_ID );
 		$this->assertFalse( $application->getDonationReceipt() );
 	}
 
 	public function testUseCaseEmitsDomainEvent(): void {
-		$this->markTestIncomplete( 'This test needs to be refactored after the use case is updated' );
-		$this->eventEmitter = new EventEmitterSpy();
+		$eventEmitter = new EventEmitterSpy();
 		$request = $this->newValidRequest();
 
-		$this->newUseCase()->applyForMembership( $request );
+		$this->makeUseCase( eventEmitter: $eventEmitter )->applyForMembership( $request );
 
-		$events = $this->eventEmitter->getEvents();
+		$events = $eventEmitter->getEvents();
 		$this->assertCount( 1, $events );
 		$this->assertInstanceOf( MembershipCreatedEvent::class, $events[0] );
 		$this->assertTrue( $events[0]->getApplicant()->isPrivatePerson() );
 		$this->assertGreaterThan( 0, $events[0]->getMembershipId() );
+	}
+
+	public function testSuccessResponseContainsGeneratedUrl(): void {
+		$urlGeneratorStub = $this->createStub( PaymentProviderURLGenerator::class );
+		$urlGeneratorStub->method( 'generateURL' )->willReturn( self::PAYMENT_PROVIDER_URL );
+		$useCase = $this->makeUseCase(
+			createPaymentUseCase: $this->makeSuccessfulPaymentServiceWithUrlGenerator( $urlGeneratorStub )
+		);
+
+		$response = $useCase->applyForMembership( $this->newValidRequest() );
+
+		$this->assertSame( self::PAYMENT_PROVIDER_URL, $response->getPaymentProviderRedirectUrl() );
+	}
+
+	private function makeSuccessfulPaymentServiceWithUrlGenerator( PaymentProviderURLGenerator $urlGeneratorStub ): CreatePaymentUseCase {
+		$paymentService = $this->createStub( CreatePaymentUseCase::class );
+		$paymentService->method( 'createPayment' )->willReturn( new SuccessResponse(
+			1,
+			$urlGeneratorStub,
+			true
+		) );
+		return $paymentService;
+	}
+
+	private function makeUseCase(
+		?ApplicationRepository $repository = null,
+		?ApplicationTokenFetcher $tokenFetcher = null,
+		?MembershipNotifier $mailNotifier = null,
+		?MembershipApplicationValidator $validator = null,
+		?ModerationService $policyValidator = null,
+		?ApplicationTracker $membershipApplicationTracker = null,
+		?ApplicationPiwikTracker $piwikTracker = null,
+		?EventEmitter $eventEmitter = null,
+		?IncentiveFinder $incentiveFinder = null,
+		?CreatePaymentUseCase $createPaymentUseCase = null
+	): ApplyForMembershipUseCase {
+		return new ApplyForMembershipUseCase(
+			$repository ?? $this->makeMembershipRepositoryStub(),
+			$tokenFetcher ?? $this->newTokenFetcher(),
+			$mailNotifier ?? $this->makeMailNotifier(),
+			$validator ?? $this->newSucceedingValidator(),
+			$policyValidator ?? $this->getSucceedingPolicyValidatorMock(),
+			$membershipApplicationTracker ?? $this->createMock( ApplicationTracker::class ),
+			$piwikTracker ?? $this->createMock( ApplicationPiwikTracker::class ),
+			$eventEmitter ?? $this->createMock( EventEmitter::class ),
+			$incentiveFinder ?? new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] ),
+			$createPaymentUseCase ?? $this->newSucceedingCreatePaymentUseCase()
+		);
+	}
+
+	private function makeMembershipRepositoryStub(): ApplicationRepository {
+		return new InMemoryApplicationRepository();
+	}
+
+	private function makeMailNotifier(): MembershipNotifier {
+		return $this->createMock( MembershipNotifier::class );
+	}
+
+	private function makePaymentRetriever(): GetPaymentUseCase {
+		$mock = $this->createMock( GetPaymentUseCase::class );
+		$mock->method( 'getPaymentDataArray' )
+			->willReturn( [
+				'amount' => 1000,
+				'interval' => ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS,
+				'paymentType' => ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT
+			] );
+		return $mock;
 	}
 }

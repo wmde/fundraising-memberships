@@ -4,15 +4,10 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
-use WMDE\Euro\Euro;
 use WMDE\FreezableValueObject\FreezableValueObject;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
-use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class ApplyForMembershipRequest {
 	use FreezableValueObject;
 
@@ -34,10 +29,7 @@ class ApplyForMembershipRequest {
 	private string $applicantPhoneNumber;
 	private string $applicantDateOfBirth;
 
-	private string $paymentType;
-	private int $paymentIntervalInMonths;
-	private Euro $paymentAmount;
-	private BankData $bankData;
+	private PaymentCreationRequest $paymentCreationRequest;
 
 	private MembershipApplicationTrackingInfo $trackingInfo;
 	private string $piwikTrackingString;
@@ -175,31 +167,12 @@ class ApplyForMembershipRequest {
 		$this->applicantDateOfBirth = trim( $applicantDateOfBirth );
 	}
 
-	public function getPaymentIntervalInMonths(): int {
-		return $this->paymentIntervalInMonths;
+	public function getPaymentCreationRequest(): PaymentCreationRequest {
+		return $this->paymentCreationRequest;
 	}
 
-	public function setPaymentIntervalInMonths( int $paymentIntervalInMonths ): void {
-		$this->assertIsWritable();
-		$this->paymentIntervalInMonths = $paymentIntervalInMonths;
-	}
-
-	public function getPaymentAmountInEuros(): Euro {
-		return $this->paymentAmount;
-	}
-
-	public function setPaymentAmountInEuros( Euro $paymentAmount ): void {
-		$this->assertIsWritable();
-		$this->paymentAmount = $paymentAmount;
-	}
-
-	public function getBankData(): ?BankData {
-		return $this->bankData;
-	}
-
-	public function setBankData( BankData $bankData ): void {
-		$this->assertIsWritable();
-		$this->bankData = $bankData;
+	public function setPaymentCreationRequest( PaymentCreationRequest $paymentCreationRequest ): void {
+		$this->paymentCreationRequest = $paymentCreationRequest;
 	}
 
 	public function getTrackingInfo(): MembershipApplicationTrackingInfo {
@@ -218,15 +191,6 @@ class ApplyForMembershipRequest {
 	public function setPiwikTrackingString( string $piwikTrackingString ): void {
 		$this->assertIsWritable();
 		$this->piwikTrackingString = trim( $piwikTrackingString );
-	}
-
-	public function getPaymentType(): string {
-		return $this->paymentType;
-	}
-
-	public function setPaymentType( string $paymentType ): void {
-		$this->assertIsWritable();
-		$this->paymentType = trim( $paymentType );
 	}
 
 	public function getOptsIntoDonationReceipt(): bool {
