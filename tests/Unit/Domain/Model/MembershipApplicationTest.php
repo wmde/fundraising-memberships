@@ -57,6 +57,15 @@ class MembershipApplicationTest extends TestCase {
 		$this->assertTrue( $application->needsModeration() );
 	}
 
+	public function testConfirmingTheApplicationSetsItAsConfirmed(): void {
+		$application = ValidMembershipApplication::newDomainEntity();
+		$this->assertFalse( $application->isConfirmed() );
+
+		$application->confirm();
+
+		$this->assertTrue( $application->isConfirmed() );
+	}
+
 	public function testDonationReceiptIsSetFromConstructor(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$this->assertTrue( $application->getDonationReceipt() );

@@ -5,52 +5,37 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
+use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
 use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
-use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
+use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipNotifier;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentDelayCalculator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 
-/**
- * @license GPL-2.0-or-later
- */
 class ApplyForMembershipUseCase {
 
-	private ApplicationRepository $repository;
-	private ApplicationTokenFetcher $tokenFetcher;
-	private TemplateMailerInterface $mailer;
-	private MembershipApplicationValidator $validator;
-	private ApplyForMembershipPolicyValidator $policyValidator;
-	/**
-	 * @var ApplicationTracker
-	 * @deprecated See https://phabricator.wikimedia.org/T197112
-	 */
-	private ApplicationTracker $membershipApplicationTracker;
-	private ApplicationPiwikTracker $piwikTracker;
-	private PaymentDelayCalculator $paymentDelayCalculator;
-	private EventEmitter $eventEmitter;
-	private IncentiveFinder $incentiveFinder;
-
-	public function __construct( ApplicationRepository $repository,
-		ApplicationTokenFetcher $tokenFetcher, TemplateMailerInterface $mailer,
-		MembershipApplicationValidator $validator, ApplyForMembershipPolicyValidator $policyValidator,
-		ApplicationTracker $tracker, ApplicationPiwikTracker $piwikTracker,
-		PaymentDelayCalculator $paymentDelayCalculator, EventEmitter $eventEmitter, IncentiveFinder $incentiveFinder ) {
-		$this->repository = $repository;
-		$this->tokenFetcher = $tokenFetcher;
-		$this->mailer = $mailer;
-		$this->validator = $validator;
-		$this->policyValidator = $policyValidator;
-		$this->membershipApplicationTracker = $tracker;
-		$this->piwikTracker = $piwikTracker;
-		$this->paymentDelayCalculator = $paymentDelayCalculator;
-		$this->eventEmitter = $eventEmitter;
-		$this->incentiveFinder = $incentiveFinder;
+	public function __construct(
+		private ApplicationRepository $repository,
+		private ApplicationTokenFetcher $tokenFetcher,
+		private MembershipNotifier $mailNotifier,
+		private MembershipApplicationValidator $validator,
+		private ApplyForMembershipPolicyValidator $policyValidator,
+		/**
+		 * @var ApplicationTracker
+		 * @deprecated See https://phabricator.wikimedia.org/T197112
+		 */
+		private ApplicationTracker $membershipApplicationTracker,
+		private ApplicationPiwikTracker $piwikTracker,
+		private EventEmitter $eventEmitter,
+		private IncentiveFinder $incentiveFinder,
+		private CreatePaymentUseCase $createPaymentUseCase ) {
 	}
 
 	public function applyForMembership( ApplyForMembershipRequest $request ): ApplyForMembershipResponse {
@@ -60,17 +45,33 @@ class ApplyForMembershipUseCase {
 			return ApplyForMembershipResponse::newFailureResponse( $validationResult );
 		}
 
-		$application = $this->newApplicationFromRequest( $request );
+		$paymentCreationRequest = $request->getPaymentCreationRequest();
+		$applicantType = $request->isCompanyApplication() ? ApplicantType::COMPANY_APPLICANT : ApplicantType::PERSON_APPLICANT;
+		$paymentCreationRequest->setDomainSpecificPaymentValidator( new MembershipPaymentValidator( $applicantType ) );
 
-		if ( $this->policyValidator->needsModeration( $application ) ) {
+		$paymentCreationResponse = $this->createPaymentUseCase->createPayment( $request->getPaymentCreationRequest() );
+		if ( $paymentCreationResponse instanceof FailureResponse ) {
+			$paymentViolations = new ApplicationValidationResult(
+				[ ApplicationValidationResult::SOURCE_PAYMENT => $paymentCreationResponse->errorMessage ]
+			);
+			return ApplyForMembershipResponse::newFailureResponse( $paymentViolations );
+		}
+
+		$application = $this->newApplicationFromRequest( $request, $paymentCreationResponse->paymentId );
+
+		if ( $paymentCreationResponse->paymentComplete ) {
+			$application->confirm();
+		}
+
+		$membershipFee = $request->getPaymentCreationRequest()->amountInEuroCents;
+		$paymentInterval = $request->getPaymentCreationRequest()->interval;
+		if ( $this->policyValidator->needsModeration( $application, $membershipFee, $paymentInterval ) ) {
 			$application->markForModeration();
 		}
 
 		if ( $this->policyValidator->isAutoDeleted( $application ) ) {
 			$application->cancel();
 		}
-
-		$application->notifyOfFirstPaymentDate( $this->paymentDelayCalculator->calculateFirstPaymentDate()->format( 'Y-m-d' ) );
 
 		// TODO: handle exceptions
 		$this->repository->storeApplication( $application );
@@ -83,8 +84,8 @@ class ApplyForMembershipUseCase {
 		// TODO: handle exceptions
 		$this->piwikTracker->trackApplication( $application->getId(), $request->getPiwikTrackingString() );
 
-		if ( $this->isAutoConfirmed( $application ) ) {
-			$this->sendConfirmationEmail( $application );
+		if ( $application->isConfirmed() ) {
+			$this->mailNotifier->sendMailFor( $application );
 		}
 
 		// TODO: handle exceptions
@@ -93,22 +94,47 @@ class ApplyForMembershipUseCase {
 		return ApplyForMembershipResponse::newSuccessResponse(
 			$tokens->getAccessToken(),
 			$tokens->getUpdateToken(),
-			$application
+			$application,
+			$this->generatePaymentProviderUrl(
+				$paymentCreationResponse->paymentProviderURLGenerator,
+				$application,
+				$tokens
+			)
 		);
 	}
 
-	private function newApplicationFromRequest( ApplyForMembershipRequest $request ): MembershipApplication {
-		return ( new MembershipApplicationBuilder( $this->incentiveFinder ) )->newApplicationFromRequest( $request );
-	}
-
-	private function sendConfirmationEmail( MembershipApplication $application ): void {
-		$this->mailer->sendMail(
-			$application->getApplicant()->getEmailAddress(),
-			( new MailTemplateValueBuilder() )->buildValuesForTemplate( $application )
+	private function generatePaymentProviderUrl( PaymentProviderURLGenerator $paymentProviderURLGenerator, MembershipApplication $application, MembershipApplicationTokens $tokens ): string {
+		$name = $application->getApplicant()->getName();
+		return $paymentProviderURLGenerator->generateURL(
+			new RequestContext(
+				$application->getId(),
+				$this->generatePayPalInvoiceId( $application ),
+				$tokens->getUpdateToken(),
+				$tokens->getAccessToken(),
+				$name->getFirstName(),
+				$name->getLastName(),
+			)
 		);
 	}
 
-	public function isAutoConfirmed( MembershipApplication $application ): bool {
-		return $application->getPayment()->getPaymentMethod()->getId() === PaymentMethod::DIRECT_DEBIT;
+	private function newApplicationFromRequest( ApplyForMembershipRequest $request, int $paymentId ): MembershipApplication {
+		return ( new MembershipApplicationBuilder( $this->incentiveFinder ) )->newApplicationFromRequest(
+			$request,
+			$paymentId
+		);
+	}
+
+	// TODO remove prepending the M in the FunFunFactory
+
+	/**
+	 * We use the membership primary key as the InvoiceId because they're unique
+	 * But we prepend a letter to make sure they don't clash with donations
+	 *
+	 * @param MembershipApplication $application
+	 *
+	 * @return string
+	 */
+	private function generatePayPalInvoiceId( MembershipApplication $application ): string {
+		return 'M' . $application->getId();
 	}
 }

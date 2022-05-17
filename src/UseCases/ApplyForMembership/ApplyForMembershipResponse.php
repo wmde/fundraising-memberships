@@ -6,31 +6,31 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- */
 class ApplyForMembershipResponse {
 
-	public static function newSuccessResponse( string $accessToken, string $updateToken,
-		MembershipApplication $application ): self {
+	private ApplicationValidationResult $validationResult;
+
+	private ?string $accessToken;
+	private ?string $updateToken;
+	private ?MembershipApplication $application;
+	private ?string $paymentProviderRedirectUrl = null;
+
+	public static function newSuccessResponse(
+			string $accessToken,
+			string $updateToken,
+			MembershipApplication $application,
+			?string $paymentProviderRedirectUrl ): self {
 		$response = new self( new ApplicationValidationResult() );
 		$response->accessToken = $accessToken;
 		$response->updateToken = $updateToken;
 		$response->application = $application;
+		$response->paymentProviderRedirectUrl = $paymentProviderRedirectUrl;
 		return $response;
 	}
 
 	public static function newFailureResponse( ApplicationValidationResult $validationResult ): self {
 		return new self( $validationResult );
 	}
-
-	private $validationResult;
-
-	private $accessToken;
-	private $updateToken;
-	private $application;
 
 	private function __construct( ApplicationValidationResult $validationResult ) {
 		$this->validationResult = $validationResult;
@@ -73,5 +73,9 @@ class ApplyForMembershipResponse {
 
 	public function getValidationResult(): ApplicationValidationResult {
 		return $this->validationResult;
+	}
+
+	public function getPaymentProviderRedirectUrl(): ?string {
+		return $this->paymentProviderRedirectUrl;
 	}
 }

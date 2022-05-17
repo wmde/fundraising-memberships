@@ -4,11 +4,8 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
 use PHPUnit\Framework\TestCase;
-use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
-use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest
@@ -51,23 +48,6 @@ class ApplyForMembershipRequestTest extends TestCase {
 		$this->assertTrue( $companyRequest->isCompanyApplication() );
 	}
 
-	public function testFeeAccessors(): void {
-		$this->markTestIncomplete( 'This should be refactored when we update the Use Case' );
-		$request = new ApplyForMembershipRequest();
-		$request->setPaymentType( 'BTC' );
-		$request->setPaymentAmountInEuros( Euro::newFromInt( 99 ) );
-		$request->setPaymentIntervalInMonths( 6 );
-		$bankData = new BankData();
-		$bankData->setIban( new Iban( 'DE02100500000054540402' ) );
-		$bankData->setBic( 'BELADEBE' );
-		$request->setBankData( $bankData );
-
-		$this->assertSame( 'BTC', $request->getPaymentType() );
-		$this->assertSame( 6, $request->getPaymentIntervalInMonths() );
-		$this->assertEquals( Euro::newFromInt( 99 ), $request->getPaymentAmountInEuros() );
-		$this->assertSame( $bankData, $request->getBankData() );
-	}
-
 	public function testTrackingAccessors(): void {
 		$request = new ApplyForMembershipRequest();
 		$trackingInfo = new MembershipApplicationTrackingInfo( 'test_campaign', 'test_keyword' );
@@ -92,7 +72,6 @@ class ApplyForMembershipRequestTest extends TestCase {
 		$request->setApplicantEmailAddress( ' bw@waynecorp.biz ' );
 		$request->setApplicantPhoneNumber( '    +16060842 ' );
 		$request->setApplicantDateOfBirth( ' 1978-04-17' );
-		$request->setPaymentType( ' BTC  ' );
 		$request->setPiwikTrackingString( '   test_campaign/test_keyword ' );
 
 		$this->assertSame( 'Herr', $request->getApplicantSalutation() );

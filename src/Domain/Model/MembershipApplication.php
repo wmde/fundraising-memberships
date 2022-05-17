@@ -6,10 +6,6 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
 use Traversable;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class MembershipApplication {
 
 	public const ACTIVE_MEMBERSHIP = 'active';
