@@ -11,17 +11,8 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Payment;
 use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
-use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class MembershipApplicationBuilder {
 
 	private IncentiveFinder $incentiveFinder;
@@ -30,12 +21,12 @@ class MembershipApplicationBuilder {
 		$this->incentiveFinder = $incentiveFinder;
 	}
 
-	public function newApplicationFromRequest( ApplyForMembershipRequest $request ): MembershipApplication {
+	public function newApplicationFromRequest( ApplyForMembershipRequest $request, int $paymentId ): MembershipApplication {
 		$application = new MembershipApplication(
 			null,
 			$request->getMembershipType(),
 			$this->newApplicant( $request ),
-			$this->newPayment( $request ),
+			$paymentId,
 			$request->getOptsIntoDonationReceipt()
 		);
 		$this->addIncentives( $application, $request );
@@ -86,27 +77,7 @@ class MembershipApplicationBuilder {
 		return $address->freeze()->assertNoNullFields();
 	}
 
-	private function newPayment( ApplyForMembershipRequest $request ): Payment {
-		return new Payment(
-			$request->getPaymentIntervalInMonths(),
-			$request->getPaymentAmountInEuros(),
-			$this->newPaymentMethod( $request )
-		);
-	}
-
-	private function newPaymentMethod( ApplyForMembershipRequest $request ): PaymentMethod {
-		if ( $request->getPaymentType() === PaymentMethod::DIRECT_DEBIT ) {
-			return new DirectDebitPayment( $request->getBankData() );
-		}
-
-		if ( $request->getPaymentType() === PaymentMethod::PAYPAL ) {
-			return new PayPalPayment( new PayPalData() );
-		}
-
-		throw new \RuntimeException( 'Unsupported payment type' );
-	}
-
-	private function addIncentives( MembershipApplication $application, ApplyForMembershipRequest $request ) {
+	private function addIncentives( MembershipApplication $application, ApplyForMembershipRequest $request ): void {
 		foreach ( $request->getIncentives() as $incentiveName ) {
 			$foundIncentive = $this->incentiveFinder->findIncentiveByName( $incentiveName );
 			if ( $foundIncentive === null ) {

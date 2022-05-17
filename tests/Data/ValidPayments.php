@@ -18,7 +18,6 @@ class ValidPayments {
 	public const PAYMENT_BANK_NAME = 'ING-DiBa';
 	public const PAYMENT_BIC = 'INGDDEFFXXX';
 	public const PAYMENT_IBAN = 'DE12500105170648489890';
-	public const FIRST_PAYMENT_DATE = '2021-02-01 00:00:00';
 
 	public static function newDirectDebitLegacyData(): LegacyPaymentData {
 		$legacy = self::newDirectDebitPayment()->getLegacyData();

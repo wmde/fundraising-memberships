@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembers
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipPolicyValidator;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\FunValidators\Validators\TextPolicyValidator;
 
 /**
@@ -15,16 +16,16 @@ use WMDE\FunValidators\Validators\TextPolicyValidator;
 class ApplyForMembershipPolicyValidatorTest extends TestCase {
 
 	public function testGivenQuarterlyAmountTooHigh_MembershipApplicationNeedsModeration(): void {
-		$this->markTestIncomplete( 'This should work when we changed the amount field in request to int and removed the error' );
 		$textPolicyValidator = $this->newSucceedingTextPolicyValidator();
 		$policyValidator = new ApplyForMembershipPolicyValidator( $textPolicyValidator );
 		$this->assertTrue( $policyValidator->needsModeration(
-			ValidMembershipApplication::newApplicationWithTooHighQuarterlyAmount()
+			ValidMembershipApplication::newApplicationWithTooHighQuarterlyAmount(),
+			ValidMembershipApplication::TOO_HIGH_QUARTERLY_PAYMENT_AMOUNT_IN_EUROCENTS,
+			PaymentInterval::Quarterly->value
 		) );
 	}
 
 	private function newSucceedingTextPolicyValidator(): TextPolicyValidator {
-		$this->markTestIncomplete( 'This should work when we changed the amount field in request to int and removed the error' );
 		$textPolicyValidator = $this->createMock( TextPolicyValidator::class );
 		$textPolicyValidator->method( 'textIsHarmless' )->willReturn( true );
 		return $textPolicyValidator;
@@ -34,17 +35,20 @@ class ApplyForMembershipPolicyValidatorTest extends TestCase {
 		$textPolicyValidator = $this->newSucceedingTextPolicyValidator();
 		$policyValidator = new ApplyForMembershipPolicyValidator( $textPolicyValidator );
 		$this->assertTrue( $policyValidator->needsModeration(
-			ValidMembershipApplication::newApplicationWithTooHighYearlyAmount()
+			ValidMembershipApplication::newApplication(),
+			ValidMembershipApplication::TOO_HIGH_YEARLY_PAYMENT_AMOUNT_IN_EUROCENTS,
+			PaymentInterval::Yearly->value
 		) );
 	}
 
 	public function testFailingTextPolicyValidation_MembershipApplicationNeedsModeration(): void {
-		$this->markTestIncomplete( 'This should work when we changed the amount field in request to int and removed the error' );
 		$textPolicyValidator = $this->createMock( TextPolicyValidator::class );
 		$textPolicyValidator->method( 'textIsHarmless' )->willReturn( false );
 		$policyValidator = new ApplyForMembershipPolicyValidator( $textPolicyValidator );
 		$this->assertTrue( $policyValidator->needsModeration(
-			ValidMembershipApplication::newDomainEntity()
+			ValidMembershipApplication::newDomainEntity(),
+			ValidMembershipApplication::PAYMENT_AMOUNT_IN_EURO * 100,
+			PaymentInterval::Yearly->value
 		) );
 	}
 
