@@ -6,20 +6,22 @@ namespace WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
-use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 
 class DomainToLegacyConverter {
-	public function convert( DoctrineApplication $doctrineApplication, MembershipApplication $application ): void {
+
+	public function convert( DoctrineApplication $doctrineApplication, MembershipApplication $application, LegacyPaymentData $paymentData ): void {
 		$doctrineApplication->setId( $application->getId() );
 		$doctrineApplication->setMembershipType( $application->getType() );
+		$doctrineApplication->setPaymentId( $application->getPaymentId() );
 
 		$this->setApplicantFields( $doctrineApplication, $application->getApplicant() );
-		$this->setPaymentFields( $doctrineApplication, $application->getPayment() );
+		$this->setPaymentFields( $doctrineApplication, $paymentData );
 		$doctrineApplication->setIncentives( $this->convertIncentives( $application->getIncentives() ) );
 		$doctrineApplication->setDonationReceipt( $application->getDonationReceipt() );
 
@@ -56,51 +58,27 @@ class DomainToLegacyConverter {
 		$application->setAddress( $address->getStreetAddress() );
 	}
 
-	private function setPaymentFields( DoctrineApplication $application, Payment $payment ): void {
-		$application->setPaymentIntervalInMonths( $payment->getIntervalInMonths() );
-		$application->setPaymentAmount( (int)$payment->getAmount()->getEuroFloat() );
-		$paymentMethod = $payment->getPaymentMethod();
-
-		$application->setPaymentType( $paymentMethod->getId() );
-		if ( $paymentMethod instanceof DirectDebitPayment ) {
-			$this->setBankDataFields( $application, $paymentMethod->getBankData() );
-		} elseif ( $paymentMethod instanceof PayPalPayment && $paymentMethod->getPayPalData() != new PayPalData() ) {
-			$this->setPayPalDataFields( $application, $paymentMethod->getPayPalData() );
+	private function setPaymentFields( DoctrineApplication $application, LegacyPaymentData $paymentdata ): void {
+		$application->setPaymentIntervalInMonths( $paymentdata->intervalInMonths );
+		$application->setPaymentAmount( Euro::newFromCents( $paymentdata->amountInEuroCents )->getEuros() );
+		if ( !empty( $paymentdata->paymentSpecificValues['iban'] ) ) {
+			$this->setBankDataFields( $application, $paymentdata->paymentSpecificValues );
+		} else {
+			$application->encodeAndSetData(
+				array_merge(
+					$application->getDecodedData(),
+					$paymentdata->paymentSpecificValues
+				)
+			);
 		}
 	}
 
-	private function setBankDataFields( DoctrineApplication $application, BankData $bankData ): void {
-		$application->setPaymentBankAccount( $bankData->getAccount() );
-		$application->setPaymentBankCode( $bankData->getBankCode() );
-		$application->setPaymentBankName( $bankData->getBankName() );
-		$application->setPaymentBic( $bankData->getBic() );
-		$application->setPaymentIban( $bankData->getIban()->toString() );
-	}
-
-	private function setPayPalDataFields( DoctrineApplication $application, PayPalData $payPalData ): void {
-		$application->encodeAndSetData( array_merge(
-			$application->getDecodedData(),
-			[
-				'paypal_payer_id' => $payPalData->getPayerId(),
-				'paypal_subscr_id' => $payPalData->getSubscriberId(),
-				'paypal_payer_status' => $payPalData->getPayerStatus(),
-				'paypal_address_status' => $payPalData->getAddressStatus(),
-				'paypal_mc_gross' => $payPalData->getAmount()->getEuroString(),
-				'paypal_mc_currency' => $payPalData->getCurrencyCode(),
-				'paypal_mc_fee' => $payPalData->getFee()->getEuroString(),
-				'paypal_settle_amount' => $payPalData->getSettleAmount()->getEuroString(),
-				'paypal_first_name' => $payPalData->getFirstName(),
-				'paypal_last_name' => $payPalData->getLastName(),
-				'paypal_address_name' => $payPalData->getAddressName(),
-				'ext_payment_id' => $payPalData->getPaymentId(),
-				'ext_subscr_id' => $payPalData->getSubscriberId(),
-				'ext_payment_type' => $payPalData->getPaymentType(),
-				'ext_payment_status' => $payPalData->getPaymentStatus(),
-				'ext_payment_account' => $payPalData->getPayerId(),
-				'ext_payment_timestamp' => $payPalData->getPaymentTimestamp(),
-				'first_payment_date' => $payPalData->getFirstPaymentDate()
-			]
-		) );
+	private function setBankDataFields( DoctrineApplication $application, array $paymentSpecificValues ): void {
+		$application->setPaymentBankAccount( $paymentSpecificValues['konto'] ?? '' );
+		$application->setPaymentBankCode( $paymentSpecificValues['blz'] ?? '' );
+		$application->setPaymentBankName( $paymentSpecificValues['bankname'] ?? '' );
+		$application->setPaymentBic( $paymentSpecificValues['bic'] ?? '' );
+		$application->setPaymentIban( $paymentSpecificValues['iban'] ?? '' );
 	}
 
 	private function getDoctrineStatus( MembershipApplication $application ): int {
