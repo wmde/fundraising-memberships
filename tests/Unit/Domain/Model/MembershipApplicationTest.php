@@ -100,68 +100,13 @@ class MembershipApplicationTest extends TestCase {
 		$application->cancel();
 	}
 
-	public function testMembershipsWithNonBookablePaymentsAreAutomaticallyConfirmed(): void {
-		$this->markTestIncomplete( 'This will work again when we update the use case and domain' );
-
-		$application = ValidMembershipApplication::newDomainEntity();
-
-		$this->assertTrue( $application->isConfirmed() );
-	}
-
-	public function testMembershipsWithUnBookedPaymentsAreNotConfirmed(): void {
-		$this->markTestIncomplete( 'This will work again when we update the use case and domain' );
-
-		$application = ValidMembershipApplication::newDomainEntityUsingPayPal();
-
-		$this->assertFalse( $application->isConfirmed() );
-	}
-
-	public function testMembershipsWithBookedPaymentsAreConfirmed(): void {
-		$this->markTestIncomplete( 'This will work again when we update the use case and domain' );
-		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( ValidMembershipApplication::newBookedPayPalData() );
-
-		$this->assertTrue( $application->isConfirmed() );
-	}
-
-	public function testMembershipsThatAreAlreadyBookedCannotBeBookedAgain(): void {
-		$this->markTestIncomplete( 'This will work again when we update the use case and domain' );
-		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( ValidMembershipApplication::newBookedPayPalData() );
-
-		$this->expectException( RuntimeException::class );
-		$this->expectExceptionMessageMatches( '/Only unconfirmed membership applications/' );
-
-		$application->confirmSubscriptionCreated( new PayPalData() );
-	}
-
-	public function testMembershipsWithNonBookablePaymentsCannotBeBooked(): void {
-		$this->markTestIncomplete( 'This will work again when we update the use case and domain' );
-		$application = ValidMembershipApplication::newDomainEntity();
-
-		$this->expectException( RuntimeException::class );
-		$this->expectExceptionMessageMatches( '/Only bookable payments can be confirmed as booked/' );
-
-		$application->confirmSubscriptionCreated( new PayPalData() );
-	}
-
-	public function testModeratedMembershipsCannotBeBooked(): void {
-		$this->markTestIncomplete( 'This will work again when we update the use case and domain' );
-		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( ValidMembershipApplication::newPayPalData() );
-		$application->markForModeration( $this->makeGenericModerationReason() );
-
-		$this->expectException( RuntimeException::class );
-		$this->expectExceptionMessageMatches( '/Only unconfirmed membership applications/' );
-
-		$application->confirmSubscriptionCreated( ValidMembershipApplication::newBookedPayPalData() );
-	}
-
-	private function makeGenericModerationReason(): ModerationReason {
-		return new ModerationReason( ModerationIdentifier::MANUALLY_FLAGGED_BY_ADMIN );
-	}
-
 	public function testMarkForModerationNeedsAtLeastOneModerationReason(): void {
 		$donation = ValidMembershipApplication::newCompanyApplication();
 		$this->expectException( \LogicException::class );
 		$donation->markForModeration();
 	}
 
+	private function makeGenericModerationReason(): ModerationReason {
+		return new ModerationReason( ModerationIdentifier::MANUALLY_FLAGGED_BY_ADMIN );
+	}
 }

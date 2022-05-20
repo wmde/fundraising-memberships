@@ -5,6 +5,7 @@
       <index name="m_email" columns="email" flags="fulltext"/>
       <index name="m_name" columns="name" flags="fulltext"/>
       <index name="m_ort" columns="ort" flags="fulltext"/>
+      <index name="m_payment" columns="payment_id"/>
     </indexes>
     <id name="id" type="integer" column="id">
       <generator strategy="IDENTITY"/>
@@ -125,6 +126,12 @@
     <field name="tracking" type="string" column="tracking" length="50" nullable="true"/>
     <field name="data" type="text" column="data" nullable="true"/>
     <field name="donationReceipt" type="boolean" column="donation_receipt" nullable="true"/>
+    <!-- TODO Make this non-nullable and unique after the payment migration is complete -->
+    <field name="paymentId" type="integer" column="payment_id" nullable="true">
+      <options>
+        <option name="unsigned">true</option>
+      </options>
+    </field>
     <many-to-many field="incentives" target-entity="WMDE\Fundraising\MembershipContext\Domain\Model\Incentive" fetch="LAZY">
       <join-table name="membership_incentive">
         <join-columns>
