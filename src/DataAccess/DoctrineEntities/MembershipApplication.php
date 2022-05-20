@@ -109,6 +109,8 @@ class MembershipApplication {
 
 	private Collection|ArrayCollection $incentives;
 
+	private int $paymentId;
+
 	public function __construct() {
 		$this->incentives = new ArrayCollection();
 	}
@@ -667,5 +669,13 @@ class MembershipApplication {
 	public function setIncentives( Collection $incentives ): self {
 		$this->incentives = $incentives;
 		return $this;
+	}
+
+	public function getPaymentId(): int {
+		return $this->paymentId;
+	}
+
+	public function setPaymentId( int $paymentId ): void {
+		$this->paymentId = $paymentId;
 	}
 }

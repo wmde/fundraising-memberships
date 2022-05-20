@@ -100,6 +100,10 @@ class MembershipApplication {
 		return $this->cancelled;
 	}
 
+	public function confirm(): void {
+		$this->confirmed = true;
+	}
+
 	public function isConfirmed(): bool {
 		return $this->confirmed;
 	}
@@ -122,19 +126,6 @@ class MembershipApplication {
 
 	public function isExported(): bool {
 		return $this->exported;
-	}
-
-	public function confirmSubscriptionCreated(): void {
-		// TODO: Look at when moderation happens and see if this is still valid
-		if ( !$this->statusAllowsForBooking() ) {
-			throw new RuntimeException( 'Only unconfirmed and non-moderated membership applications can be confirmed as booked' );
-		}
-
-		$this->confirmed = true;
-	}
-
-	private function statusAllowsForBooking(): bool {
-		return !$this->isConfirmed() && !$this->needsModeration();
 	}
 
 	public function addIncentive( Incentive $incentive ): void {
