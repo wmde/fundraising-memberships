@@ -15,6 +15,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymized
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
+use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 /**
  * @license GPL-2.0-or-later
@@ -22,9 +23,11 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplic
 class DoctrineApplicationRepository implements ApplicationRepository {
 
 	private DoctrineApplicationTable $table;
+	private GetPaymentUseCase $getPaymentUseCase;
 
-	public function __construct( EntityManager $entityManager ) {
+	public function __construct( EntityManager $entityManager, GetPaymentUseCase $getPaymentUseCase ) {
 		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
+		$this->getPaymentUseCase = $getPaymentUseCase;
 	}
 
 	public function storeApplication( MembershipApplication $application ): void {
@@ -59,7 +62,11 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 
 	private function updateDoctrineApplication( DoctrineApplication $doctrineApplication, MembershipApplication $application ): void {
 		$converter = new DomainToLegacyConverter();
-		$converter->convert( $doctrineApplication, $application );
+		$converter->convert(
+			$doctrineApplication,
+			$application,
+			$this->getPaymentUseCase->getLegacyPaymentDataObject( $application->getPaymentId() )
+		);
 	}
 
 	/**

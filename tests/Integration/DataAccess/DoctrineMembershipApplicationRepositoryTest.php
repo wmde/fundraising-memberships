@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
@@ -13,27 +14,23 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymized
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\Data\ValidPayments;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedMembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ThrowingEntityManager;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
+use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository
- *
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\TestCase {
+class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 	private const MEMBERSHIP_APPLICATION_ID = 1;
 	private const ID_OF_APPLICATION_NOT_IN_DB = 35505;
 	private const VALID_TOKEN = 'access_token';
 	private const FUTURE_EXPIRY = '3000-01-01 0:00:00';
 
-	/**
-	 * @var EntityManager
-	 */
-	private $entityManager;
+	private EntityManager $entityManager;
 
 	public function setUp(): void {
 		$testEnvironment = TestEnvironment::newInstance();
@@ -43,9 +40,8 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 	}
 
 	public function testValidMembershipApplicationGetPersisted(): void {
-		$this->markTestIncomplete( 'This will work again when we update the legacy converters' );
 		$application = ValidMembershipApplication::newDomainEntity();
-		$this->newRepository()->storeApplication( $application );
+		$this->givenApplicationRepository()->storeApplication( $application );
 
 		$expected = ValidMembershipApplication::newDoctrineEntity();
 		$expected->setId( $application->getId() );
@@ -60,29 +56,15 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 		$this->assertEquals( $expected, $actual );
 	}
 
-	private function newRepository(): ApplicationRepository {
-		return new DoctrineApplicationRepository( $this->entityManager );
-	}
-
-	private function getApplicationFromDatabase( int $id ): DoctrineApplication {
-		$this->markTestIncomplete( 'This will work again when we update the legacy converters' );
-		$applicationRepo = $this->entityManager->getRepository( DoctrineApplication::class );
-		$donation = $applicationRepo->find( $id );
-		$this->assertInstanceOf( DoctrineApplication::class, $donation );
-		return $donation;
-	}
-
 	public function testStoringAMembershipApplicationCreatesAndAssignsId(): void {
-		$this->markTestIncomplete( 'This will work again when we update the legacy converters' );
 		$application = ValidMembershipApplication::newDomainEntity();
 
-		$this->newRepository()->storeApplication( $application );
+		$this->givenApplicationRepository()->storeApplication( $application );
 
 		$this->assertSame( self::MEMBERSHIP_APPLICATION_ID, $application->getId() );
 	}
 
 	public function testWhenMembershipApplicationInDatabase_itIsReturnedAsMatchingDomainEntity(): void {
-		$this->markTestIncomplete( 'This will work again when we update the legacy converters' );
 		$this->storeDoctrineApplication( ValidMembershipApplication::newDoctrineEntity() );
 
 		$expected = ValidMembershipApplication::newDomainEntity();
@@ -90,29 +72,23 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 
 		$this->assertEquals(
 			$expected,
-			$this->newRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID )
+			$this->givenApplicationRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID )
 		);
 	}
 
-	private function storeDoctrineApplication( DoctrineApplication $application ): void {
-		$this->entityManager->persist( $application );
-		$this->entityManager->flush();
-	}
-
 	public function testWhenEntityDoesNotExist_getEntityReturnsNull(): void {
-		$this->assertNull( $this->newRepository()->getApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB ) );
+		$this->assertNull( $this->givenApplicationRepository()->getApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB ) );
 	}
 
 	public function testWhenReadFails_domainExceptionIsThrown(): void {
-		$repository = new DoctrineApplicationRepository( ThrowingEntityManager::newInstance( $this ) );
+		$repository = $this->givenApplicationRepository( entityManager: ThrowingEntityManager::newInstance( $this ) );
 
 		$this->expectException( GetMembershipApplicationException::class );
 		$repository->getApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB );
 	}
 
 	public function testWhenApplicationAlreadyExists_persistingCausesUpdate(): void {
-		$this->markTestIncomplete( 'This will work again when we update the legacy converters' );
-		$repository = $this->newRepository();
+		$repository = $this->givenApplicationRepository();
 		$originalApplication = ValidMembershipApplication::newDomainEntity();
 
 		$repository->storeApplication( $originalApplication );
@@ -130,8 +106,7 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 	}
 
 	public function testWriteAndReadRoundtrip(): void {
-		$this->markTestIncomplete( 'This will work again when we update the legacy converters' );
-		$repository = $this->newRepository();
+		$repository = $this->givenApplicationRepository();
 		$application = ValidMembershipApplication::newDomainEntity();
 
 		$repository->storeApplication( $application );
@@ -143,19 +118,17 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 	}
 
 	public function testGivenDoctrineApplicationWithCancelledFlag_initialStatusIsPreserved(): void {
-		$this->markTestIncomplete( 'This will work again when we update the legacy converters' );
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->cancel();
 
-		$this->newRepository()->storeApplication( $application );
+		$this->givenApplicationRepository()->storeApplication( $application );
 		$doctrineApplication = $this->getApplicationFromDatabase( $application->getId() );
 
 		$this->assertSame( DoctrineApplication::STATUS_CONFIRMED, $doctrineApplication->getDataObject()->getPreservedStatus() );
 	}
 
 	public function testGivenCompanyApplication_companyNameIsPersisted(): void {
-		$this->markTestIncomplete( 'This will work again when we update the legacy converters' );
-		$this->newRepository()->storeApplication( ValidMembershipApplication::newCompanyApplication() );
+		$this->givenApplicationRepository()->storeApplication( ValidMembershipApplication::newCompanyApplication() );
 
 		$expected = ValidMembershipApplication::newDoctrineCompanyEntity();
 		$expected->setId( self::MEMBERSHIP_APPLICATION_ID );
@@ -171,17 +144,16 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 
 		$this->expectException( ApplicationAnonymizedException::class );
 
-		$this->newRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID );
+		$this->givenApplicationRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID );
 	}
 
 	public function testApplicationWithIncentivesHasIncentivesAfterRoundtrip(): void {
-		$this->markTestIncomplete( 'This will work again when we update the legacy converters' );
 		$incentive = ValidMembershipApplication::newIncentive();
 		$this->entityManager->persist( $incentive );
 		$this->entityManager->flush();
 		$application = ValidMembershipApplication::newCompanyApplication();
 		$application->addIncentive( $incentive );
-		$repo = $this->newRepository();
+		$repo = $this->givenApplicationRepository();
 		$repo->storeApplication( $application );
 
 		$actual = $repo->getApplicationById( $application->getId() );
@@ -189,6 +161,31 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 
 		$this->assertCount( 1, $incentives );
 		$this->assertEquals( $incentive, $incentives[0] );
+	}
+
+	private function givenApplicationRepository( ?EntityManager $entityManager = null ): ApplicationRepository {
+		return new DoctrineApplicationRepository(
+			$entityManager ?? $this->entityManager,
+			$this->givenGetPaymentUseCaseStub()
+		);
+	}
+
+	public function givenGetPaymentUseCaseStub(): GetPaymentUseCase {
+		$stub = $this->createStub( GetPaymentUseCase::class );
+		$stub->method( 'getLegacyPaymentDataObject' )->willReturn( ValidPayments::newDirectDebitLegacyData() );
+		return $stub;
+	}
+
+	private function getApplicationFromDatabase( int $id ): DoctrineApplication {
+		$applicationRepo = $this->entityManager->getRepository( DoctrineApplication::class );
+		$donation = $applicationRepo->find( $id );
+		$this->assertInstanceOf( DoctrineApplication::class, $donation );
+		return $donation;
+	}
+
+	private function storeDoctrineApplication( DoctrineApplication $application ): void {
+		$this->entityManager->persist( $application );
+		$this->entityManager->flush();
 	}
 
 }
