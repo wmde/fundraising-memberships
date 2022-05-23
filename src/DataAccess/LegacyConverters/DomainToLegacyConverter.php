@@ -11,6 +11,7 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApp
 use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 
 class DomainToLegacyConverter {

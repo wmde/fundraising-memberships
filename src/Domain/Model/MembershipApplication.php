@@ -141,11 +141,6 @@ class MembershipApplication {
 		return $this->exported;
 	}
 
-	private function statusAllowsForBooking(): bool {
-		return !$this->isConfirmed() &&
-			!$this->isMarkedForModeration();
-	}
-
 	public function addIncentive( Incentive $incentive ): void {
 		$this->incentives[] = $incentive;
 	}
