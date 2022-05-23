@@ -48,6 +48,8 @@ class ValidMembershipApplication {
 	public const TOO_HIGH_QUARTERLY_PAYMENT_AMOUNT_IN_EURO = 250.1;
 	public const TOO_HIGH_YEARLY_PAYMENT_AMOUNT_IN_EURO = 1000.1;
 
+	public const PAYMENT_ID = 1;
+
 	public const PAYMENT_BANK_ACCOUNT = '0648489890';
 	public const PAYMENT_BANK_CODE = '50010517';
 	public const PAYMENT_BANK_NAME = 'ING-DiBa';
@@ -188,6 +190,7 @@ class ValidMembershipApplication {
 		$application->setApplicantSalutation( self::APPLICANT_SALUTATION );
 		$application->setApplicantTitle( self::APPLICANT_TITLE );
 		$application->setDonationReceipt( self::OPTS_INTO_DONATION_RECEIPT );
+		$application->setPaymentId( self::PAYMENT_ID );
 
 		return $application;
 	}
@@ -228,6 +231,7 @@ class ValidMembershipApplication {
 		$application->setApplicantSalutation( self::APPLICANT_SALUTATION_COMPANY );
 		$application->setPaymentAmount( self::COMPANY_PAYMENT_AMOUNT_IN_EURO );
 		$application->setDonationReceipt( self::OPTS_INTO_DONATION_RECEIPT );
+		$application->setPaymentId( self::PAYMENT_ID );
 
 		return $application;
 	}
