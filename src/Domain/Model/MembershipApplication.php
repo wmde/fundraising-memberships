@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
-use RuntimeException;
 use Traversable;
 
 /**

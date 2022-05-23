@@ -198,7 +198,7 @@ class ValidMembershipApplication {
 	private static function createDoctrineApplicationWithoutApplicantName(): DoctrineMembershipApplication {
 		$application = new DoctrineMembershipApplication();
 
-		$application->setStatus( DoctrineMembershipApplication::STATUS_CONFIRMED );
+		$application->setStatus( DoctrineMembershipApplication::STATUS_NEUTRAL );
 
 		$application->setCity( self::APPLICANT_CITY );
 		$application->setCountry( self::APPLICANT_COUNTRY_CODE );

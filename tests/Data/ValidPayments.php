@@ -5,14 +5,11 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Data;
 
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\DummyPaymentIdRepository;
-use WMDE\Fundraising\PaymentContext\Domain\Model\BookablePayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
 class ValidPayments {
 	public const PAYMENT_AMOUNT_IN_EURO = 10;
