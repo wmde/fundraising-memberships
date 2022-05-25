@@ -8,7 +8,7 @@
 		"doctrine/orm": "~2.7",
 		"gedmo/doctrine-extensions": "^3.0",
 
-		"psr/log": "~1.0",
+		"psr/log": "^1.0|^2.0|^3.0",
 
 		"wmde/fundraising-payments": "~4.0",
 		"wmde/euro": "~1.0",
@@ -39,7 +39,7 @@
 		"codeception/specify": "~2.0",
 		"phpstan/phpstan": "~1.2",
 		"wmde/fundraising-phpcs": "~7.0.0",
-		"wmde/psr-log-test-doubles": "~2.2",
+		"wmde/psr-log-test-doubles": "~2.2|~3.0",
 		"phpstan/phpstan-phpunit": "~1.0"
 	},
 	"autoload": {
