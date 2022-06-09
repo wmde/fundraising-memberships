@@ -7,7 +7,6 @@ namespace WMDE\Fundraising\MembershipContext;
 use DateInterval;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Configuration;
 use Doctrine\ORM\Mapping\Driver\XmlDriver;
 use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
 use Gedmo\Timestampable\TimestampableListener;
@@ -17,33 +16,29 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipApplicationP
 
 /**
  * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class MembershipContextFactory {
 
 	/**
-	 * Use this constant for MappingDriverChain::addDriver
+	 * Used by FunFunFactory in MappingDriverChain::addDriver
+	 * @deprecated Use {@see ORMSetup::createXMLMetadataConfiguration()} with class mapping constant instead
 	 */
 	public const ENTITY_NAMESPACE = 'WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities';
+	/**
+	 * Used by FunFunFactory in MappingDriverChain::addDriver
+	 * @deprecated Use {@see ORMSetup::createXMLMetadataConfiguration()} with class mapping constant instead
+	 */
 	public const DOMAIN_ENTITY_NAMESPACE = 'WMDE\Fundraising\MembershipContext\Domain\Model';
 
-	private const DOCTRINE_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DoctrineClassMapping/';
-	private const DOMAIN_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DomainClassMapping/';
+	public const DOCTRINE_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DoctrineClassMapping/';
+	public const DOMAIN_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DomainClassMapping/';
 
 	private array $config;
 
-	/**
-	 * @deprecated This is unused and should be removed
-	 * @var Configuration
-	 * @phpstan-ignore-next-line
-	 */
-	private Configuration $doctrineConfig;
-
 	private ?MembershipTokenGenerator $tokenGenerator;
 
-	public function __construct( array $config, Configuration $doctrineConfig ) {
+	public function __construct( array $config ) {
 		$this->config = $config;
-		$this->doctrineConfig = $doctrineConfig;
 		$this->tokenGenerator = null;
 	}
 
@@ -63,6 +58,7 @@ class MembershipContextFactory {
 	 * This is a transitional method that is only needed as long as we have a mix of the annotation driver
 	 * for the legacy Membership entity and the XML-annotated Domain entities
 	 *
+	 * @deprecated Use {@see ORMSetup::createXMLMetadataConfiguration} with the class mapping constants instead
 	 * @param MappingDriverChain $visitingChain
 	 */
 	public function visitMappingDriver( MappingDriverChain $visitingChain ): void {
