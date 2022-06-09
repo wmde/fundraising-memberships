@@ -1,0 +1,16 @@
+CREATE TABLE payments (id INT NOT NULL, amount INT NOT NULL, payment_interval INT NOT NULL, payment_method VARCHAR(3) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB;
+CREATE TABLE payments_bank_transfer (id INT NOT NULL, payment_reference_code VARCHAR(255) DEFAULT NULL, is_cancelled TINYINT(1) NOT NULL, UNIQUE INDEX UNIQ_F63CD417E5FE723C (payment_reference_code), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB;
+CREATE TABLE payments_credit_card (id INT NOT NULL, valuation_date DATETIME DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)', booking_data LONGTEXT DEFAULT NULL COMMENT '(DC2Type:json)', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB;
+CREATE TABLE payments_sofort (id INT NOT NULL, payment_reference_code VARCHAR(255) DEFAULT NULL, valuation_date DATETIME DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)', transaction_id VARCHAR(255) DEFAULT NULL, UNIQUE INDEX UNIQ_7E122AB3E5FE723C (payment_reference_code), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB;
+CREATE TABLE payment_reference_codes (code VARCHAR(255) NOT NULL, PRIMARY KEY(code)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB;
+CREATE TABLE payment_ids (id INT AUTO_INCREMENT NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB;
+CREATE TABLE payments_paypal (id INT NOT NULL, parent_payment_id INT DEFAULT NULL, valuation_date DATETIME DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)', booking_data LONGTEXT DEFAULT NULL COMMENT '(DC2Type:json)', INDEX IDX_2A359C3C438027EB (parent_payment_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB;
+CREATE TABLE payments_direct_debit (id INT NOT NULL, iban VARCHAR(255) DEFAULT NULL, bic VARCHAR(255) DEFAULT NULL, is_cancelled TINYINT(1) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB;
+ALTER TABLE payments_bank_transfer ADD CONSTRAINT FK_F63CD417E5FE723C FOREIGN KEY (payment_reference_code) REFERENCES payment_reference_codes (code);
+ALTER TABLE payments_bank_transfer ADD CONSTRAINT FK_F63CD417BF396750 FOREIGN KEY (id) REFERENCES payments (id) ON DELETE CASCADE;
+ALTER TABLE payments_credit_card ADD CONSTRAINT FK_5FD004BF396750 FOREIGN KEY (id) REFERENCES payments (id) ON DELETE CASCADE;
+ALTER TABLE payments_sofort ADD CONSTRAINT FK_7E122AB3E5FE723C FOREIGN KEY (payment_reference_code) REFERENCES payment_reference_codes (code);
+ALTER TABLE payments_sofort ADD CONSTRAINT FK_7E122AB3BF396750 FOREIGN KEY (id) REFERENCES payments (id) ON DELETE CASCADE;
+ALTER TABLE payments_paypal ADD CONSTRAINT FK_2A359C3C438027EB FOREIGN KEY (parent_payment_id) REFERENCES payments_paypal (id);
+ALTER TABLE payments_paypal ADD CONSTRAINT FK_2A359C3CBF396750 FOREIGN KEY (id) REFERENCES payments (id) ON DELETE CASCADE;
+ALTER TABLE payments_direct_debit ADD CONSTRAINT FK_AC4B6F01BF396750 FOREIGN KEY (id) REFERENCES payments (id) ON DELETE CASCADE;

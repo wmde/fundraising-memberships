@@ -34,6 +34,7 @@
 		}
 	],
 	"require-dev": {
+		"doctrine/migrations": "^3.5",
 		"phpunit/phpunit": "~9.5.0",
 		"symfony/cache": "^6.0",
 		"codeception/specify": "~2.0",
