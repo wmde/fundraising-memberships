@@ -8,27 +8,22 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
 use Gedmo\Timestampable\TimestampableListener;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\MembershipContextFactory;
+use WMDE\Fundraising\PaymentContext\PaymentContextFactory;
 
 class TestMembershipContextFactory {
 
 	private array $config;
-	private Configuration $doctrineConfig;
 	private ?Connection $connection;
 	private MembershipContextFactory $factory;
 	private ?EntityManager $entityManager;
 
 	public function __construct( array $config ) {
 		$this->config = $config;
-		$this->doctrineConfig = ORMSetup::createXMLMetadataConfiguration( [
-			MembershipContextFactory::DOCTRINE_CLASS_MAPPING_DIRECTORY,
-			MembershipContextFactory::DOMAIN_CLASS_MAPPING_DIRECTORY
-		] );
 		$this->factory = new MembershipContextFactory( $config );
 		$this->entityManager = null;
 		$this->connection = null;
@@ -50,9 +45,16 @@ class TestMembershipContextFactory {
 	}
 
 	private function newEntityManager( array $eventSubscribers = [] ): EntityManager {
-		$this->doctrineConfig->setMetadataDriverImpl( $this->factory->newMappingDriver() );
+		$doctrineConfig = ORMSetup::createXMLMetadataConfiguration( [
+			MembershipContextFactory::DOCTRINE_CLASS_MAPPING_DIRECTORY,
+			MembershipContextFactory::DOMAIN_CLASS_MAPPING_DIRECTORY,
+			PaymentContextFactory::DOCTRINE_CLASS_MAPPING_DIRECTORY
+		] );
 
-		$entityManager = EntityManager::create( $this->getConnection(), $this->doctrineConfig );
+		$entityManager = EntityManager::create( $this->getConnection(), $doctrineConfig );
+
+		$paymentContext = new PaymentContextFactory();
+		$paymentContext->registerCustomTypes( $entityManager->getConnection() );
 
 		$this->setupEventSubscribers( $entityManager->getEventManager(), $eventSubscribers );
 

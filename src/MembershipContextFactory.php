@@ -19,9 +19,14 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipApplicationP
 class MembershipContextFactory {
 
 	/**
-	 * Use this constant for MappingDriverChain::addDriver
+	 * Used by FunFunFactory in MappingDriverChain::addDriver
+	 * @deprecated Use {@see ORMSetup::createXMLMetadataConfiguration()} with class mapping constant instead
 	 */
 	public const ENTITY_NAMESPACE = 'WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities';
+	/**
+	 * Used by FunFunFactory in MappingDriverChain::addDriver
+	 * @deprecated Use {@see ORMSetup::createXMLMetadataConfiguration()} with class mapping constant instead
+	 */
 	public const DOMAIN_ENTITY_NAMESPACE = 'WMDE\Fundraising\MembershipContext\Domain\Model';
 
 	public const DOCTRINE_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DoctrineClassMapping/';
@@ -52,6 +57,7 @@ class MembershipContextFactory {
 	 * This is a transitional method that is only needed as long as we have a mix of the annotation driver
 	 * for the legacy Membership entity and the XML-annotated Domain entities
 	 *
+	 * @deprecated Use {@see ORMSetup::createXMLMetadataConfiguration} with the class mapping constants instead
 	 * @param MappingDriverChain $visitingChain
 	 */
 	public function visitMappingDriver( MappingDriverChain $visitingChain ): void {
