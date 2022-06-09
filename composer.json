@@ -39,7 +39,7 @@
 		"codeception/specify": "~2.0",
 		"phpstan/phpstan": "~1.2",
 		"wmde/fundraising-phpcs": "~6.0.0",
-		"wmde/psr-log-test-doubles": "dev-update-for-php-8",
+		"wmde/psr-log-test-doubles": "~3.0",
 		"phpstan/phpstan-phpunit": "~1.0"
 	},
 	"autoload": {
