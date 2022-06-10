@@ -2,9 +2,10 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
+namespace WMDE\Fundraising\MembershipContext\Domain;
 
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicantType;
 use WMDE\Fundraising\PaymentContext\Domain\DomainSpecificPaymentValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
@@ -15,12 +16,12 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 	/**
 	 * Violation identifier for {@see ConstraintViolation}
 	 */
-	public const INVALID_INTERVAL = 'membership_interval_invalid';
+	public const INVALID_INTERVAL = 'interval_invalid';
 
 	/**
 	 * Violation identifier for {@see ConstraintViolation}
 	 */
-	public const FEE_TOO_LOW = 'fee_too_low';
+	public const FEE_TOO_LOW = 'error_too_low';
 
 	/**
 	 * Violation identifier for {@see ConstraintViolation}
@@ -83,7 +84,7 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 
 	private function getYearlyPaymentAmount(): float {
 		if ( $this->paymentIntervalInMonths->value !== 0 ) {
-			return $this->membershipFee->getEuroFloat() * self::MONTHS_PER_YEAR / $this->paymentIntervalInMonths->value;
+			return $this->membershipFee->getEuros() * self::MONTHS_PER_YEAR / $this->paymentIntervalInMonths->value;
 		}
 		throw new \LogicException( "Payment Interval should never be 0 here because it's not allowed for memberships." );
 	}
