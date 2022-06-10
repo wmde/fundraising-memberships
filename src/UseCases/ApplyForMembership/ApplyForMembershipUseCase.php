@@ -8,6 +8,7 @@ use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
 use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
+use WMDE\Fundraising\MembershipContext\Domain\MembershipPaymentValidator;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
