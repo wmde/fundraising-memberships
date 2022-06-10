@@ -6,14 +6,14 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembers
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\MembershipContext\Domain\MembershipPaymentValidator;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicantType;
-use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipPaymentValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
 
 /**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipPaymentValidator
+ * @covers \WMDE\Fundraising\MembershipContext\Domain\MembershipPaymentValidator
  */
 class MembershipPaymentValidatorTest extends TestCase {
 
@@ -71,7 +71,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 		$violations = $response->getValidationErrors();
 		$this->assertCount( 1, $violations );
 		$feeViolation = $violations[0];
-		$this->assertEquals( 'fee_too_low', $feeViolation->getMessageIdentifier() );
+		$this->assertEquals( MembershipPaymentValidator::FEE_TOO_LOW, $feeViolation->getMessageIdentifier() );
 	}
 
 	public function tooLowAmountProvider(): iterable {
