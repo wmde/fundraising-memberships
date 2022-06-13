@@ -15,7 +15,9 @@ class MembershipApplicationInsertionTest extends TestCase {
 
 	public function testNewMembershipApplicationCanBeInserted(): void {
 		$entityManager = TestEnvironment::newInstance()->getEntityManager();
-		$entityManager->persist( new MembershipApplication() );
+		$membership = new MembershipApplication();
+		$membership->setPaymentId( 1 );
+		$entityManager->persist( $membership );
 		$entityManager->flush();
 
 		$count = $entityManager->createQueryBuilder()
