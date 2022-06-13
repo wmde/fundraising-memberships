@@ -126,10 +126,10 @@
     <field name="tracking" type="string" column="tracking" length="50" nullable="true"/>
     <field name="data" type="text" column="data" nullable="true"/>
     <field name="donationReceipt" type="boolean" column="donation_receipt" nullable="true"/>
-    <!-- TODO Make this non-nullable and unique after the payment migration is complete -->
-    <field name="paymentId" type="integer" column="payment_id" nullable="true">
+    <field name="paymentId" type="integer" column="payment_id" nullable="false">
       <options>
         <option name="unsigned">true</option>
+        <option name="default">0</option>
       </options>
     </field>
     <many-to-many field="incentives" target-entity="WMDE\Fundraising\MembershipContext\Domain\Model\Incentive" fetch="LAZY">

@@ -30,6 +30,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	private const EMPTY_TOKEN = '';
 	private const MEANINGLESS_APPLICATION_ID = 1337;
 	private const ID_OF_WRONG_APPLICATION = 42;
+	private const DUMMY_PAYMENT_ID = 42;
 
 	private EntityManager $entityManager;
 
@@ -66,6 +67,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	 */
 	public function testWhenApplicationWithTokenExists(): void {
 		$application = new MembershipApplication();
+		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$application->modifyDataObject( static function ( MembershipApplicationData $data ): void {
 			$data->setUpdateToken( self::CORRECT_UPDATE_TOKEN );
 			$data->setAccessToken( self::CORRECT_ACCESS_TOKEN );
@@ -123,6 +125,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 
 	public function testGivenMembershipWithoutToken_updateAuthorizationFails(): void {
 		$application = new MembershipApplication();
+		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$this->storeApplication( $application );
 		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
 
@@ -131,6 +134,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 
 	public function testGivenMembershipWithoutTokenAndEmptyAccessToken_accessAuthorizationFails(): void {
 		$application = new MembershipApplication();
+		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$this->storeApplication( $application );
 		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
 
@@ -139,6 +143,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 
 	public function testGivenMembershipWithoutTokenAndEmptyUpdateToken_updateAuthorizationFails(): void {
 		$application = new MembershipApplication();
+		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$this->storeApplication( $application );
 		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
 
@@ -147,6 +152,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 
 	public function testGivenMembershipWithoutToken_accessAuthorizationFails(): void {
 		$application = new MembershipApplication();
+		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$this->storeApplication( $application );
 		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
 
