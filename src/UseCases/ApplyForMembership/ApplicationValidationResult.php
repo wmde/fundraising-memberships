@@ -4,14 +4,11 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class ApplicationValidationResult {
 
 	public const SOURCE_PAYMENT_AMOUNT = 'amount';
 	public const SOURCE_INTERVAL = 'interval';
+	public const SOURCE_PAYMENT = 'payment';
 	public const SOURCE_APPLICANT_DATE_OF_BIRTH = 'applicant-dob';
 	public const SOURCE_APPLICANT_PHONE_NUMBER = 'applicant-phone';
 	public const SOURCE_APPLICANT_EMAIL = 'applicant-email';

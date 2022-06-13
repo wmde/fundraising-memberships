@@ -4,16 +4,9 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Data;
 
-use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
-use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class ValidMembershipApplicationRequest {
 
 	/**
@@ -49,28 +42,13 @@ class ValidMembershipApplicationRequest {
 		$request->setApplicantPhoneNumber( ValidMembershipApplication::APPLICANT_PHONE_NUMBER );
 
 		$request->setMembershipType( ValidMembershipApplication::MEMBERSHIP_TYPE );
-		$request->setPaymentType( ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT );
-		$request->setPaymentIntervalInMonths( ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS );
-		$request->setPaymentAmountInEuros( Euro::newFromInt( ValidMembershipApplication::PAYMENT_AMOUNT_IN_EURO ) );
 
 		$request->setTrackingInfo( $this->newTrackingInfo() );
 		$request->setPiwikTrackingString( 'foo/bar' );
 
-		$request->setBankData( $this->newValidBankData() );
+		$request->setPaymentCreationRequest( ValidMembershipApplication::newPaymentCreationRequest() );
 
 		return $request->assertNoNullFields();
-	}
-
-	private function newValidBankData(): BankData {
-		$bankData = new BankData();
-
-		$bankData->setAccount( ValidMembershipApplication::PAYMENT_BANK_ACCOUNT );
-		$bankData->setBankCode( ValidMembershipApplication::PAYMENT_BANK_CODE );
-		$bankData->setBankName( ValidMembershipApplication::PAYMENT_BANK_NAME );
-		$bankData->setBic( ValidMembershipApplication::PAYMENT_BIC );
-		$bankData->setIban( new Iban( ValidMembershipApplication::PAYMENT_IBAN ) );
-
-		return $bankData->assertNoNullFields();
 	}
 
 	private function newTrackingInfo(): MembershipApplicationTrackingInfo {

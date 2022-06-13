@@ -5,45 +5,30 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee;
 
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\MembershipContext\Domain\MembershipPaymentValidator;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicantType;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
+use WMDE\FunValidators\ConstraintViolation;
+use WMDE\FunValidators\ValidationResponse;
 
 class ValidateMembershipFeeUseCase {
 
-	private const MIN_PERSON_YEARLY_PAYMENT_IN_EURO = 24;
-	private const MIN_COMPANY_YEARLY_PAYMENT_IN_EURO = 100;
-	private const MONTHS_PER_YEAR = 12;
+	public const SOURCE_APPLICANT_TYPE = 'applicant-type';
+	public const INVALID_APPLICANT_TYPE = 'invalid-applicant-type';
 
-	public const APPLICANT_TYPE_COMPANY = 'firma';
-	public const APPLICANT_TYPE_PERSON = 'person';
+	public function validate( int $membershipFeeInEuro, int $paymentInterval, string $applicantTypeName, string $paymentType ): ValidationResponse {
+		$applicantType = ApplicantType::tryFrom( $applicantTypeName );
+		$membershipFeeInEuroCents = Euro::newFromInt( $membershipFeeInEuro )->getEuroCents();
 
-	private Euro $membershipFee;
-
-	private int $paymentIntervalInMonths;
-	private string $applicantType;
-
-	public function validate( ValidateFeeRequest $request ): ValidateFeeResult {
-		$this->membershipFee = $request->getMembershipFee();
-		$this->paymentIntervalInMonths = $request->getPaymentIntervalInMonths();
-		$this->applicantType = $request->getApplicantType();
-
-		if ( !in_array( $this->paymentIntervalInMonths, [ 1, 3, 6, 12 ] ) ) {
-			return ValidateFeeResult::newIntervalInvalidResponse();
+		if ( $applicantType === null ) {
+			return ValidationResponse::newFailureResponse(
+				[ new ConstraintViolation( $applicantType, self::INVALID_APPLICANT_TYPE, self::SOURCE_APPLICANT_TYPE ) ]
+			);
 		}
 
-		if ( $this->getYearlyPaymentAmount() < $this->getYearlyPaymentRequirement() ) {
-			return ValidateFeeResult::newTooLowResponse();
-		}
-
-		return ValidateFeeResult::newSuccessResponse();
-	}
-
-	private function getYearlyPaymentAmount(): float {
-		return $this->membershipFee->getEuroFloat() * self::MONTHS_PER_YEAR / $this->paymentIntervalInMonths;
-	}
-
-	private function getYearlyPaymentRequirement(): float {
-		return $this->applicantType === self::APPLICANT_TYPE_COMPANY ?
-			self::MIN_COMPANY_YEARLY_PAYMENT_IN_EURO :
-			self::MIN_PERSON_YEARLY_PAYMENT_IN_EURO;
+		$domainSpecificValidator = new MembershipPaymentValidator( $applicantType );
+		$validator = new PaymentValidator();
+		return $validator->validatePaymentData( $membershipFeeInEuroCents, $paymentInterval, $paymentType, $domainSpecificValidator );
 	}
 
 }

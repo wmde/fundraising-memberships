@@ -45,6 +45,9 @@ class MembershipApplication {
 
 	private ?string $applicantTitle = null;
 
+	/**
+	 * @var string field is used in the FOC and some exports, see https://phabricator.wikimedia.org/T308878
+	 */
 	private string $probablyUnusedNameField = '';
 
 	private string $applicantFirstName = '';
@@ -65,33 +68,56 @@ class MembershipApplication {
 
 	private ?DateTime $applicantDateOfBirth = null;
 
+	/**
+	 * Wikimedium used to be a membership magazine that a user could subscribe to. Not offered anymore.
+	 * @deprecated
+	 */
 	private string $wikimediumShipping = 'none';
 
 	private string $membershipType = 'sustaining';
 
+	/**
+	 * @deprecated
+	 */
 	private string $paymentType = 'BEZ';
 
+	/**
+	 * @deprecated
+	 */
 	private int $paymentAmountInEuro = 0;
 
 	/**
 	 * FIXME: this should not be nullable
 	 *
 	 * @var int
-	 *
+	 * @deprecated
 	 */
 	private int $paymentIntervalInMonths = 12;
 
+	/**
+	 * @deprecated
+	 */
 	private string $paymentBankAccount = '';
 
+	/**
+	 * @deprecated
+	 */
 	private string $paymentBankName = '';
 
+	/**
+	 * @deprecated
+	 */
 	private string $paymentBankCode = '';
 
+	/**
+	 * @deprecated
+	 */
 	private string $paymentIban = '';
 
+	/**
+	 * @deprecated
+	 */
 	private string $paymentBic = '';
-
-	private string $paymentBankAccountHolder = '';
 
 	private string $comment = '';
 
@@ -304,12 +330,21 @@ class MembershipApplication {
 		return $this->applicantDateOfBirth;
 	}
 
+	/**
+	 * @param string $wikimediumShipping
+	 *
+	 * @return $this
+	 */
 	public function setWikimediumShipping( string $wikimediumShipping ): self {
 		$this->wikimediumShipping = $wikimediumShipping;
 
 		return $this;
 	}
 
+	/**
+	 * @return string
+	 * @deprecated
+	 */
 	public function getWikimediumShipping(): string {
 		return $this->wikimediumShipping;
 	}
@@ -324,94 +359,132 @@ class MembershipApplication {
 		return $this->membershipType;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function setPaymentType( string $paymentType ): self {
 		$this->paymentType = $paymentType;
 
 		return $this;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function getPaymentType(): string {
 		return $this->paymentType;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function setPaymentAmount( int $paymentAmountInEuro ): self {
 		$this->paymentAmountInEuro = $paymentAmountInEuro;
 
 		return $this;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function getPaymentAmount(): int {
 		return $this->paymentAmountInEuro;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function setPaymentIntervalInMonths( int $paymentIntervalInMonths ): self {
 		$this->paymentIntervalInMonths = $paymentIntervalInMonths;
 
 		return $this;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function getPaymentIntervalInMonths(): int {
 		return $this->paymentIntervalInMonths;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function setPaymentBankAccount( string $paymentBankAccount ): self {
 		$this->paymentBankAccount = $paymentBankAccount;
 
 		return $this;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function getPaymentBankAccount(): string {
 		return $this->paymentBankAccount;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function setPaymentBankName( string $paymentBankName ): self {
 		$this->paymentBankName = $paymentBankName;
 
 		return $this;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function getPaymentBankName(): string {
 		return $this->paymentBankName;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function setPaymentBankCode( string $paymentBankCode ): self {
 		$this->paymentBankCode = $paymentBankCode;
 
 		return $this;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function getPaymentBankCode(): string {
 		return $this->paymentBankCode;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function setPaymentIban( string $paymentIban ): self {
 		$this->paymentIban = $paymentIban;
 
 		return $this;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function getPaymentIban(): string {
 		return $this->paymentIban;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function setPaymentBic( string $paymentBic ): self {
 		$this->paymentBic = $paymentBic;
 
 		return $this;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public function getPaymentBic(): string {
 		return $this->paymentBic;
-	}
-
-	public function setPaymentBankAccountHolder( string $paymentBankAccountHolder ): self {
-		$this->paymentBankAccountHolder = $paymentBankAccountHolder;
-
-		return $this;
-	}
-
-	public function getPaymentBankAccountHolder(): string {
-		return $this->paymentBankAccountHolder;
 	}
 
 	public function setComment( string $comment ): self {

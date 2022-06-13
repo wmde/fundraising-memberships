@@ -9,22 +9,22 @@ use WMDE\FunValidators\Validators\TextPolicyValidator;
 
 /**
  * @license GPL-2.0-or-later
- * @author Gabriel Birke < gabriel.birke@wikimedia.de >
  */
 class ApplyForMembershipPolicyValidator {
 
 	private const YEARLY_PAYMENT_MODERATION_THRESHOLD_IN_EURO = 1000;
+	private const MONTHS_PER_YEAR = 12;
 
-	private $textPolicyValidator;
-	private $emailAddressBlacklist;
+	private TextPolicyValidator $textPolicyValidator;
+	private array $emailAddressBlacklist;
 
-	public function __construct( TextPolicyValidator $textPolicyValidator, array $emailAddressBlacklist = [] ) {
+	public function __construct( TextPolicyValidator $textPolicyValidator, array $emailAddressBlacklist = [], ) {
 		$this->textPolicyValidator = $textPolicyValidator;
 		$this->emailAddressBlacklist = $emailAddressBlacklist;
 	}
 
-	public function needsModeration( MembershipApplication $application ): bool {
-		return $this->yearlyAmountExceedsLimit( $application ) ||
+	public function needsModeration( MembershipApplication $application, int $amountInEuroCents, int $interval ): bool {
+		return $this->yearlyAmountExceedsLimit( $amountInEuroCents, $interval ) ||
 			$this->addressContainsBadWords( $application );
 	}
 
@@ -38,9 +38,9 @@ class ApplyForMembershipPolicyValidator {
 		return false;
 	}
 
-	private function yearlyAmountExceedsLimit( MembershipApplication $application ): bool {
-		return $application->getPayment()->getYearlyAmount()->getEuroFloat()
-			> self::YEARLY_PAYMENT_MODERATION_THRESHOLD_IN_EURO;
+	private function yearlyAmountExceedsLimit( int $amountInEuroCents, int $interval ): bool {
+		$yearlyAmount = self::MONTHS_PER_YEAR / $interval * ( $amountInEuroCents / 100 );
+		return $yearlyAmount > self::YEARLY_PAYMENT_MODERATION_THRESHOLD_IN_EURO;
 	}
 
 	private function addressContainsBadWords( MembershipApplication $application ): bool {
