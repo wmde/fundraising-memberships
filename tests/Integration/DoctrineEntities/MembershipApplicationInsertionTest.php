@@ -14,7 +14,6 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 class MembershipApplicationInsertionTest extends TestCase {
 
 	public function testNewMembershipApplicationCanBeInserted(): void {
-		$this->markTestIncomplete( 'This will work when we update the Domain Entity' );
 		$entityManager = TestEnvironment::newInstance()->getEntityManager();
 		$entityManager->persist( new MembershipApplication() );
 		$entityManager->flush();

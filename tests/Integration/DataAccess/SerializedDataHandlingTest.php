@@ -10,6 +10,8 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\ModerationReasonRepository;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
+use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository
@@ -18,18 +20,25 @@ class SerializedDataHandlingTest extends TestCase {
 
 	/** @dataProvider encodedMembershipDataProvider */
 	public function testDataFieldOfMembershipApplicationIsInteractedWithCorrectly( array $data ): void {
-		$this->markTestIncomplete( 'This will work when we update the Legacy Converters' );
 		$entityManager = TestEnvironment::newInstance()->getEntityManager();
+		$getPaymentUseCase = $this->createStub( GetPaymentUseCase::class );
+		$getPaymentUseCase->method( 'getLegacyPaymentDataObject' )->willReturn(
+			new LegacyPaymentData( 100, 0, 'MCP', [], 'X' )
+		);
 
-		$repository = new DoctrineApplicationRepository( $entityManager, new ModerationReasonRepository( $entityManager ) );
+		$repository = new DoctrineApplicationRepository(
+			$entityManager,
+			$getPaymentUseCase,
+			new ModerationReasonRepository( $entityManager )
+		);
 		$this->storeMembershipApplication( $entityManager, $data );
 
-		$donation = $repository->getApplicationById( 1 );
-		$repository->storeApplication( $donation );
+		$membershipApplication = $repository->getApplicationById( 1 );
+		$repository->storeApplication( $membershipApplication );
 
-		/** @var MembershipApplication $dma */
-		$dma = $entityManager->find( MembershipApplication::class, 1 );
-		$this->assertEquals( $data, $dma->getDecodedData() );
+		/** @var MembershipApplication $doctrineMembershipApplication */
+		$doctrineMembershipApplication = $entityManager->find( MembershipApplication::class, 1 );
+		$this->assertEquals( $data, $doctrineMembershipApplication->getDecodedData() );
 	}
 
 	public function encodedMembershipDataProvider(): array {
@@ -71,6 +80,8 @@ class SerializedDataHandlingTest extends TestCase {
 
 	private function storeMembershipApplication( EntityManager $entityManager, array $data ): void {
 		$membershipAppl = new MembershipApplication();
+		$membershipAppl->setPaymentId( 1 );
+		$membershipAppl->setStatus( MembershipApplication::STATUS_CONFIRMED );
 
 		$membershipAppl->setApplicantSalutation( 'Frau' );
 		$membershipAppl->setApplicantTitle( 'Dr.' );
