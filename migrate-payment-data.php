@@ -36,9 +36,8 @@ $ormConfig = ORMSetup::createXMLMetadataConfiguration([ PaymentContextFactory::D
 $entityManager = EntityManager::create( $db, $ormConfig );
 
 $paymentIdCollection = new MembershipPaymentIdCollection();
-$paymentIdGenerator = new SequentialPaymentIdGenerator(1);
 $paymentHandler = new InsertingPaymentHandler( $entityManager, $paymentIdCollection );
-$converter = new MembershipToPaymentConverter( $db, $paymentIdGenerator, $paymentHandler );
+$converter = new MembershipToPaymentConverter( $db, $paymentHandler );
 
 $conversionStart = microtime(true);
 $result = $converter->convertMemberships( getStartingMembershipId( $db ), MembershipToPaymentConverter::CONVERT_ALL );
