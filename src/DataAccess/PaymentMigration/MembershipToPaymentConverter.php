@@ -11,7 +11,6 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 
 class MembershipToPaymentConverter {
 
@@ -22,7 +21,6 @@ class MembershipToPaymentConverter {
 
 	public function __construct(
 		private Connection $db,
-		private PaymentIDRepository $idGenerator,
 		private ?NewPaymentHandler $paymentHandler = null,
 		private ?ProgressPrinter $progressPrinter = null
 	) {
@@ -108,7 +106,7 @@ class MembershipToPaymentConverter {
 	private function newPayPalPayment( array $row ): PayPalPayment {
 		// We don't book PayPal payments, as they were never really active
 		return new PayPalPayment(
-			$this->idGenerator->getNewID(),
+			intval( $row['id'] ),
 			$this->getAmount( $row ),
 			PaymentInterval::from( $row['intervalInMonths'] )
 		);
@@ -126,7 +124,7 @@ class MembershipToPaymentConverter {
 			$anonymous = false;
 		}
 		$payment = DirectDebitPayment::create(
-			$this->idGenerator->getNewID(),
+			intval( $row['id'] ),
 			$this->getAmount( $row ),
 			PaymentInterval::from( intval( $row['intervalInMonths'] ) ),
 			$iban,
