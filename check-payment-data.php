@@ -15,14 +15,13 @@ $config = [
 
 
 $db = DriverManager::getConnection( $config );
-// TODO after running this in prod, we need to set the autoincrement value of our id table to the last value of the generator
-$converter = new MembershipToPaymentConverter( $db, new SequentialPaymentIdGenerator(1) );
+$converter = new MembershipToPaymentConverter( $db );
 
 $result = $converter->convertMemberships();
 
 $errors = $result->getErrors();
 $warnings = $result->getWarnings();
-$processedPayments = $result->getDonationCount();
+$processedPayments = $result->getMembershipCount();
 $errorCount = array_reduce($errors, fn(int $acc, ResultObject $error) => $acc + $error->getItemCount(), 0 );
 $warningCount = array_reduce($warnings, fn(int $acc, ResultObject $error) => $acc + $error->getItemCount(), 0 );
 
