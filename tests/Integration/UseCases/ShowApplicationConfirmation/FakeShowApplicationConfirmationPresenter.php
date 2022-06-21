@@ -14,22 +14,28 @@ use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\Show
 class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirmationPresenter {
 
 	private $application;
+	private $paymentData;
 	private $updateToken;
 	private $anonymizedResponseWasShown = false;
 	private $accessViolationWasShown = false;
 	private $shownTechnicalError;
 
-	public function presentConfirmation( MembershipApplication $application, string $updateToken ): void {
+	public function presentConfirmation( MembershipApplication $application, array $paymentData, string $updateToken ): void {
 		if ( $this->application !== null ) {
 			throw new \RuntimeException( 'Presenter should only be invoked once' );
 		}
 
 		$this->application = $application;
+		$this->paymentData = $paymentData;
 		$this->updateToken = $updateToken;
 	}
 
 	public function getShownApplication(): MembershipApplication {
 		return $this->application;
+	}
+
+	public function getShownPaymentData(): array {
+		return $this->paymentData;
 	}
 
 	public function getShownUpdateToken(): string {
