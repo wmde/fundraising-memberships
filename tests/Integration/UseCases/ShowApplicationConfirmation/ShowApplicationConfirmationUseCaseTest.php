@@ -14,6 +14,7 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedApplicationTokenFetch
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\SucceedingAuthorizer;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowAppConfirmationRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationUseCase;
+use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationUseCase
@@ -24,6 +25,10 @@ use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\Show
 class ShowApplicationConfirmationUseCaseTest extends TestCase {
 
 	private const APPLICATION_ID = 42;
+	private const PAYMENT_DATA = [
+		'anything' => 'can',
+		'go' => 'here',
+	];
 
 	/**
 	 * @var FakeShowApplicationConfirmationPresenter
@@ -68,11 +73,15 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 	}
 
 	private function newUseCase(): ShowApplicationConfirmationUseCase {
+		$getPaymentUseCase = $this->createStub( GetPaymentUseCase::class );
+		$getPaymentUseCase->method( 'getPaymentDataArray' )->willReturn( self::PAYMENT_DATA );
+
 		return new ShowApplicationConfirmationUseCase(
 			$this->presenter,
 			$this->authorizer,
 			$this->repository,
-			$this->tokenFetcher
+			$this->tokenFetcher,
+			$getPaymentUseCase
 		);
 	}
 
@@ -82,6 +91,11 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		$this->assertSame(
 			self::APPLICATION_ID,
 			$this->presenter->getShownApplication()->getId()
+		);
+
+		$this->assertSame(
+			self::PAYMENT_DATA,
+			$this->presenter->getShownPaymentData()
 		);
 
 		$this->assertSame(
