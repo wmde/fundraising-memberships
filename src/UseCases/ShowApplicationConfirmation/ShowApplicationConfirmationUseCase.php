@@ -9,24 +9,17 @@ use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
+use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
-/**
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- */
 class ShowApplicationConfirmationUseCase {
 
-	private $presenter;
-	private $authorizer;
-	private $repository;
-	private $tokenFetcher;
-
-	public function __construct( ShowApplicationConfirmationPresenter $presenter, ApplicationAuthorizer $authorizer,
-		ApplicationRepository $repository, ApplicationTokenFetcher $tokenFetcher ) {
-		$this->presenter = $presenter;
-		$this->authorizer = $authorizer;
-		$this->repository = $repository;
-		$this->tokenFetcher = $tokenFetcher;
+	public function __construct(
+		private readonly ShowApplicationConfirmationPresenter $presenter,
+		private readonly ApplicationAuthorizer $authorizer,
+		private readonly ApplicationRepository $repository,
+		private readonly ApplicationTokenFetcher $tokenFetcher,
+		private readonly GetPaymentUseCase $getPaymentUseCase
+	) {
 	}
 
 	public function showConfirmation( ShowAppConfirmationRequest $request ): void {
@@ -37,6 +30,7 @@ class ShowApplicationConfirmationUseCase {
 
 		try {
 			$application = $this->repository->getApplicationById( $request->getApplicationId() );
+			$paymentData = $this->getPaymentUseCase->getPaymentDataArray( $application->getPaymentId() );
 		}
 		catch ( ApplicationAnonymizedException $ex ) {
 			$this->presenter->presentApplicationWasAnonymized();
@@ -50,6 +44,7 @@ class ShowApplicationConfirmationUseCase {
 		$this->presenter->presentConfirmation(
 		// TODO: use DTO instead of Entity (currently violates the architecture)
 			$application,
+			$paymentData,
 			$this->tokenFetcher->getTokens( $request->getApplicationId() )->getUpdateToken()
 		);
 	}

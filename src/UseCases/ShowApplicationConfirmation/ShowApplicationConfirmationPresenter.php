@@ -6,13 +6,16 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmatio
 
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 interface ShowApplicationConfirmationPresenter {
 
-	public function presentConfirmation( MembershipApplication $application, string $updateToken ): void;
+	/**
+	 * @param MembershipApplication $application
+	 * @param array<string,mixed> $paymentData
+	 * @param string $updateToken
+	 *
+	 * @return void
+	 */
+	public function presentConfirmation( MembershipApplication $application, array $paymentData, string $updateToken ): void;
 
 	public function presentApplicationWasAnonymized(): void;
 
