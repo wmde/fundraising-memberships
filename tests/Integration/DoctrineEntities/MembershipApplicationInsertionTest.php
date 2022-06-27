@@ -24,7 +24,7 @@ class MembershipApplicationInsertionTest extends TestCase {
 			->getQuery()
 			->getSingleScalarResult();
 
-		$this->assertSame( '1', $count );
+		$this->assertSame( 1, $count );
 	}
 
 }
