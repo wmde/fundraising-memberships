@@ -4,43 +4,46 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests;
 
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\ORMSetup;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\MembershipContextFactory;
+use WMDE\Fundraising\PaymentContext\PaymentContextFactory;
 
 class TestMembershipContextFactory {
 
 	private array $config;
-	private Configuration $doctrineConfig;
 	private Connection $connection;
 	private MembershipContextFactory $factory;
 	private ?EntityManager $entityManager;
 
-	public function __construct( array $config, Configuration $doctrineConfig ) {
+	public function __construct( array $config ) {
 		$this->config = $config;
-		$this->doctrineConfig = $doctrineConfig;
 
 		$this->connection = DriverManager::getConnection( $this->config['db'] );
-		$this->factory = new MembershipContextFactory( $config, $doctrineConfig );
+		$this->factory = new MembershipContextFactory( $config );
 		$this->entityManager = null;
 	}
 
 	public function getEntityManager(): EntityManager {
 		if ( $this->entityManager === null ) {
-			AnnotationRegistry::registerLoader( 'class_exists' );
+			$doctrineConfig = ORMSetup::createXMLMetadataConfiguration( [
+				MembershipContextFactory::DOCTRINE_CLASS_MAPPING_DIRECTORY,
+				MembershipContextFactory::DOMAIN_CLASS_MAPPING_DIRECTORY,
+				PaymentContextFactory::DOCTRINE_CLASS_MAPPING_DIRECTORY
+			] );
 
-			$this->doctrineConfig->setMetadataDriverImpl( $this->factory->newMappingDriver() );
+			$paymentContext = new PaymentContextFactory();
+			$paymentContext->registerCustomTypes( $this->connection );
 
 			$eventManager = $this->setupEventSubscribers( $this->factory->newEventSubscribers() );
 
 			$this->entityManager = EntityManager::create(
 				$this->connection,
-				$this->doctrineConfig,
+				$doctrineConfig,
 				$eventManager
 			);
 		}

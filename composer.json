@@ -34,9 +34,9 @@
 		}
 	],
 	"require-dev": {
+		"doctrine/migrations": "^3.5",
 		"phpunit/phpunit": "~9.5.0",
 		"symfony/cache": "^6.0",
-		"codeception/specify": "~2.0",
 		"phpstan/phpstan": "~1.2",
 		"wmde/fundraising-phpcs": "~6.0.0",
 		"wmde/psr-log-test-doubles": "~3.0",

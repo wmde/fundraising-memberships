@@ -18,6 +18,7 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 
 	public const DEFAULT_MESSAGE = 'Itchy, Tasty';
+	private const DUMMY_PAYMENT_ID = 42;
 
 	private EntityManager $entityManager;
 
@@ -55,6 +56,7 @@ class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 
 	public function testGivenMessageAndNoLogExists_createsLog(): void {
 		$application = new MembershipApplication();
+		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$this->entityManager->persist( $application );
 		$this->entityManager->flush();
 		$applicationId = $application->getId();
@@ -71,6 +73,7 @@ class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 
 	public function testGivenMessageAndLogExists_addsRow(): void {
 		$application = new MembershipApplication();
+		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$application->encodeAndSetData( [ 'log' => [ '2021-01-01 0:00:00' => 'We call her the log lady' ] ] );
 		$this->entityManager->persist( $application );
 		$this->entityManager->flush();

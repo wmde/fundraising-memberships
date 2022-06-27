@@ -6,3 +6,21 @@ services:
     volumes:
       - ./:/usr/src/app
     working_dir: /usr/src/app
+
+  database:
+     image: mariadb:10.4
+     environment:
+       - MYSQL_RANDOM_ROOT_PASSWORD=yes
+       - MYSQL_USER=fundraising
+       - MYSQL_PASSWORD=INSECURE PASSWORD
+       - MYSQL_DATABASE=fundraising
+     volumes:
+       - db-storage:/var/lib/mysql
+       - ./:/usr/src/app
+       - ./.docker/database:/docker-entrypoint-initdb.d
+     expose:
+       - "3306"
+ 
+volumes:
+ db-storage:
+
