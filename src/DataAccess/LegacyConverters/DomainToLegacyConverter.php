@@ -10,6 +10,7 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApp
 use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
@@ -17,7 +18,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
 class DomainToLegacyConverter {
-	public function convert( DoctrineApplication $doctrineApplication, MembershipApplication $application ): void {
+	public function convert( DoctrineApplication $doctrineApplication, MembershipApplication $application, array $existingModerationReasons ): void {
 		$doctrineApplication->setId( $application->getId() );
 		$doctrineApplication->setMembershipType( $application->getType() );
 
@@ -25,10 +26,33 @@ class DomainToLegacyConverter {
 		$this->setPaymentFields( $doctrineApplication, $application->getPayment() );
 		$doctrineApplication->setIncentives( $this->convertIncentives( $application->getIncentives() ) );
 		$doctrineApplication->setDonationReceipt( $application->getDonationReceipt() );
+		$doctrineApplication->setModerationReasons(
+			...$this->mergeModerationReasons( $existingModerationReasons,
+			$application->getModerationReasons() )
+		);
 
 		$doctrineStatus = $this->getDoctrineStatus( $application );
 		$this->preserveDoctrineStatus( $doctrineApplication, $doctrineStatus );
 		$doctrineApplication->setStatus( $doctrineStatus );
+	}
+
+	/**
+	 * @param ModerationReason[] $existingModerationReasons
+	 * @param ModerationReason[] $moderationReasonsFromApplication
+	 * @return ModerationReason[]
+	 */
+	private function mergeModerationReasons( array $existingModerationReasons, array $moderationReasonsFromApplication ): array {
+		$resultArray = [];
+		foreach ( $moderationReasonsFromApplication as $moderationReason ) {
+			$resultArray[(string)$moderationReason] = $moderationReason;
+		}
+		foreach ( $existingModerationReasons as $moderationReason ) {
+			$id = (string)$moderationReason;
+			if ( isset( $resultArray[$id] ) ) {
+				$resultArray[$id] = $moderationReason;
+			}
+		}
+		return array_values( $resultArray );
 	}
 
 	private function convertIncentives( \Traversable $incentives ): Collection {
@@ -107,11 +131,11 @@ class DomainToLegacyConverter {
 	}
 
 	private function getDoctrineStatus( MembershipApplication $application ): int {
-		if ( $application->needsModeration() && $application->isCancelled() ) {
+		if ( $application->isMarkedForModeration() && $application->isCancelled() ) {
 			return DoctrineApplication::STATUS_CANCELLED_MODERATION;
 		}
 
-		if ( $application->needsModeration() ) {
+		if ( $application->isMarkedForModeration() ) {
 			return DoctrineApplication::STATUS_MODERATION;
 		}
 

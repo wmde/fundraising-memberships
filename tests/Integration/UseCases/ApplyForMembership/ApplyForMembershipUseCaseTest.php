@@ -11,6 +11,8 @@ use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
@@ -24,10 +26,11 @@ use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult;
-use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipPolicyValidator;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipUseCase;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationResult;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
@@ -67,7 +70,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	 */
 	private $piwikTracker;
 
-	private ApplyForMembershipPolicyValidator $policyValidator;
+	private ModerationService $policyValidator;
 
 	private EventEmitter $eventEmitter;
 
@@ -75,7 +78,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$this->repository = new InMemoryApplicationRepository();
 		$this->mailer = new TemplateBasedMailerSpy( $this );
 		$this->validator = $this->newSucceedingValidator();
-		$this->policyValidator = $this->newSucceedingPolicyValidator();
+		$this->policyValidator = $this->getSucceedingPolicyValidatorMock();
 		$this->tracker = $this->createMock( ApplicationTracker::class );
 		$this->piwikTracker = $this->createMock( ApplicationPiwikTracker::class );
 		$this->eventEmitter = $this->createMock( EventEmitter::class );
@@ -247,28 +250,29 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	public function testGivenValidRequest_moderationIsNotNeeded(): void {
 		$response = $this->newUseCase()->applyForMembership( $this->newValidRequest() );
 
-		$this->assertFalse( $response->getMembershipApplication()->needsModeration() );
+		$this->assertFalse( $response->getMembershipApplication()->isMarkedForModeration() );
 	}
 
 	public function testGivenFailingPolicyValidator_moderationIsNeeded(): void {
-		$this->policyValidator = $this->newFailingPolicyValidator();
+		$this->policyValidator = $this->getFailingPolicyValidatorMock();
 
 		$response = $this->newUseCase()->applyForMembership( $this->newValidRequest() );
-		$this->assertTrue( $response->getMembershipApplication()->needsModeration() );
+		$this->assertTrue( $response->getMembershipApplication()->isMarkedForModeration() );
 	}
 
-	private function newSucceedingPolicyValidator(): ApplyForMembershipPolicyValidator {
-		$policyValidator = $this->getMockBuilder( ApplyForMembershipPolicyValidator::class )
-			->disableOriginalConstructor()->getMock();
-		$policyValidator->method( 'needsModeration' )->willReturn( false );
-		return $policyValidator;
+	private function getSucceedingPolicyValidatorMock(): ModerationService {
+		$validator = $this->createStub( ModerationService::class );
+		$validator->method( 'moderateMembershipApplicationRequest' )->willReturn( new ModerationResult() );
+		return $validator;
 	}
 
-	private function newFailingPolicyValidator(): ApplyForMembershipPolicyValidator {
-		$policyValidator = $this->getMockBuilder( ApplyForMembershipPolicyValidator::class )
-			->disableOriginalConstructor()->getMock();
-		$policyValidator->method( 'needsModeration' )->willReturn( true );
-		return $policyValidator;
+	private function getFailingPolicyValidatorMock(): ModerationService {
+		$validator = $this->createStub( ModerationService::class );
+		$validator->method( 'needsModeration' )->willReturn( true );
+		$moderationResult = new ModerationResult();
+		$moderationResult->addModerationReason( new ModerationReason( ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH ) );
+		$validator->method( 'moderateMembershipApplicationRequest' )->willReturn( $moderationResult );
+		return $validator;
 	}
 
 	public function testWhenApplicationIsUnconfirmed_confirmationEmailIsNotSent(): void {
@@ -305,9 +309,9 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		return $request->assertNoNullFields();
 	}
 
-	private function newAutoDeletingPolicyValidator(): ApplyForMembershipPolicyValidator {
-		$policyValidator = $this->getMockBuilder( ApplyForMembershipPolicyValidator::class )
-			->disableOriginalConstructor()->getMock();
+	private function newAutoDeletingPolicyValidator(): ModerationService {
+		$policyValidator = $this->createStub( ModerationService::class );
+		$policyValidator->method( 'moderateMembershipApplicationRequest' )->willReturn( new ModerationResult() );
 		$policyValidator->method( 'isAutoDeleted' )->willReturn( true );
 		return $policyValidator;
 	}
