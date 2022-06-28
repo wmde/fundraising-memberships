@@ -9,6 +9,8 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\LegacyToDomainConverter;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
@@ -19,23 +21,28 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
 class LegacyToDomainConverterTest extends TestCase {
 	public function testGivenDoctrineApplicationWithModerationAndCancelled_domainEntityHasFlags(): void {
 		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
-		$doctrineApplication->setStatus( DoctrineApplication::STATUS_CANCELED + DoctrineApplication::STATUS_MODERATION );
+		$doctrineApplication->setModerationReasons( $this->makeGenericModerationReason() );
+		$doctrineApplication->setStatus( DoctrineApplication::STATUS_CANCELED );
 
 		$converter = new LegacyToDomainConverter();
 		$application = $converter->createFromLegacyObject( $doctrineApplication );
 
-		$this->assertTrue( $application->needsModeration() );
+		$this->assertTrue( $application->isMarkedForModeration() );
 		$this->assertTrue( $application->isCancelled() );
+	}
+
+	private function makeGenericModerationReason(): ModerationReason {
+		return new ModerationReason( ModerationIdentifier::MANUALLY_FLAGGED_BY_ADMIN );
 	}
 
 	public function testGivenDoctrineApplicationWithModerationFlag_domainEntityHasFlag(): void {
 		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
-		$doctrineApplication->setStatus( DoctrineApplication::STATUS_MODERATION );
+		$doctrineApplication->setModerationReasons( $this->makeGenericModerationReason() );
 
 		$converter = new LegacyToDomainConverter();
 		$application = $converter->createFromLegacyObject( $doctrineApplication );
 
-		$this->assertTrue( $application->needsModeration() );
+		$this->assertTrue( $application->isMarkedForModeration() );
 		$this->assertFalse( $application->isCancelled() );
 	}
 
@@ -46,7 +53,7 @@ class LegacyToDomainConverterTest extends TestCase {
 		$converter = new LegacyToDomainConverter();
 		$application = $converter->createFromLegacyObject( $doctrineApplication );
 
-		$this->assertFalse( $application->needsModeration() );
+		$this->assertFalse( $application->isMarkedForModeration() );
 		$this->assertTrue( $application->isCancelled() );
 	}
 
@@ -149,14 +156,16 @@ class LegacyToDomainConverterTest extends TestCase {
 		$this->assertEquals( $doctrineApplication->getApplicantTitle(), $application->getApplicant()->getName()->getTitle() );
 	}
 
-	public function testGivenDoctrineApplicationThatNeedsModeration_setsNeedsModerationInDomain(): void {
+	public function testGivenDoctrineApplicationWithModerationReasons_setsNeedsModerationInDomain(): void {
 		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
-		$doctrineApplication->setStatus( DoctrineApplication::STATUS_MODERATION );
-
 		$converter = new LegacyToDomainConverter();
+		$moderationReason = new ModerationReason( ModerationIdentifier::MANUALLY_FLAGGED_BY_ADMIN );
+
+		$doctrineApplication->setModerationReasons( $moderationReason );
 		$application = $converter->createFromLegacyObject( $doctrineApplication );
 
-		$this->assertTrue( $application->needsModeration() );
+		$this->assertTrue( $application->isMarkedForModeration() );
+		$this->assertSame( $moderationReason, $application->getModerationReasons()[0] );
 	}
 
 	public function testGivenConfirmedDoctrineApplication_setsConfirmedInDomain(): void {

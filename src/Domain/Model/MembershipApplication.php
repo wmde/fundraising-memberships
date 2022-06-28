@@ -24,7 +24,10 @@ class MembershipApplication {
 	private string $type;
 	private Applicant $applicant;
 	private Payment $payment;
-	private bool $moderationNeeded = false;
+	/**
+	 * @var array ModerationReason[]
+	 */
+	private array $moderationReasons;
 	private bool $cancelled = false;
 	private bool $confirmed = true;
 	private bool $exported = false;
@@ -42,6 +45,7 @@ class MembershipApplication {
 		if ( $paymentMethod instanceof BookablePayment ) {
 			$this->confirmed = $paymentMethod->paymentCompleted();
 		}
+		$this->moderationReasons = [];
 	}
 
 	public function getId(): ?int {
@@ -80,16 +84,29 @@ class MembershipApplication {
 		$this->id = $id;
 	}
 
-	public function markForModeration(): void {
-		$this->moderationNeeded = true;
+	/**
+	 * @param ModerationReason ...$moderationReasons provide at least 1 ModerationReason to mark for moderation
+	 */
+	public function markForModeration( ModerationReason ...$moderationReasons ): void {
+		if ( empty( $moderationReasons ) ) {
+			throw new \LogicException( "you must provide at least one ModerationReason to mark a donation for moderation" );
+		}
+		$this->moderationReasons = array_merge( $this->moderationReasons, $moderationReasons );
 	}
 
 	public function approve(): void {
-		$this->moderationNeeded = false;
+		$this->moderationReasons = [];
 	}
 
-	public function needsModeration(): bool {
-		return $this->moderationNeeded;
+	/**
+	 * @return ModerationReason[]
+	 */
+	public function getModerationReasons(): array {
+		return $this->moderationReasons;
+	}
+
+	public function isMarkedForModeration(): bool {
+		return count( $this->moderationReasons ) > 0;
 	}
 
 	public function cancel(): void {
@@ -151,7 +168,7 @@ class MembershipApplication {
 
 	private function statusAllowsForBooking(): bool {
 		return !$this->isConfirmed() &&
-			!$this->needsModeration();
+			!$this->isMarkedForModeration();
 	}
 
 	public function notifyOfFirstPaymentDate( string $firstPaymentDate ): void {

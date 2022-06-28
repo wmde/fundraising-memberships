@@ -13,6 +13,7 @@ use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentDelayCalculator;
 
@@ -25,7 +26,7 @@ class ApplyForMembershipUseCase {
 	private ApplicationTokenFetcher $tokenFetcher;
 	private TemplateMailerInterface $mailer;
 	private MembershipApplicationValidator $validator;
-	private ApplyForMembershipPolicyValidator $policyValidator;
+	private ModerationService $policyValidator;
 	/**
 	 * @var ApplicationTracker
 	 * @deprecated See https://phabricator.wikimedia.org/T197112
@@ -37,10 +38,15 @@ class ApplyForMembershipUseCase {
 	private IncentiveFinder $incentiveFinder;
 
 	public function __construct( ApplicationRepository $repository,
-		ApplicationTokenFetcher $tokenFetcher, TemplateMailerInterface $mailer,
-		MembershipApplicationValidator $validator, ApplyForMembershipPolicyValidator $policyValidator,
-		ApplicationTracker $tracker, ApplicationPiwikTracker $piwikTracker,
-		PaymentDelayCalculator $paymentDelayCalculator, EventEmitter $eventEmitter, IncentiveFinder $incentiveFinder ) {
+		ApplicationTokenFetcher $tokenFetcher,
+		TemplateMailerInterface $mailer,
+		MembershipApplicationValidator $validator,
+		ModerationService $policyValidator,
+		ApplicationTracker $tracker,
+		ApplicationPiwikTracker $piwikTracker,
+		PaymentDelayCalculator $paymentDelayCalculator,
+		EventEmitter $eventEmitter,
+		IncentiveFinder $incentiveFinder ) {
 		$this->repository = $repository;
 		$this->tokenFetcher = $tokenFetcher;
 		$this->mailer = $mailer;
@@ -62,8 +68,10 @@ class ApplyForMembershipUseCase {
 
 		$application = $this->newApplicationFromRequest( $request );
 
-		if ( $this->policyValidator->needsModeration( $application ) ) {
-			$application->markForModeration();
+		$moderationResult = $this->policyValidator->moderateMembershipApplicationRequest( $request );
+
+		if ( $moderationResult->needsModeration() ) {
+			$application->markForModeration( ...$moderationResult->getViolations() );
 		}
 
 		if ( $this->policyValidator->isAutoDeleted( $application ) ) {

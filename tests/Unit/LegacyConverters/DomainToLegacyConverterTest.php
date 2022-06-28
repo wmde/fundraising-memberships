@@ -9,6 +9,8 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\DomainToLegacyConverter;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
@@ -18,17 +20,26 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
  */
 class DomainToLegacyConverterTest extends TestCase {
 
-	public function testWhenPersistingApplicationWithModerationFlag_doctrineApplicationHasFlag(): void {
+	public function testWhenPersistingApplicationWithModerationReasons_doctrineApplicationHasFlag(): void {
+		$converter = new DomainToLegacyConverter();
 		$doctrineApplication = new DoctrineApplication();
 		$application = ValidMembershipApplication::newDomainEntity();
-		$application->markForModeration();
+		$moderationReasons = [
+			$this->makeGenericModerationReason(),
+			new ModerationReason( ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH )
+		];
 
-		$converter = new DomainToLegacyConverter();
-		$converter->convert( $doctrineApplication, $application );
+		$application->markForModeration( ...$moderationReasons );
+		$converter->convert( $doctrineApplication, $application, $application->getModerationReasons() );
 
+		$this->assertEquals( $moderationReasons, $doctrineApplication->getModerationReasons()->toArray() );
 		$this->assertTrue( $doctrineApplication->needsModeration() );
 		$this->assertFalse( $doctrineApplication->isCancelled() );
 		$this->assertFalse( $doctrineApplication->isConfirmed() );
+	}
+
+	private function makeGenericModerationReason(): ModerationReason {
+		return new ModerationReason( ModerationIdentifier::MANUALLY_FLAGGED_BY_ADMIN );
 	}
 
 	public function testWhenPersistingApplicationWithCancelledFlag_doctrineApplicationHasFlag(): void {
@@ -37,7 +48,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$application->cancel();
 
 		$converter = new DomainToLegacyConverter();
-		$converter->convert( $doctrineApplication, $application );
+		$converter->convert( $doctrineApplication, $application, [] );
 
 		$this->assertTrue( $doctrineApplication->isCancelled() );
 		$this->assertFalse( $doctrineApplication->needsModeration() );
@@ -50,7 +61,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$application = ValidMembershipApplication::newDomainEntity();
 
 		$converter = new DomainToLegacyConverter();
-		$converter->convert( $doctrineApplication, $application );
+		$converter->convert( $doctrineApplication, $application, [] );
 
 		$this->assertTrue( $doctrineApplication->isConfirmed() );
 		$this->assertFalse( $doctrineApplication->isCancelled() );
@@ -60,12 +71,14 @@ class DomainToLegacyConverterTest extends TestCase {
 	public function testWhenPersistingCancelledModerationApplication_doctrineApplicationHasFlags(): void {
 		$doctrineApplication = new DoctrineApplication();
 		$application = ValidMembershipApplication::newDomainEntity();
-		$application->markForModeration();
+		$moderationReason = $this->makeGenericModerationReason();
+		$application->markForModeration( $moderationReason );
 		$application->cancel();
 
 		$converter = new DomainToLegacyConverter();
-		$converter->convert( $doctrineApplication, $application );
+		$converter->convert( $doctrineApplication, $application, [] );
 
+		$this->assertEquals( [ $moderationReason ], $doctrineApplication->getModerationReasons()->toArray() );
 		$this->assertTrue( $doctrineApplication->needsModeration() );
 		$this->assertTrue( $doctrineApplication->isCancelled() );
 	}
@@ -94,7 +107,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( $paypalData );
 
 		$converter = new DomainToLegacyConverter();
-		$converter->convert( $doctrineApplication, $application );
+		$converter->convert( $doctrineApplication, $application, [] );
 		$paypalInfo = $doctrineApplication->getDecodedData();
 
 		$this->assertEquals( $paypalData->getPayerId(), $paypalInfo[ 'paypal_payer_id' ] );
@@ -119,7 +132,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$application = ValidMembershipApplication::newDomainEntity();
 
 		$converter = new DomainToLegacyConverter();
-		$converter->convert( $doctrineApplication, $application );
+		$converter->convert( $doctrineApplication, $application, [] );
 
 		/** @var \WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment $payment */
 		$payment = $application->getPayment()->getPaymentMethod();
@@ -137,7 +150,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( new PayPalData() );
 
 		$converter = new DomainToLegacyConverter();
-		$converter->convert( $doctrineApplication, $application );
+		$converter->convert( $doctrineApplication, $application, [] );
 
 		$this->assertEquals( DoctrineApplication::STATUS_NEUTRAL, $doctrineApplication->getStatus() );
 	}
@@ -149,7 +162,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$application->addIncentive( $incentive );
 
 		$converter = new DomainToLegacyConverter();
-		$converter->convert( $doctrineApplication, $application );
+		$converter->convert( $doctrineApplication, $application, [] );
 
 		$doctrineIncentives = $doctrineApplication->getIncentives();
 

@@ -40,9 +40,13 @@ class LegacyToDomainConverter {
 			$doctrineApplication->getDonationReceipt()
 		);
 
-		if ( $doctrineApplication->needsModeration() ) {
-			$application->markForModeration();
+		if ( !$doctrineApplication->getModerationReasons()->isEmpty() ) {
+			$application->markForModeration( ...$doctrineApplication->getModerationReasons()->toArray() );
 		}
+
+		/*if ( $doctrineApplication->needsModeration() ) {
+			$application->markForModeration();
+		}*/
 
 		if ( $doctrineApplication->isCancelled() ) {
 			$application->cancel();

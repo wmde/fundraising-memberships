@@ -6,6 +6,8 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ModerateMembers
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FakeApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\MembershipApplicationEventLoggerSpy;
@@ -73,12 +75,16 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 	public function testSetModerateOnMembershipApplicationThatIsMarkedForModeration_actionFails() {
 		$application = ValidMembershipApplication::newDomainEntity();
-		$application->markForModeration();
+		$application->markForModeration( $this->makeGenericModerationReason() );
 		$useCase = $this->newUseCase( $application );
 
 		$response = $useCase->markMembershipApplicationAsModerated( 1, self::AUTH_USER_NAME );
 
 		$this->assertFalse( $response->isSuccess() );
+	}
+
+	private function makeGenericModerationReason(): ModerationReason {
+		return new ModerationReason( ModerationIdentifier::MANUALLY_FLAGGED_BY_ADMIN );
 	}
 
 	public function testSetModerateOnCancelledMembershipApplication_actionFails() {
@@ -93,12 +99,12 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 	public function testApproveMembershipApplication_removesModeratedStatus() {
 		$application = ValidMembershipApplication::newDomainEntity();
-		$application->markForModeration();
+		$application->markForModeration( $this->makeGenericModerationReason() );
 		$useCase = $this->newUseCase( $application );
 
 		$useCase->approveMembershipApplication( 1, self::AUTH_USER_NAME );
 
-		$this->assertFalse( $this->applicationRepository->getApplicationById( 1 )->needsModeration() );
+		$this->assertFalse( $this->applicationRepository->getApplicationById( 1 )->isMarkedForModeration() );
 	}
 
 	public function testApproveOnApprovedMembershipApplication_actionFails() {
@@ -126,7 +132,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 	public function testOnApproveMembershipApplication_adminUserNameIsWrittenAsLogEntry(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
-		$application->markForModeration();
+		$application->markForModeration( $this->makeGenericModerationReason() );
 		$useCase = $this->newUseCase( $application );
 
 		$useCase->approveMembershipApplication( 1, self::AUTH_USER_NAME );

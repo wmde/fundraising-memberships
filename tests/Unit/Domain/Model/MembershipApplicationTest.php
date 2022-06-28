@@ -7,6 +7,8 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\Domain\Model;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
 
@@ -41,7 +43,7 @@ class MembershipApplicationTest extends TestCase {
 
 		$this->assertNull( $application->getId() );
 		$this->assertFalse( $application->isCancelled() );
-		$this->assertFalse( $application->needsModeration() );
+		$this->assertFalse( $application->isMarkedForModeration() );
 	}
 
 	public function testCancellationResultsInCancelledApplication(): void {
@@ -53,9 +55,9 @@ class MembershipApplicationTest extends TestCase {
 
 	public function testMarkForModerationResultsInApplicationThatNeedsModeration(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
-		$application->markForModeration();
+		$application->markForModeration( $this->makeGenericModerationReason() );
 
-		$this->assertTrue( $application->needsModeration() );
+		$this->assertTrue( $application->isMarkedForModeration() );
 	}
 
 	public function testDonationReceiptIsSetFromConstructor(): void {
@@ -144,7 +146,7 @@ class MembershipApplicationTest extends TestCase {
 
 	public function testModeratedMembershipsCannotBeBooked(): void {
 		$application = ValidMembershipApplication::newDomainEntityUsingPayPal( ValidMembershipApplication::newPayPalData() );
-		$application->markForModeration();
+		$application->markForModeration( $this->makeGenericModerationReason() );
 
 		$this->expectException( RuntimeException::class );
 		$this->expectExceptionMessageMatches( '/Only unconfirmed membership applications/' );
@@ -166,6 +168,16 @@ class MembershipApplicationTest extends TestCase {
 		$application->confirmSubscriptionCreated( ValidMembershipApplication::newBookedPayPalData() );
 
 		$this->assertTrue( $application->isConfirmed() );
+	}
+
+	private function makeGenericModerationReason(): ModerationReason {
+		return new ModerationReason( ModerationIdentifier::MANUALLY_FLAGGED_BY_ADMIN );
+	}
+
+	public function testMarkForModerationNeedsAtLeastOneModerationReason(): void {
+		$donation = ValidMembershipApplication::newCompanyApplication();
+		$this->expectException( \LogicException::class );
+		$donation->markForModeration();
 	}
 
 }

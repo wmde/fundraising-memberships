@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 
 class MembershipApplication {
 
@@ -109,8 +110,11 @@ class MembershipApplication {
 
 	private Collection|ArrayCollection $incentives;
 
+	private Collection $moderationReasons;
+
 	public function __construct() {
 		$this->incentives = new ArrayCollection();
+		$this->moderationReasons = new ArrayCollection( [] );
 	}
 
 	public function getId(): ?int {
@@ -667,5 +671,13 @@ class MembershipApplication {
 	public function setIncentives( Collection $incentives ): self {
 		$this->incentives = $incentives;
 		return $this;
+	}
+
+	public function setModerationReasons( ModerationReason ...$moderationReasons ): void {
+		$this->moderationReasons = new ArrayCollection( $moderationReasons );
+	}
+
+	public function getModerationReasons(): Collection {
+		return $this->moderationReasons;
 	}
 }
