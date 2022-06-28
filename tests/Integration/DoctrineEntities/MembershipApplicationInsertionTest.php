@@ -13,9 +13,13 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
  */
 class MembershipApplicationInsertionTest extends TestCase {
 
+	private const DUMMY_PAYMENT_ID = 1;
+
 	public function testNewMembershipApplicationCanBeInserted(): void {
 		$entityManager = TestEnvironment::newInstance()->getEntityManager();
-		$entityManager->persist( new MembershipApplication() );
+		$membership = new MembershipApplication();
+		$membership->setPaymentId( self::DUMMY_PAYMENT_ID );
+		$entityManager->persist( $membership );
 		$entityManager->flush();
 
 		$count = $entityManager->createQueryBuilder()
