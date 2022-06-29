@@ -20,7 +20,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
  */
 class DomainToLegacyConverterTest extends TestCase {
 
-	public function testWhenPersistingApplicationWithModerationReasons_doctrineApplicationHasFlag(): void {
+	public function testWhenPersistingApplicationWithModerationReasons_doctrineApplicationHasThoseReasons(): void {
 		$converter = new DomainToLegacyConverter();
 		$doctrineApplication = new DoctrineApplication();
 		$application = ValidMembershipApplication::newDomainEntity();

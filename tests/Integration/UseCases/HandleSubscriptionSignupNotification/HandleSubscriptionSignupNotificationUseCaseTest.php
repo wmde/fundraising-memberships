@@ -8,6 +8,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
+use WMDE\Fundraising\MembershipContext\DataAccess\ModerationReasonRepository;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidSubscriptionSignupRequest;
@@ -66,8 +67,9 @@ class HandleSubscriptionSignupNotificationUseCaseTest extends TestCase {
 	}
 
 	public function testWhenRepositoryThrowsException_responseContainsErrors(): void {
+		$throwingEM = ThrowingEntityManager::newInstance( $this );
 		$useCase = new HandleSubscriptionSignupNotificationUseCase(
-			new DoctrineApplicationRepository( ThrowingEntityManager::newInstance( $this ) ),
+			new DoctrineApplicationRepository( $throwingEM, new ModerationReasonRepository( $throwingEM ) ),
 			new SucceedingAuthorizer(),
 			$this->getMailer(),
 			new NullLogger()

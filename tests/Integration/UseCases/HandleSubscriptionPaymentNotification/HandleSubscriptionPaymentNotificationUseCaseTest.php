@@ -8,6 +8,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
+use WMDE\Fundraising\MembershipContext\DataAccess\ModerationReasonRepository;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidPayPalNotificationRequest;
@@ -27,8 +28,9 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 class HandleSubscriptionPaymentNotificationUseCaseTest extends TestCase {
 
 	public function testWhenRepositoryThrowsException_requestIsNotHandled(): void {
+		$throwingEM = ThrowingEntityManager::newInstance( $this );
 		$useCase = new HandleSubscriptionPaymentNotificationUseCase(
-			new DoctrineApplicationRepository( ThrowingEntityManager::newInstance( $this ) ),
+			new DoctrineApplicationRepository( $throwingEM, new ModerationReasonRepository( $throwingEM ) ),
 			new SucceedingAuthorizer(),
 			$this->getMailer(),
 			new NullLogger()

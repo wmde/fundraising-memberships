@@ -268,7 +268,6 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 	private function getFailingPolicyValidatorMock(): ModerationService {
 		$validator = $this->createStub( ModerationService::class );
-		$validator->method( 'needsModeration' )->willReturn( true );
 		$moderationResult = new ModerationResult();
 		$moderationResult->addModerationReason( new ModerationReason( ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH ) );
 		$validator->method( 'moderateMembershipApplicationRequest' )->willReturn( $moderationResult );

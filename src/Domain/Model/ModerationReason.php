@@ -6,6 +6,13 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
 class ModerationReason {
 	/**
+	 * used for doctrine mapping only
+	 * @phpstan-ignore-next-line
+	 * @var ?int
+	 */
+	private ?int $id;
+
+	/**
 	 * @param ModerationIdentifier $moderationIdentifier identifies the reason for the moderation
 	 * @param string $source origin that caused the moderation (e.g. street value contained a bad word)
 	 */

@@ -7,7 +7,8 @@ namespace WMDE\Fundraising\MembershipContext;
 use DateInterval;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Configuration;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Mapping\Driver\XmlDriver;
 use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
 use Gedmo\Timestampable\TimestampableListener;
@@ -15,10 +16,6 @@ use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Authorization\RandomMembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipApplicationPrePersistSubscriber;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class MembershipContextFactory {
 
 	/**
@@ -32,18 +29,10 @@ class MembershipContextFactory {
 
 	private array $config;
 
-	/**
-	 * @deprecated This is unused and should be removed
-	 * @var Configuration
-	 * @phpstan-ignore-next-line
-	 */
-	private Configuration $doctrineConfig;
-
 	private ?MembershipTokenGenerator $tokenGenerator;
 
-	public function __construct( array $config, Configuration $doctrineConfig ) {
+	public function __construct( array $config ) {
 		$this->config = $config;
-		$this->doctrineConfig = $doctrineConfig;
 		$this->tokenGenerator = null;
 	}
 
@@ -118,6 +107,20 @@ class MembershipContextFactory {
 	 */
 	public function setTokenGenerator( ?MembershipTokenGenerator $tokenGenerator ): void {
 		$this->tokenGenerator = $tokenGenerator;
+	}
+
+	public function registerCustomTypes( Connection $connection ): void {
+		$this->registerDoctrineModerationIdentifierType( $connection );
+	}
+
+	public function registerDoctrineModerationIdentifierType( Connection $connection ): void {
+		static $isRegistered = false;
+		if ( $isRegistered ) {
+			return;
+		}
+		Type::addType( 'ModerationIdentifier', 'WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\ModerationIdentifier' );
+		$connection->getDatabasePlatform()->registerDoctrineTypeMapping( 'ModerationIdentifier', 'ModerationIdentifier' );
+		$isRegistered = true;
 	}
 
 }

@@ -135,5 +135,21 @@
         </inverse-join-columns>
       </join-table>
     </many-to-many>
+    <many-to-many
+            field="moderationReasons"
+            target-entity="WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason"
+            fetch="EAGER">
+      <cascade>
+        <cascade-all/>
+      </cascade>
+      <join-table name="applications_moderation_reasons">
+        <join-columns>
+          <join-column name="membership_id" referenced-column-name="id" />
+        </join-columns>
+        <inverse-join-columns>
+          <join-column name="moderation_reason_id" referenced-column-name="id" />
+        </inverse-join-columns>
+      </join-table>
+    </many-to-many>
   </entity>
 </doctrine-mapping>
