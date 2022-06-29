@@ -4,9 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests;
 
-use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\Setup;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 
 /**
@@ -17,8 +15,8 @@ class TestEnvironment {
 
 	private TestMembershipContextFactory $factory;
 
-	private function __construct( array $config, Configuration $doctrineConfig ) {
-		$this->factory = new TestMembershipContextFactory( $config, $doctrineConfig );
+	private function __construct( array $config ) {
+		$this->factory = new TestMembershipContextFactory( $config );
 	}
 
 	public static function newInstance(): self {
@@ -30,8 +28,7 @@ class TestEnvironment {
 				],
 				'token-length' => 16,
 				'token-validity-timestamp' => 'PT4H',
-			],
-			Setup::createConfiguration( true )
+			]
 		);
 
 		$environment->install();
@@ -40,7 +37,7 @@ class TestEnvironment {
 	}
 
 	private function install(): void {
-		$schemaCreator = new SchemaCreator( $this->getEntityManager() );
+		$schemaCreator = $this->getFactory()->newSchemaCreator();
 
 		try {
 			$schemaCreator->dropSchema();
@@ -49,6 +46,10 @@ class TestEnvironment {
 		}
 
 		$schemaCreator->createSchema();
+	}
+
+	public function getFactory(): TestMembershipContextFactory {
+		return $this->factory;
 	}
 
 	public function getEntityManager(): EntityManager {

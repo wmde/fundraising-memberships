@@ -5,21 +5,29 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
 use PHPUnit\Framework\TestCase;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipPolicyValidator;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService;
 use WMDE\FunValidators\Validators\TextPolicyValidator;
 
 /**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipPolicyValidator
+ * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService
  */
-class ApplyForMembershipPolicyValidatorTest extends TestCase {
+class ModerationServiceTest extends TestCase {
 
 	public function testGivenQuarterlyAmountTooHigh_MembershipApplicationNeedsModeration(): void {
+		$tooHighFeeApplication = ValidMembershipApplication::newApplicationWithTooHighQuarterlyAmount();
 		$textPolicyValidator = $this->newSucceedingTextPolicyValidator();
-		$policyValidator = new ApplyForMembershipPolicyValidator( $textPolicyValidator );
-		$this->assertTrue( $policyValidator->needsModeration(
-			ValidMembershipApplication::newApplicationWithTooHighQuarterlyAmount()
-		) );
+		$policyValidator = new ModerationService( $textPolicyValidator );
+
+		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( $tooHighFeeApplication );
+
+		$this->assertEquals(
+			new ModerationReason( ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH, ApplicationValidationResult::SOURCE_PAYMENT_AMOUNT ),
+			$moderationResult->getViolations()[0]
+		);
 	}
 
 	private function newSucceedingTextPolicyValidator(): TextPolicyValidator {
@@ -29,20 +37,29 @@ class ApplyForMembershipPolicyValidatorTest extends TestCase {
 	}
 
 	public function testGivenYearlyAmountTooHigh_MembershipApplicationNeedsModeration(): void {
+		$tooHighFeeApplication = ValidMembershipApplication::newApplicationWithTooHighYearlyAmount();
 		$textPolicyValidator = $this->newSucceedingTextPolicyValidator();
-		$policyValidator = new ApplyForMembershipPolicyValidator( $textPolicyValidator );
-		$this->assertTrue( $policyValidator->needsModeration(
-			ValidMembershipApplication::newApplicationWithTooHighYearlyAmount()
-		) );
+		$policyValidator = new ModerationService( $textPolicyValidator );
+
+		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( $tooHighFeeApplication );
+
+		$this->assertEquals(
+			new ModerationReason( ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH, ApplicationValidationResult::SOURCE_PAYMENT_AMOUNT ),
+			$moderationResult->getViolations()[0]
+		);
 	}
 
 	public function testFailingTextPolicyValidation_MembershipApplicationNeedsModeration(): void {
 		$textPolicyValidator = $this->createMock( TextPolicyValidator::class );
 		$textPolicyValidator->method( 'textIsHarmless' )->willReturn( false );
-		$policyValidator = new ApplyForMembershipPolicyValidator( $textPolicyValidator );
-		$this->assertTrue( $policyValidator->needsModeration(
-			ValidMembershipApplication::newDomainEntity()
-		) );
+		$policyValidator = new ModerationService( $textPolicyValidator );
+
+		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( ValidMembershipApplication::newDomainEntity() );
+
+		$this->assertEquals(
+			new ModerationReason( ModerationIdentifier::ADDRESS_CONTENT_VIOLATION, ApplicationValidationResult::SOURCE_APPLICANT_FIRST_NAME ),
+			$moderationResult->getViolations()[0]
+		);
 	}
 
 	/** @dataProvider blacklistedEmailAddressProvider */
@@ -81,9 +98,9 @@ class ApplyForMembershipPolicyValidatorTest extends TestCase {
 		];
 	}
 
-	private function newPolicyValidatorWithEmailBlacklist(): ApplyForMembershipPolicyValidator {
+	private function newPolicyValidatorWithEmailBlacklist(): ModerationService {
 		$textPolicyValidator = $this->newSucceedingTextPolicyValidator();
-		$policyValidator = new ApplyForMembershipPolicyValidator(
+		$policyValidator = new ModerationService(
 			$textPolicyValidator,
 			[ '/^foo@bar\.baz$/', '/@example.com$/i' ]
 		);

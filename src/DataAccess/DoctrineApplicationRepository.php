@@ -22,33 +22,41 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplic
 class DoctrineApplicationRepository implements ApplicationRepository {
 
 	private DoctrineApplicationTable $table;
+	private ModerationReasonRepository $moderationReasonRepository;
 
-	public function __construct( EntityManager $entityManager ) {
+	public function __construct( EntityManager $entityManager, ModerationReasonRepository $moderationReasonRepository ) {
 		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
+		$this->moderationReasonRepository = $moderationReasonRepository;
 	}
 
 	public function storeApplication( MembershipApplication $application ): void {
+		// doctrine will persist the moderation reasons that are not yet found in the database
+		// and create relation entries to membership application automatically
+		$existingModerationReasons = $this->moderationReasonRepository->getModerationReasonsThatAreAlreadyPersisted(
+			...$application->getModerationReasons()
+		);
+
 		if ( $application->hasId() ) {
-			$this->updateApplication( $application );
+			$this->updateApplication( $application, $existingModerationReasons );
 		} else {
-			$this->insertApplication( $application );
+			$this->insertApplication( $application, $existingModerationReasons );
 		}
 	}
 
-	private function insertApplication( MembershipApplication $application ): void {
+	private function insertApplication( MembershipApplication $application, array $existingModerationReasons ): void {
 		$doctrineApplication = new DoctrineApplication();
-		$this->updateDoctrineApplication( $doctrineApplication, $application );
+		$this->updateDoctrineApplication( $doctrineApplication, $application, $existingModerationReasons );
 		$this->table->persistApplication( $doctrineApplication );
 
 		$application->assignId( $doctrineApplication->getId() );
 	}
 
-	private function updateApplication( MembershipApplication $application ): void {
+	private function updateApplication( MembershipApplication $application, array $existingModerationReasons ): void {
 		try {
 			$this->table->modifyApplication(
 				$application->getId(),
-				function ( DoctrineApplication $doctrineApplication ) use ( $application ) {
-					$this->updateDoctrineApplication( $doctrineApplication, $application );
+				function ( DoctrineApplication $doctrineApplication ) use ( $application, $existingModerationReasons ) {
+					$this->updateDoctrineApplication( $doctrineApplication, $application, $existingModerationReasons );
 				}
 			);
 		}
@@ -57,9 +65,9 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		}
 	}
 
-	private function updateDoctrineApplication( DoctrineApplication $doctrineApplication, MembershipApplication $application ): void {
+	private function updateDoctrineApplication( DoctrineApplication $doctrineApplication, MembershipApplication $application, array $existingModerationReasons ): void {
 		$converter = new DomainToLegacyConverter();
-		$converter->convert( $doctrineApplication, $application );
+		$converter->convert( $doctrineApplication, $application, $existingModerationReasons );
 	}
 
 	/**

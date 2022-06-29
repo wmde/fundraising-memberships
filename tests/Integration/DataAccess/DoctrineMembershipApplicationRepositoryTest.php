@@ -6,9 +6,13 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\ModerationReasonRepository;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
@@ -19,11 +23,8 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository
- *
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\TestCase {
+class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 	private const MEMBERSHIP_APPLICATION_ID = 1;
 	private const ID_OF_APPLICATION_NOT_IN_DB = 35505;
@@ -35,10 +36,13 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 	 */
 	private $entityManager;
 
+	private ModerationReasonRepository $moderationRepository;
+
 	public function setUp(): void {
 		$testEnvironment = TestEnvironment::newInstance();
 		$testEnvironment->setTokenGenerator( new FixedMembershipTokenGenerator( self::VALID_TOKEN, new \DateTime( self::FUTURE_EXPIRY ) ) );
 		$this->entityManager = $testEnvironment->getEntityManager();
+		$this->moderationRepository = new ModerationReasonRepository( $this->entityManager );
 		parent::setUp();
 	}
 
@@ -56,11 +60,14 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 		$actual->setCompany( null );
 		$actual->setIncentives( new ArrayCollection() );
 
+		// reset the moderation reasons because doctrine sets the moderation reasons to a PersistedCollection instead of ArrayCollection
+		// this way we can compare the objects
+		$actual->setModerationReasons( ...$expected->getModerationReasons()->toArray() );
 		$this->assertEquals( $expected, $actual );
 	}
 
 	private function newRepository(): ApplicationRepository {
-		return new DoctrineApplicationRepository( $this->entityManager );
+		return new DoctrineApplicationRepository( $this->entityManager, $this->moderationRepository );
 	}
 
 	private function getApplicationFromDatabase( int $id ): DoctrineApplication {
@@ -100,7 +107,7 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 	}
 
 	public function testWhenReadFails_domainExceptionIsThrown(): void {
-		$repository = new DoctrineApplicationRepository( ThrowingEntityManager::newInstance( $this ) );
+		$repository = new DoctrineApplicationRepository( ThrowingEntityManager::newInstance( $this ), $this->moderationRepository );
 
 		$this->expectException( GetMembershipApplicationException::class );
 		$repository->getApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB );
@@ -174,12 +181,32 @@ class DoctrineMembershipApplicationRepositoryTest extends \PHPUnit\Framework\Tes
 		$application->addIncentive( $incentive );
 		$repo = $this->newRepository();
 		$repo->storeApplication( $application );
+		// find() will retrieve a cached value, so we should clear the entity cache here
+		$this->entityManager->clear();
 
 		$actual = $repo->getApplicationById( $application->getId() );
 		$incentives = $actual->getIncentives();
 
 		$this->assertCount( 1, $incentives );
 		$this->assertEquals( $incentive, $incentives[0] );
+	}
+
+	public function testNewModeratedMembershipApplicationPersistenceRoundTrip(): void {
+		$application = ValidMembershipApplication::newCompanyApplication();
+		$application->markForModeration(
+			new ModerationReason( ModerationIdentifier::ADDRESS_CONTENT_VIOLATION )
+		);
+
+		$repository = $this->newRepository();
+
+		$repository->storeApplication( $application );
+		// find() will retrieve a cached value, so we should clear the entity cache here
+		$this->entityManager->clear();
+
+		$this->assertEquals(
+			$application->getModerationReasons(),
+			$repository->getApplicationById( $application->getId() )->getModerationReasons()
+		);
 	}
 
 }

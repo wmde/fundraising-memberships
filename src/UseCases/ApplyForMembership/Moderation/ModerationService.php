@@ -5,7 +5,9 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation;
 
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
-use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult;
 use WMDE\FunValidators\Validators\TextPolicyValidator;
 
 /**
@@ -33,19 +35,23 @@ class ModerationService {
 		$this->emailAddressBlacklist = $emailAddressBlacklist;
 	}
 
-	public function moderateMembershipApplicationRequest( ApplyForMembershipRequest $request ): ModerationResult {
+	public function moderateMembershipApplicationRequest( MembershipApplication $application ): ModerationResult {
 		$this->result = new ModerationResult();
 
-		// TODO add moderation reasons to the result
-
-		// $this->getAmountViolations( $request );
-		//		$this->getBadWordViolations( $request );
+		$this->getAmountViolations( $application );
+		$this->getBadWordViolations( $application );
 		return $this->result;
 	}
 
-	public function needsModeration( MembershipApplication $application ): bool {
-		return $this->yearlyAmountExceedsLimit( $application ) ||
-			$this->addressContainsBadWords( $application );
+	private function getAmountViolations( MembershipApplication $application ): void {
+		if ( $this->yearlyAmountExceedsLimit( $application ) ) {
+			$this->result->addModerationReason(
+				new ModerationReason(
+					ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH,
+					ApplicationValidationResult::SOURCE_PAYMENT_AMOUNT
+				)
+			);
+		}
 	}
 
 	public function isAutoDeleted( MembershipApplication $application ): bool {
@@ -63,13 +69,22 @@ class ModerationService {
 			> self::YEARLY_PAYMENT_MODERATION_THRESHOLD_IN_EURO;
 	}
 
-	private function addressContainsBadWords( MembershipApplication $application ): bool {
+	private function getBadWordViolations( MembershipApplication $application ): void {
 		$applicant = $application->getApplicant();
-		$harmless = $this->textPolicyValidator->textIsHarmless( $applicant->getName()->getFirstName() ) &&
-			$this->textPolicyValidator->textIsHarmless( $applicant->getName()->getLastName() ) &&
-			$this->textPolicyValidator->textIsHarmless( $applicant->getName()->getCompanyName() ) &&
-			$this->textPolicyValidator->textIsHarmless( $applicant->getPhysicalAddress()->getCity() ) &&
-			$this->textPolicyValidator->textIsHarmless( $applicant->getPhysicalAddress()->getStreetAddress() );
-		return !$harmless;
+		$this->getPolicyViolationsForField( $applicant->getName()->getFirstName(), ApplicationValidationResult::SOURCE_APPLICANT_FIRST_NAME );
+		$this->getPolicyViolationsForField( $applicant->getName()->getLastName(), ApplicationValidationResult::SOURCE_APPLICANT_LAST_NAME );
+		$this->getPolicyViolationsForField( $applicant->getName()->getCompanyName(), ApplicationValidationResult::SOURCE_APPLICANT_COMPANY );
+		$this->getPolicyViolationsForField( $applicant->getPhysicalAddress()->getCity(), ApplicationValidationResult::SOURCE_APPLICANT_CITY );
+		$this->getPolicyViolationsForField( $applicant->getPhysicalAddress()->getStreetAddress(), ApplicationValidationResult::SOURCE_APPLICANT_STREET_ADDRESS );
+	}
+
+	private function getPolicyViolationsForField( string $fieldContent, string $fieldName ): void {
+		if ( $fieldContent === '' ) {
+			return;
+		}
+		if ( $this->textPolicyValidator->textIsHarmless( $fieldContent ) ) {
+			return;
+		}
+		$this->result->addModerationReason( new ModerationReason( ModerationIdentifier::ADDRESS_CONTENT_VIOLATION, $fieldName ) );
 	}
 }

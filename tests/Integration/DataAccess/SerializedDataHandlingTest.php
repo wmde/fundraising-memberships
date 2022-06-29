@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\ModerationReasonRepository;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
 /**
@@ -19,7 +20,7 @@ class SerializedDataHandlingTest extends TestCase {
 	public function testDataFieldOfMembershipApplicationIsInteractedWithCorrectly( array $data ): void {
 		$entityManager = TestEnvironment::newInstance()->getEntityManager();
 
-		$repository = new DoctrineApplicationRepository( $entityManager );
+		$repository = new DoctrineApplicationRepository( $entityManager, new ModerationReasonRepository( $entityManager ) );
 		$this->storeMembershipApplication( $entityManager, $data );
 
 		$donation = $repository->getApplicationById( 1 );

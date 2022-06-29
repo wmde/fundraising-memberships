@@ -68,7 +68,7 @@ class ApplyForMembershipUseCase {
 
 		$application = $this->newApplicationFromRequest( $request );
 
-		$moderationResult = $this->policyValidator->moderateMembershipApplicationRequest( $request );
+		$moderationResult = $this->policyValidator->moderateMembershipApplicationRequest( $application );
 
 		if ( $moderationResult->needsModeration() ) {
 			$application->markForModeration( ...$moderationResult->getViolations() );
