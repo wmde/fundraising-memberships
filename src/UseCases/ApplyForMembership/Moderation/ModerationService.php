@@ -27,12 +27,12 @@ class ModerationService {
 	/**
 	 * @var string[]
 	 */
-	private array $emailAddressBlacklist;
+	private array $emailAddressBlocklist;
 	private ModerationResult $result;
 
-	public function __construct( TextPolicyValidator $textPolicyValidator, array $emailAddressBlacklist = [] ) {
+	public function __construct( TextPolicyValidator $textPolicyValidator, array $emailAddressBlocklist = [] ) {
 		$this->textPolicyValidator = $textPolicyValidator;
-		$this->emailAddressBlacklist = $emailAddressBlacklist;
+		$this->emailAddressBlocklist = $emailAddressBlocklist;
 	}
 
 	public function moderateMembershipApplicationRequest( MembershipApplication $application ): ModerationResult {
@@ -55,8 +55,8 @@ class ModerationService {
 	}
 
 	public function isAutoDeleted( MembershipApplication $application ): bool {
-		foreach ( $this->emailAddressBlacklist as $blacklistEntry ) {
-			if ( preg_match( $blacklistEntry, $application->getApplicant()->getEmailAddress()->getFullAddress() ) ) {
+		foreach ( $this->emailAddressBlocklist as $blocklistEntry ) {
+			if ( preg_match( $blocklistEntry, $application->getApplicant()->getEmailAddress()->getFullAddress() ) ) {
 				return true;
 			}
 		}

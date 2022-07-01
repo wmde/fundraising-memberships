@@ -11,7 +11,6 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier as Doma
 class ModerationIdentifier extends Type {
 
 	public function getSQLDeclaration( array $column, AbstractPlatform $platform ) {
-		// we're using a backed enum to map the actual moderation identifier names with integers
 		return 'VARCHAR(50)';
 	}
 

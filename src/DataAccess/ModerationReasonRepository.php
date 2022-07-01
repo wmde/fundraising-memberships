@@ -28,8 +28,8 @@ class ModerationReasonRepository {
 
 			$condition1 = $queryBuilder->expr()->eq( 'mr.moderationIdentifier', "?$paramCounter" );
 			$queryBuilder->setParameter( $paramCounter, $reason->getModerationIdentifier()->name );
-
 			$paramCounter++;
+
 			$condition2 = $queryBuilder->expr()->eq( 'mr.source', "?$paramCounter" );
 			$queryBuilder->setParameter( $paramCounter, $reason->getSource() );
 			$paramCounter++;
