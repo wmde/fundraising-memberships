@@ -4,13 +4,14 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ApplyForMembership;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use WMDE\EmailAddress\EmailAddress;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
@@ -20,7 +21,6 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\EventEmitterSpy;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedPaymentDelayCalculator;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\InMemoryApplicationRepository;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TemplateBasedMailerSpy;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TestIncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
@@ -31,6 +31,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembe
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationResult;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MembershipNotifier;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
@@ -56,7 +57,10 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	 */
 	private $repository;
 
-	private TemplateBasedMailerSpy $mailer;
+	/**
+	 * @var MembershipNotifier&MockObject
+	 */
+	private MembershipNotifier $mailer;
 
 	private MembershipApplicationValidator $validator;
 
@@ -76,7 +80,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 	public function setUp(): void {
 		$this->repository = new InMemoryApplicationRepository();
-		$this->mailer = new TemplateBasedMailerSpy( $this );
+		$this->mailer = $this->createMock( MembershipNotifier::class );
 		$this->validator = $this->newSucceedingValidator();
 		$this->policyValidator = $this->getSucceedingPolicyValidatorMock();
 		$this->tracker = $this->createMock( ApplicationTracker::class );
@@ -191,24 +195,14 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$this->assertEquals( $expectedApplication, $application );
 	}
 
-	public function testGivenValidRequest_confirmationEmailIsSend(): void {
+	public function testGivenValidRequest_confirmationEmailIsSent(): void {
+		$this->mailer
+			->expects( $this->once() )
+			->method( 'sendConfirmationFor' )
+			->with( $this->callback(
+				fn( MembershipApplication $application ) => $application->getId() === self::FIRST_APPLICATION_ID
+			) );
 		$this->newUseCase()->applyForMembership( $this->newValidRequest() );
-
-		$this->mailer->assertCalledOnceWith(
-			new EmailAddress( ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS ),
-			[
-				'membershipType' => 'sustaining',
-				'membershipFee' => '10.00',
-				'paymentIntervalInMonths' => 3,
-				'salutation' => 'Herr',
-				'title' => '',
-				'lastName' => 'The Great',
-				'firstName' => 'Potato',
-				'paymentType' => 'BEZ',
-				'hasReceiptEnabled' => true,
-				'incentives' => []
-			]
-		);
 	}
 
 	public function testGivenValidRequest_tokenIsGeneratedAndReturned(): void {
@@ -275,9 +269,10 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	}
 
 	public function testWhenApplicationIsUnconfirmed_confirmationEmailIsNotSent(): void {
+		$this->mailer
+			->expects( $this->never() )
+			->method( 'sendConfirmationFor' );
 		$this->newUseCase()->applyForMembership( $this->newValidRequestForUnconfirmedApplication() );
-
-		$this->assertCount( 0, $this->mailer->getSendMailCalls() );
 	}
 
 	private function newValidRequestForUnconfirmedApplication(): ApplyForMembershipRequest {
