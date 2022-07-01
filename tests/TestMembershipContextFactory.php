@@ -5,13 +5,12 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\Setup;
+use Doctrine\ORM\ORMSetup;
 use Gedmo\Timestampable\TimestampableListener;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\MembershipContextFactory;
@@ -26,7 +25,10 @@ class TestMembershipContextFactory {
 
 	public function __construct( array $config ) {
 		$this->config = $config;
-		$this->doctrineConfig = Setup::createConfiguration( true );
+		$this->doctrineConfig = ORMSetup::createXMLMetadataConfiguration( [
+			MembershipContextFactory::DOCTRINE_CLASS_MAPPING_DIRECTORY,
+			MembershipContextFactory::DOMAIN_CLASS_MAPPING_DIRECTORY
+		] );
 		$this->factory = new MembershipContextFactory( $config );
 		$this->entityManager = null;
 		$this->connection = null;
@@ -48,7 +50,6 @@ class TestMembershipContextFactory {
 	}
 
 	private function newEntityManager( array $eventSubscribers = [] ): EntityManager {
-		AnnotationRegistry::registerLoader( 'class_exists' );
 		$this->doctrineConfig->setMetadataDriverImpl( $this->factory->newMappingDriver() );
 
 		$entityManager = EntityManager::create( $this->getConnection(), $this->doctrineConfig );

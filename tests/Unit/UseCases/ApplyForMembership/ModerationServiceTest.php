@@ -62,9 +62,9 @@ class ModerationServiceTest extends TestCase {
 		);
 	}
 
-	/** @dataProvider blacklistedEmailAddressProvider */
-	public function testWhenEmailAddressIsBlacklisted_isAutoDeletedReturnsTrue( string $emailAddress ): void {
-		$policyValidator = $this->newPolicyValidatorWithEmailBlacklist();
+	/** @dataProvider blocklistedEmailAddressProvider */
+	public function testWhenEmailAddressIsBlocklisted_isAutoDeletedReturnsTrue( string $emailAddress ): void {
+		$policyValidator = $this->newPolicyValidatorWithEmailBlocklist();
 		$this->assertTrue(
 			$policyValidator->isAutoDeleted(
 				ValidMembershipApplication::newDomainEntityWithEmailAddress( $emailAddress )
@@ -72,7 +72,7 @@ class ModerationServiceTest extends TestCase {
 		);
 	}
 
-	public function blacklistedEmailAddressProvider(): array {
+	public function blocklistedEmailAddressProvider(): array {
 		return [
 			[ 'foo@bar.baz' ],
 			[ 'test@example.com' ],
@@ -81,8 +81,8 @@ class ModerationServiceTest extends TestCase {
 	}
 
 	/** @dataProvider allowedEmailAddressProvider */
-	public function testWhenEmailAddressIsNotBlacklisted_isAutoDeletedReturnsFalse( string $emailAddress ): void {
-		$policyValidator = $this->newPolicyValidatorWithEmailBlacklist();
+	public function testWhenEmailAddressIsNotBlocklisted_isAutoDeletedReturnsFalse( string $emailAddress ): void {
+		$policyValidator = $this->newPolicyValidatorWithEmailBlocklist();
 		$this->assertFalse(
 			$policyValidator->isAutoDeleted(
 				ValidMembershipApplication::newDomainEntityWithEmailAddress( $emailAddress )
@@ -98,7 +98,7 @@ class ModerationServiceTest extends TestCase {
 		];
 	}
 
-	private function newPolicyValidatorWithEmailBlacklist(): ModerationService {
+	private function newPolicyValidatorWithEmailBlocklist(): ModerationService {
 		$textPolicyValidator = $this->newSucceedingTextPolicyValidator();
 		$policyValidator = new ModerationService(
 			$textPolicyValidator,

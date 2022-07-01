@@ -114,7 +114,7 @@ class MembershipApplication {
 
 	public function __construct() {
 		$this->incentives = new ArrayCollection();
-		$this->moderationReasons = new ArrayCollection( [] );
+		$this->moderationReasons = new ArrayCollection();
 	}
 
 	public function getId(): ?int {

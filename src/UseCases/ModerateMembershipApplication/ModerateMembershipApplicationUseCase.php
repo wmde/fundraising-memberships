@@ -29,7 +29,6 @@ class ModerateMembershipApplicationUseCase {
 			return ModerateMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
 		}
 
-		// TODO should this be thrown out?
 		if ( $membershipApplication->isMarkedForModeration() ) {
 			return ModerateMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
 		}

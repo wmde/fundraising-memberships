@@ -44,10 +44,6 @@ class LegacyToDomainConverter {
 			$application->markForModeration( ...$doctrineApplication->getModerationReasons()->toArray() );
 		}
 
-		/*if ( $doctrineApplication->needsModeration() ) {
-			$application->markForModeration();
-		}*/
-
 		if ( $doctrineApplication->isCancelled() ) {
 			$application->cancel();
 		}
