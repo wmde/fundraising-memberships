@@ -142,7 +142,7 @@
       <cascade>
         <cascade-all/>
       </cascade>
-      <join-table name="applications_moderation_reasons">
+      <join-table name="memberships_moderation_reasons">
         <join-columns>
           <join-column name="membership_id" referenced-column-name="id" />
         </join-columns>

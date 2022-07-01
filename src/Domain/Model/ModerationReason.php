@@ -35,7 +35,7 @@ class ModerationReason {
 
 	public function __toString(): string {
 		$source = $this->getSource();
-		return $this->getModerationIdentifier()->name .	( $this->getSource() ? ":$source" : '' );
+		return $this->getModerationIdentifier()->name .	( $source ? ":$source" : '' );
 	}
 
 }

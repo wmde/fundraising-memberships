@@ -10,10 +10,10 @@ use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
-use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MembershipNotifier;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentMethod;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentDelayCalculator;
 
@@ -24,7 +24,7 @@ class ApplyForMembershipUseCase {
 
 	private ApplicationRepository $repository;
 	private ApplicationTokenFetcher $tokenFetcher;
-	private TemplateMailerInterface $mailer;
+	private MembershipNotifier $notifier;
 	private MembershipApplicationValidator $validator;
 	private ModerationService $policyValidator;
 	/**
@@ -39,7 +39,7 @@ class ApplyForMembershipUseCase {
 
 	public function __construct( ApplicationRepository $repository,
 		ApplicationTokenFetcher $tokenFetcher,
-		TemplateMailerInterface $mailer,
+		MembershipNotifier $notifier,
 		MembershipApplicationValidator $validator,
 		ModerationService $policyValidator,
 		ApplicationTracker $tracker,
@@ -49,7 +49,7 @@ class ApplyForMembershipUseCase {
 		IncentiveFinder $incentiveFinder ) {
 		$this->repository = $repository;
 		$this->tokenFetcher = $tokenFetcher;
-		$this->mailer = $mailer;
+		$this->notifier = $notifier;
 		$this->validator = $validator;
 		$this->policyValidator = $policyValidator;
 		$this->membershipApplicationTracker = $tracker;
@@ -92,8 +92,11 @@ class ApplyForMembershipUseCase {
 		$this->piwikTracker->trackApplication( $application->getId(), $request->getPiwikTrackingString() );
 
 		if ( $this->isAutoConfirmed( $application ) ) {
-			$this->sendConfirmationEmail( $application );
+			$this->notifier->sendConfirmationFor( $application );
 		}
+
+		// The notifier checks if a notification is really needed (e.g. fee too high)
+		$this->notifier->sendModerationNotificationToAdmin( $application );
 
 		// TODO: handle exceptions
 		$tokens = $this->tokenFetcher->getTokens( $application->getId() );
@@ -107,13 +110,6 @@ class ApplyForMembershipUseCase {
 
 	private function newApplicationFromRequest( ApplyForMembershipRequest $request ): MembershipApplication {
 		return ( new MembershipApplicationBuilder( $this->incentiveFinder ) )->newApplicationFromRequest( $request );
-	}
-
-	private function sendConfirmationEmail( MembershipApplication $application ): void {
-		$this->mailer->sendMail(
-			$application->getApplicant()->getEmailAddress(),
-			( new MailTemplateValueBuilder() )->buildValuesForTemplate( $application )
-		);
 	}
 
 	public function isAutoConfirmed( MembershipApplication $application ): bool {

@@ -29,6 +29,14 @@ class TemplateBasedMailerSpy implements TemplateMailerInterface {
 		return $this->sendMailCalls;
 	}
 
+	public function getTemplateArgumentsFromFirstCall(): array {
+		if ( count( $this->sendMailCalls ) === 0 ) {
+			throw new \LogicException( "sendMail() was not called, no calls to retrieve" );
+		}
+		$firstCall = $this->sendMailCalls[0];
+		return $firstCall[1];
+	}
+
 	public function assertCalledOnceWith( EmailAddress $expectedEmail, array $expectedArguments ): void {
 		$this->assertCalledOnce();
 
