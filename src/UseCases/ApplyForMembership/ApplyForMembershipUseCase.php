@@ -8,16 +8,15 @@ use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
 use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
-use WMDE\Fundraising\MembershipContext\Domain\MembershipPaymentValidator;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipNotifier;
+use WMDE\Fundraising\MembershipContext\Infrastructure\PaymentServiceFactory;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
-use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 
 class ApplyForMembershipUseCase {
@@ -36,7 +35,7 @@ class ApplyForMembershipUseCase {
 		private ApplicationPiwikTracker $piwikTracker,
 		private EventEmitter $eventEmitter,
 		private IncentiveFinder $incentiveFinder,
-		private CreatePaymentUseCase $createPaymentUseCase ) {
+		private PaymentServiceFactory $paymentServiceFactory ) {
 	}
 
 	public function applyForMembership( ApplyForMembershipRequest $request ): ApplyForMembershipResponse {
@@ -48,9 +47,9 @@ class ApplyForMembershipUseCase {
 
 		$paymentCreationRequest = $request->getPaymentCreationRequest();
 		$applicantType = $request->isCompanyApplication() ? ApplicantType::COMPANY_APPLICANT : ApplicantType::PERSON_APPLICANT;
-		$paymentCreationRequest->setDomainSpecificPaymentValidator( new MembershipPaymentValidator( $applicantType ) );
+		$paymentCreationRequest->setDomainSpecificPaymentValidator( $this->paymentServiceFactory->newPaymentValidator( $applicantType ) );
 
-		$paymentCreationResponse = $this->createPaymentUseCase->createPayment( $request->getPaymentCreationRequest() );
+		$paymentCreationResponse = $this->paymentServiceFactory->getCreatePaymentUseCase()->createPayment( $request->getPaymentCreationRequest() );
 		if ( $paymentCreationResponse instanceof FailureResponse ) {
 			$paymentViolations = new ApplicationValidationResult(
 				[ ApplicationValidationResult::SOURCE_PAYMENT => $paymentCreationResponse->errorMessage ]

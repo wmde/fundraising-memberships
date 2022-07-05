@@ -6,8 +6,11 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ValidateMembers
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Domain\MembershipPaymentValidator;
+use WMDE\Fundraising\MembershipContext\Infrastructure\PaymentServiceFactory;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicantType;
 use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase
@@ -28,7 +31,10 @@ class ValidateMembershipFeeUseCaseTest extends TestCase {
 	}
 
 	private function newUseCase(): ValidateMembershipFeeUseCase {
-		return new ValidateMembershipFeeUseCase();
+		return new ValidateMembershipFeeUseCase( new PaymentServiceFactory(
+			$this->createStub( CreatePaymentUseCase::class ),
+			[ PaymentType::DirectDebit ]
+		) );
 	}
 
 	/**
@@ -112,6 +118,15 @@ class ValidateMembershipFeeUseCaseTest extends TestCase {
 
 		$constraintViolation = $response->getValidationErrors()[0];
 		$this->assertSame( 'invalid-applicant-type', $constraintViolation->getMessageIdentifier() );
+	}
+
+	public function testGivenInvalidPaymentType_validationFails(): void {
+		$useCase = $this->newUseCase();
+
+		$response = $useCase->validate( 12, 3, ApplicantType::PERSON_APPLICANT->value, "PPL" );
+
+		$constraintViolation = $response->getValidationErrors()[0];
+		$this->assertSame( 'invalid_payment_type', $constraintViolation->getMessageIdentifier() );
 	}
 
 }
