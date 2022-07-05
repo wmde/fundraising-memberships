@@ -14,6 +14,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipConfirmationMailer;
+use WMDE\Fundraising\MembershipContext\Infrastructure\PaymentServiceFactory;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\EventEmitterSpy;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedApplicationTokenFetcher;
@@ -28,6 +29,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembe
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipUseCase;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
@@ -346,7 +348,10 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 			$piwikTracker ?? $this->createMock( ApplicationPiwikTracker::class ),
 			$eventEmitter ?? $this->createMock( EventEmitter::class ),
 			$incentiveFinder ?? new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] ),
-			$createPaymentUseCase ?? $this->newSucceedingCreatePaymentUseCase()
+			new PaymentServiceFactory(
+				$createPaymentUseCase ?? $this->newSucceedingCreatePaymentUseCase(),
+				[ PaymentType::DirectDebit ]
+			)
 		);
 	}
 

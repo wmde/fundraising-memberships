@@ -49,11 +49,15 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 
 	private Euro $membershipFee;
 	private PaymentInterval $paymentIntervalInMonths;
-	private ApplicantType $applicantType;
 	private PaymentType $paymentType;
 
-	public function __construct( ApplicantType $applicantType ) {
-		$this->applicantType = $applicantType;
+	/**
+	 * @param ApplicantType $applicantType
+	 * @param PaymentType[] $allowedPaymentTypes
+	 */
+	public function __construct(
+		private ApplicantType $applicantType,
+		private array $allowedPaymentTypes ) {
 	}
 
 	public function validatePaymentData( Euro $amount, PaymentInterval $interval, PaymentType $paymentType ): ValidationResponse {
@@ -102,6 +106,6 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 	}
 
 	private function isInvalidPaymentTypeForMemberships( PaymentType $paymentType ): bool {
-		return $paymentType !== PaymentType::DirectDebit;
+		return !in_array( $paymentType, $this->allowedPaymentTypes );
 	}
 }

@@ -20,11 +20,15 @@ class MembershipPaymentValidatorTest extends TestCase {
 	public const VALID_MIN_AMOUNT_FOR_COMPANY = 100;
 	public const VALID_MIN_AMOUNT_FOR_PRIVATE_PERSON = 24;
 
+	public const ALLOWED_PAYMENT_TYPES = [
+		PaymentType::DirectDebit
+	];
+
 	/**
 	 * @dataProvider companyAmountProvider
 	 */
 	public function testGivenValidFeeAmountForCompany_validatorReturnsNoViolations( bool $isValid, int $amount ): void {
-		$validator = new MembershipPaymentValidator( ApplicantType::COMPANY_APPLICANT );
+		$validator = new MembershipPaymentValidator( ApplicantType::COMPANY_APPLICANT, self::ALLOWED_PAYMENT_TYPES );
 		$response = $validator->validatePaymentData(
 			Euro::newFromInt( $amount ),
 			PaymentInterval::Yearly,
@@ -37,7 +41,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 	 * @dataProvider privatePersonAmountProvider
 	 */
 	public function testGivenValidFeeAmountForPrivatePerson_validatorReturnsNoViolations( bool $isValid, int $amount ): void {
-		$validator = new MembershipPaymentValidator( ApplicantType::PERSON_APPLICANT );
+		$validator = new MembershipPaymentValidator( ApplicantType::PERSON_APPLICANT, self::ALLOWED_PAYMENT_TYPES );
 		$response = $validator->validatePaymentData(
 			Euro::newFromInt( $amount ),
 			PaymentInterval::Yearly,
@@ -62,7 +66,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 	 * @dataProvider tooLowAmountProvider
 	 */
 	public function testGivenFeeAmountTooLowPerYear_validatorReturnsErrors( ApplicantType $applicantType, int $lowAmount ): void {
-		$validator = new MembershipPaymentValidator( $applicantType );
+		$validator = new MembershipPaymentValidator( $applicantType, self::ALLOWED_PAYMENT_TYPES );
 		$response = $validator->validatePaymentData(
 			Euro::newFromInt( $lowAmount ),
 			PaymentInterval::Quarterly,
@@ -84,7 +88,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 	}
 
 	public function testInvalidIntervalForMemberships_validatorReturnsErrors(): void {
-		$validator = new MembershipPaymentValidator( ApplicantType::COMPANY_APPLICANT );
+		$validator = new MembershipPaymentValidator( ApplicantType::COMPANY_APPLICANT, self::ALLOWED_PAYMENT_TYPES );
 		$invalidInterval = PaymentInterval::OneTime;
 		$response = $validator->validatePaymentData(
 			 Euro::newFromInt( ValidMembershipApplication::PAYMENT_AMOUNT_IN_EURO ),
@@ -98,7 +102,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 	 * @dataProvider validIntervalProvider
 	 */
 	public function testValidIntervalForMemberships_validatorReturnsNoErrors( PaymentInterval $validInterval ): void {
-		$validator = new MembershipPaymentValidator( ApplicantType::COMPANY_APPLICANT );
+		$validator = new MembershipPaymentValidator( ApplicantType::COMPANY_APPLICANT, self::ALLOWED_PAYMENT_TYPES );
 		$response = $validator->validatePaymentData(
 			Euro::newFromInt( 100 ),
 			$validInterval,
@@ -118,7 +122,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 	 * @dataProvider invalidPaymentTypeProvider
 	 */
 	public function testInvalidPaymentTypesForMemberships_validatorReturnsErrors( PaymentType $invalidPaymentType ): void {
-		$validator = new MembershipPaymentValidator( ApplicantType::PERSON_APPLICANT );
+		$validator = new MembershipPaymentValidator( ApplicantType::PERSON_APPLICANT, self::ALLOWED_PAYMENT_TYPES );
 		$response = $validator->validatePaymentData(
 			Euro::newFromInt( ValidMembershipApplication::PAYMENT_AMOUNT_IN_EURO ),
 			ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS,
@@ -131,6 +135,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 		yield [ PaymentType::BankTransfer ];
 		yield [ PaymentType::Sofort ];
 		yield [ PaymentType::CreditCard ];
+		yield [ PaymentType::Paypal ];
 	}
 
 }
