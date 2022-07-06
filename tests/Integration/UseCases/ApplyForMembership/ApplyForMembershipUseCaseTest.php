@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ApplyFor
 
 use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
+use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
 use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
@@ -28,6 +29,9 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembe
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipUseCase;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator;
+use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
@@ -55,12 +59,14 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 	private function newMailerWithTemplateMailerSpy(): MembershipConfirmationMailer {
 		$getPaymentUseCaseMock = $this->createMock( GetPaymentUseCase::class );
-		$testData = [
-			'amountInEuroCents' => 1000,
-			'paymentType' => 'BEZ',
-			'interval' => 3
-		];
-		$getPaymentUseCaseMock->method( 'getPaymentDataArray' )->willReturn( $testData );
+		$payment = DirectDebitPayment::create(
+			1,
+			Euro::newFromCents( 1000 ),
+			PaymentInterval::Quarterly,
+			new Iban( 'DE02100500000054540402' ),
+			'BELADEBE'
+		);
+		$getPaymentUseCaseMock->method( 'getPaymentDataArray' )->willReturn( $payment->getDisplayValues() );
 		return new MembershipConfirmationMailer( $this->mailerSpy, $getPaymentUseCaseMock );
 	}
 
