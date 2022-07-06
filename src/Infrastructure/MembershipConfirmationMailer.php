@@ -34,7 +34,7 @@ class MembershipConfirmationMailer implements MembershipNotifier {
 		}
 		return [
 			'membershipType' => $application->getType(),
-			'membershipFee' => Euro::newFromCents( $paymentDataArray['amountInEuroCents'] )->getEuroString(),
+			'membershipFee' => Euro::newFromCents( $paymentDataArray['amount'] )->getEuroString(),
 			'paymentIntervalInMonths' => $paymentDataArray['interval'],
 			'paymentType' => $paymentDataArray['paymentType'],
 			'salutation' => $application->getApplicant()->getName()->getSalutation(),
