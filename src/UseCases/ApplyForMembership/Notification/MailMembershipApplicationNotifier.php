@@ -38,6 +38,7 @@ class MailMembershipApplicationNotifier implements MembershipNotifier {
 			$incentives[] = $incentive->getName();
 		}
 		return [
+			'id' => $application->getId(),
 			'membershipType' => $application->getType(),
 			'membershipFee' => $paymentAmount->getEuroString(),
 			'membershipFeeInCents' => $paymentAmount->getEuroCents(),

@@ -25,6 +25,8 @@ class MailMembershipApplicationNotifierTest extends TestCase {
 		);
 		$notifier->sendConfirmationFor( ValidMembershipApplication::newDomainEntity() );
 		$arguments = [
+			// ID is null because it's unsaved
+			'id' => null,
 			'membershipType' => 'sustaining',
 			'membershipFee' => '10.00',
 			'membershipFeeInCents' => 1000,
