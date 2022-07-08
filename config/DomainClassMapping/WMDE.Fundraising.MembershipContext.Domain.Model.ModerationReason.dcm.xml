@@ -7,7 +7,7 @@
         <id name="id" type="integer" column="id">
             <generator strategy="IDENTITY"/>
         </id>
-        <field name="moderationIdentifier" column="moderation_identifier" type="ModerationIdentifier" nullable="false">
+        <field name="moderationIdentifier" column="moderation_identifier" type="MembershipModerationIdentifier" nullable="false">
         </field>
         <field name="source" column="source" type="string" length="32" nullable="false">
             <options>
@@ -15,7 +15,7 @@
             </options>
         </field>
         <indexes>
-            <index name="mr_identifier" columns="moderation_identifier,source"/>
+            <index name="m_mr_identifier" columns="moderation_identifier,source"/>
         </indexes>
     </entity>
 </doctrine-mapping>
