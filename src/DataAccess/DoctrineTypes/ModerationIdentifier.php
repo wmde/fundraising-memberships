@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities;
+namespace WMDE\Fundraising\MembershipContext\DataAccess\DoctrineTypes;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;

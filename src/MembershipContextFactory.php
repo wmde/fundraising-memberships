@@ -118,7 +118,7 @@ class MembershipContextFactory {
 		if ( $isRegistered ) {
 			return;
 		}
-		Type::addType( 'MembershipModerationIdentifier', 'WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\ModerationIdentifier' );
+		Type::addType( 'MembershipModerationIdentifier', 'WMDE\Fundraising\MembershipContext\DataAccess\DoctrineTypes\ModerationIdentifier' );
 		$connection->getDatabasePlatform()->registerDoctrineTypeMapping( 'MembershipModerationIdentifier', 'MembershipModerationIdentifier' );
 		$isRegistered = true;
 	}
