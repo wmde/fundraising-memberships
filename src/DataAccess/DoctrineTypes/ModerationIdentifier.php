@@ -10,11 +10,11 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier as Doma
 
 class ModerationIdentifier extends Type {
 
-	public function getSQLDeclaration( array $column, AbstractPlatform $platform ) {
+	public function getSQLDeclaration( array $column, AbstractPlatform $platform ): string {
 		return 'VARCHAR(50)';
 	}
 
-	public function getName() {
+	public function getName(): string {
 		return 'MembershipModerationIdentifier';
 	}
 
