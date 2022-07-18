@@ -27,8 +27,8 @@ final class Version20220701160624 extends AbstractMigration {
 		$reasonJoinTable->addColumn( 'membership_id', 'integer', [ 'notnull' => true ] );
 		$reasonJoinTable->addColumn( 'moderation_reason_id', 'integer', [ 'notnull' => true ] );
 		$reasonJoinTable->setPrimaryKey( [ 'membership_id', 'moderation_reason_id' ] );
-		$reasonJoinTable->addForeignKeyConstraint( 'spenden', [ 'membership_id' ], [ 'id' ] );
-		$reasonJoinTable->addForeignKeyConstraint( 'application_moderation_reason', [ 'moderation_reason_id' ], [ 'id' ] );
+		$reasonJoinTable->addForeignKeyConstraint( 'request', [ 'membership_id' ], [ 'id' ] );
+		$reasonJoinTable->addForeignKeyConstraint( 'membership_moderation_reason', [ 'moderation_reason_id' ], [ 'id' ] );
 		$reasonJoinTable->addIndex( [ 'membership_id' ] );
 		$reasonJoinTable->addIndex( [ 'moderation_reason_id' ] );
 	}
