@@ -1,12 +1,4 @@
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon
-parameters:
-	# TODO remove these when working on the payment refactoring tasks
-	excludePaths:
-		analyse:
-			- tests/Integration/UseCases/HandleSubscriptionSignupNotification/HandleSubscriptionSignupNotificationUseCaseTest.php
-			- tests/Integration/UseCases/HandleSubscriptionPaymentNotification/HandleSubscriptionPaymentNotificationUseCaseTest.php
-			- tests/Integration/DoctrineEntities/MembershipApplicationInsertionTest.php
-			- tests/Integration/DataAccess/SerializedDataHandlingTest.php
-			- tests/Data/ValidPayPalNotificationRequest.php
+
