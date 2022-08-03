@@ -52,6 +52,10 @@
 			"WMDE\\Fundraising\\MembershipContext\\Tests\\": "tests/"
 		}
 	},
+	"bin": [
+		"bin/migrate-membership-payment-data",
+		"bin/check-membership-payment-data"
+	],
 	"extra": {
 		"branch-alias": {
 			"dev-master": "1.0.x-dev"

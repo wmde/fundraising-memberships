@@ -7,6 +7,14 @@ namespace WMDE\Fundraising\MembershipContext\DataAccess\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
+/**
+ * This migration prepares the membership table for using the new payment persistence tables.
+ *
+ * Since the payment data is not consistent and easily accessible, this is just modifying the structure,
+ * the data migration is in {@see \WMDE\Fundraising\MembershipContext\DataAccess\PaymentMigration\PaymentMigrationCommand}
+ *
+ * After the data migration, run {@see }
+ */
 final class Version20220609143351 extends AbstractMigration {
 	public function getDescription(): string {
 		return 'Use new payment domain for memberships';

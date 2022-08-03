@@ -29,6 +29,9 @@ class MembershipContextFactory {
 	 */
 	public const DOMAIN_ENTITY_NAMESPACE = 'WMDE\Fundraising\MembershipContext\Domain\Model';
 
+	/**
+	 * @todo Make private when no outside code uses these constants
+	 */
 	public const DOCTRINE_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DoctrineClassMapping/';
 	public const DOMAIN_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DomainClassMapping/';
 
@@ -41,6 +44,10 @@ class MembershipContextFactory {
 		$this->tokenGenerator = null;
 	}
 
+	/**
+	 * @deprecated Use {@see ORMSetup::createXMLMetadataConfiguration} with {@see self::getDoctrineMappingPaths()} instead
+	 * @return MappingDriverChain
+	 */
 	public function newMappingDriver(): MappingDriverChain {
 		$driver = new MappingDriverChain();
 		$driver->addDriver( new XmlDriver( self::DOCTRINE_CLASS_MAPPING_DIRECTORY ), self::ENTITY_NAMESPACE );
@@ -57,13 +64,20 @@ class MembershipContextFactory {
 	 * This is a transitional method that is only needed as long as we have a mix of the annotation driver
 	 * for the legacy Membership entity and the XML-annotated Domain entities
 	 *
-	 * @deprecated Use {@see ORMSetup::createXMLMetadataConfiguration} with the class mapping constants instead
+	 * @deprecated Use {@see ORMSetup::createXMLMetadataConfiguration} with {@see self::getDoctrineMappingPaths()} instead
 	 * @param MappingDriverChain $visitingChain
 	 */
 	public function visitMappingDriver( MappingDriverChain $visitingChain ): void {
 		foreach ( $this->newMappingDriver()->getDrivers() as $namespace => $driver ) {
 			$visitingChain->addDriver( $driver, $namespace );
 		}
+	}
+
+	public function getDoctrineMappingPaths(): array {
+		return [
+			self::DOCTRINE_CLASS_MAPPING_DIRECTORY,
+			self::DOMAIN_CLASS_MAPPING_DIRECTORY
+		];
 	}
 
 	/**

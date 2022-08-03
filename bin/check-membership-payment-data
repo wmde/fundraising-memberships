@@ -1,13 +1,14 @@
+#!/usr/bin/env php
 <?php
 
 // A script to test data quality in donations for migration to the new payments
+// This can be deleted when the payment data has been migrated successfully in production
 
 use Doctrine\DBAL\DriverManager;
 use WMDE\Fundraising\MembershipContext\DataAccess\PaymentMigration\MembershipToPaymentConverter;
 use WMDE\Fundraising\MembershipContext\DataAccess\PaymentMigration\ResultObject;
-use WMDE\Fundraising\MembershipContext\DataAccess\PaymentMigration\SequentialPaymentIdGenerator;
 
-require __DIR__ . '/vendor/autoload.php';
+include $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
 
 $config = [
 	'url' => 'mysql://fundraising:INSECURE PASSWORD@database/fundraising'

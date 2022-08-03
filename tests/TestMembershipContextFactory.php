@@ -45,15 +45,14 @@ class TestMembershipContextFactory {
 	}
 
 	private function newEntityManager( array $eventSubscribers = [] ): EntityManager {
-		$doctrineConfig = ORMSetup::createXMLMetadataConfiguration( [
-			MembershipContextFactory::DOCTRINE_CLASS_MAPPING_DIRECTORY,
-			MembershipContextFactory::DOMAIN_CLASS_MAPPING_DIRECTORY,
-			PaymentContextFactory::DOCTRINE_CLASS_MAPPING_DIRECTORY
-		] );
+		$paymentContext = new PaymentContextFactory();
+		$doctrineConfig = ORMSetup::createXMLMetadataConfiguration( array_merge(
+			$this->factory->getDoctrineMappingPaths(),
+			$paymentContext->getDoctrineMappingPaths()
+		) );
 
 		$entityManager = EntityManager::create( $this->getConnection(), $doctrineConfig );
 
-		$paymentContext = new PaymentContextFactory();
 		$paymentContext->registerCustomTypes( $entityManager->getConnection() );
 
 		$this->setupEventSubscribers( $entityManager->getEventManager(), $eventSubscribers );
