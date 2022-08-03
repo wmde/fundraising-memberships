@@ -8,7 +8,9 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Auto-generated Migration: Please modify to your needs!
+ * This migration is just for adding an index to payment_id for faster JOINs with the payment table.
+ *
+ * We'll run it AFTER the data migration to avoid index rebuilding on every membership change
  */
 final class Version20220613122154 extends AbstractMigration {
 	public function getDescription(): string {
