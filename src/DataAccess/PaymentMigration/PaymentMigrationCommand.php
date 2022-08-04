@@ -4,7 +4,6 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\MembershipContext\DataAccess\PaymentMigration;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
 use WMDE\Fundraising\PaymentContext\PaymentContextFactory;
@@ -19,7 +18,7 @@ use WMDE\Fundraising\PaymentContext\PaymentContextFactory;
  */
 class PaymentMigrationCommand {
 	public static function run(): void {
-		$db = self::getConnection();
+		$db = ConnectionFactory::getConnection();
 		$entityManager = self::getEntityManager( $db );
 
 		$paymentIdCollection = new MembershipPaymentIdCollection();
@@ -55,19 +54,6 @@ class PaymentMigrationCommand {
 		$minId = intval( $db->fetchOne( "SELECT MIN(id) FROM request" ) ) - 1;
 		// return 0 when minId is -1 (meaning there were no rows)
 		return max( 0, $minId );
-	}
-
-	private static function getConnection(): Connection {
-		$dsn = $_SERVER['MYSQL_DSN'] ?? '';
-		if ( !$dsn || !preg_match( "#^mysql://\w+:[\w ]+@\w+/\w+#", $dsn ) ) {
-			echo "You must set the environment variable MYSQL_DSN before running this script!\n";
-			echo "Example shell command:\nexport MYSQL_DSN='mysql://fundraising:INSECURE PASSWORD@database/fundraising'\n";
-			die( 1 );
-		}
-
-		$config = [ 'url' => $dsn ];
-
-		return DriverManager::getConnection( $config );
 	}
 
 	private static function getEntityManager( Connection $db ): EntityManager {
