@@ -41,30 +41,18 @@ class ChunkedQueryResultIterator implements \IteratorAggregate {
 	}
 
 	public function getIterator(): \Traversable {
-		$this->qb->setMaxResults( $this->chunkSize );
-		$this->qb->andWhere( $this->qb->expr()->gt( $this->offsetField, ':offset' ) );
+		$this->qb->andWhere( $this->qb->expr()->gt( $this->offsetField, ':offset' ) )
+			->andWhere( $this->qb->expr()->lte( $this->offsetField, ':offsetEnd' ) );
 
 		for ( $offset = $this->offsetStart; $offset <= $this->maxOffset; $offset += $this->chunkSize ) {
-			if ( $this->isLastChunk( $offset ) ) {
-				// Avoid fetching too many rows for the last chunk
-				$remainingRowCount = $this->maxOffset - $offset;
-				if ( $remainingRowCount === 0 ) {
-
-					return;
-				}
-				$this->qb->setMaxResults( $remainingRowCount );
-			}
-
-			$this->qb->setParameter( 'offset', $offset );
+			$offsetEnd = min( $this->maxOffset, $offset + $this->chunkSize );
+			$this->qb->setParameter( 'offset', $offset )
+				->setParameter( 'offsetEnd', $offsetEnd );
 			$dbResult = $this->qb->executeQuery();
 
 			foreach ( $dbResult->iterateAssociative() as $row ) {
 				yield $row;
 			}
 		}
-	}
-
-	private function isLastChunk( int $offset ): bool {
-		return $offset + $this->chunkSize > $this->maxOffset;
 	}
 }
