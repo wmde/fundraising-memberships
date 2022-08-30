@@ -12,12 +12,8 @@ install:
 
 script:
   - make ci
-  # The following 2 lines prevent using classes in the test directory in the prod part of the code.
-  # We can't run them right now (2022-02-28) because the PHPStan docker image is not using PHP 8.1
-  # We can wait until that's fixed or use an architecture checking tool like PHPArch.
-  #
-  #  - make install-php COMPOSER_FLAGS="--no-dev -q" # Remove dev dependencies to make sure PHPStan creates errors if prod code depends on dev classes
-  #  - docker run -v $PWD:/app --rm ghcr.io/phpstan/phpstan analyse --level 5 --no-progress src/ # Can't use "make stan" because stan was removed
+  - make install-php COMPOSER_FLAGS="--no-dev -q" # Remove dev dependencies to make sure PHPStan creates errors if prod code depends on dev classes
+  - docker run -v $PWD:/app --rm registry.gitlab.com/fun-tech/fundraising-frontend-docker:stan analyse --level=5 --no-progress src/ # Can't use "make stan" because stan was removed
 
 cache:
   directories:

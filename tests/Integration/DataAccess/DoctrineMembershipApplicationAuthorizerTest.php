@@ -4,9 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
-use Codeception\Specify;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationAuthorizer;
@@ -16,12 +15,8 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationAuthorizer
- *
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
-	use Specify;
 
 	private const CORRECT_UPDATE_TOKEN = 'CorrectUpdateToken';
 	private const CORRECT_ACCESS_TOKEN = 'CorrectAccessToken';
@@ -29,7 +24,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	private const WRONG_ACCESS_TOKEN = 'WrongAccessToken';
 	private const EMPTY_TOKEN = '';
 	private const MEANINGLESS_APPLICATION_ID = 1337;
-	private const ID_OF_WRONG_APPLICATION = 42;
+	private const DUMMY_PAYMENT_ID = 42;
 
 	private EntityManager $entityManager;
 
@@ -46,83 +41,49 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		$this->entityManager->flush();
 	}
 
-	/**
-	 * @slowThreshold 400
-	 */
-	public function testWhenNoMembershipApplications(): void {
-		$this->specify( 'update authorization fails', function (): void {
-			$authorizer = $this->newAuthorizer( self::CORRECT_UPDATE_TOKEN );
-			$this->assertFalse( $authorizer->canModifyApplication( self::MEANINGLESS_APPLICATION_ID ) );
-		} );
-
-		$this->specify( 'access authorization fails', function (): void {
-			$authorizer = $this->newAuthorizer( self::CORRECT_ACCESS_TOKEN );
-			$this->assertFalse( $authorizer->canAccessApplication( self::MEANINGLESS_APPLICATION_ID ) );
-		} );
+	public function testGivenNoMembershipApplication_authorizationFails(): void {
+		$authorizer = $this->newAuthorizer( self::CORRECT_UPDATE_TOKEN, self::CORRECT_ACCESS_TOKEN );
+		$this->assertFalse( $authorizer->canModifyApplication( self::MEANINGLESS_APPLICATION_ID ) );
+		$this->assertFalse( $authorizer->canAccessApplication( self::MEANINGLESS_APPLICATION_ID ) );
 	}
 
 	/**
-	 * @slowThreshold 1200
+	 * @dataProvider updateTokenProvider
 	 */
-	public function testWhenApplicationWithTokenExists(): void {
-		$application = new MembershipApplication();
-		$application->modifyDataObject( static function ( MembershipApplicationData $data ): void {
-			$data->setUpdateToken( self::CORRECT_UPDATE_TOKEN );
-			$data->setAccessToken( self::CORRECT_ACCESS_TOKEN );
-		} );
-		$this->storeApplication( $application );
+	public function testGivenMembershipApplication_authorizerChecksUpdateToken( string $updateToken, bool $expectedResult ): void {
+		$application = $this->givenMembershipApplication();
+		$authorizer = $this->newAuthorizer( $updateToken );
+		$this->assertSame( $expectedResult, $authorizer->canModifyApplication( $application->getId() ) );
+	}
 
-		$this->specify(
-			'given correct application id and correct token, update authorization succeeds',
-			function () use ( $application ): void {
-				$authorizer = $this->newAuthorizer( self::CORRECT_UPDATE_TOKEN );
-				$this->assertTrue( $authorizer->canModifyApplication( $application->getId() ) );
-			}
-		);
+	/**
+	 * @return iterable<string,array{string,bool}>
+	 */
+	public function updateTokenProvider(): iterable {
+		yield 'correct update token' => [ self::CORRECT_UPDATE_TOKEN, true ];
+		yield 'incorrect update token' => [ self::WRONG__UPDATE_TOKEN, false ];
+	}
 
-		$this->specify(
-			'given wrong application id and correct token, update authorization fails',
-			function (): void {
-				$authorizer = $this->newAuthorizer( self::CORRECT_UPDATE_TOKEN );
-				$this->assertFalse( $authorizer->canModifyApplication( self::ID_OF_WRONG_APPLICATION ) );
-			}
-		);
+	/**
+	 * @dataProvider accessTokenProvider
+	 */
+	public function testGivenMembershipApplication_authorizerChecksAccessToken( string $accessToken, bool $expectedResult ): void {
+		$application = $this->givenMembershipApplication();
+		$authorizer = $this->newAuthorizer( '', $accessToken );
+		$this->assertSame( $expectedResult, $authorizer->canAccessApplication( $application->getId() ) );
+	}
 
-		$this->specify(
-			'given correct application id and wrong token, update authorization fails',
-			function () use ( $application ): void {
-				$authorizer = $this->newAuthorizer( self::WRONG__UPDATE_TOKEN );
-				$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
-			}
-		);
-
-		$this->specify(
-			'given correct application id and correct token, access authorization succeeds',
-			function () use ( $application ): void {
-				$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, self::CORRECT_ACCESS_TOKEN );
-				$this->assertTrue( $authorizer->canAccessApplication( $application->getId() ) );
-			}
-		);
-
-		$this->specify(
-			'given wrong application id and correct token, access authorization fails',
-			function (): void {
-				$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, self::CORRECT_ACCESS_TOKEN );
-				$this->assertFalse( $authorizer->canAccessApplication( self::ID_OF_WRONG_APPLICATION ) );
-			}
-		);
-
-		$this->specify(
-			'given correct application id and wrong token, access authorization fails',
-			function () use ( $application ): void {
-				$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, self::WRONG_ACCESS_TOKEN );
-				$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
-			}
-		);
+	/**
+	 * @return iterable<string,array{string,bool}>
+	 */
+	public function accessTokenProvider(): iterable {
+		yield 'correct access token' => [ self::CORRECT_ACCESS_TOKEN, true ];
+		yield 'incorrect update token' => [ self::WRONG_ACCESS_TOKEN, false ];
 	}
 
 	public function testGivenMembershipWithoutToken_updateAuthorizationFails(): void {
 		$application = new MembershipApplication();
+		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$this->storeApplication( $application );
 		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
 
@@ -131,6 +92,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 
 	public function testGivenMembershipWithoutTokenAndEmptyAccessToken_accessAuthorizationFails(): void {
 		$application = new MembershipApplication();
+		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$this->storeApplication( $application );
 		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
 
@@ -139,6 +101,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 
 	public function testGivenMembershipWithoutTokenAndEmptyUpdateToken_updateAuthorizationFails(): void {
 		$application = new MembershipApplication();
+		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$this->storeApplication( $application );
 		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
 
@@ -147,29 +110,21 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 
 	public function testGivenMembershipWithoutToken_accessAuthorizationFails(): void {
 		$application = new MembershipApplication();
+		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$this->storeApplication( $application );
 		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
 
 		$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
 	}
 
-	/**
-	 * @slowThreshold 400
-	 */
-	public function testWhenDoctrineThrowsException(): void {
-		$authorizer = new DoctrineApplicationAuthorizer(
-			$this->getThrowingEntityManager(),
-			self::CORRECT_UPDATE_TOKEN,
-			self::CORRECT_ACCESS_TOKEN
-		);
+	public function testWhenDoctrineThrowsException_modificationCheckFails(): void {
+		$authorizer = $this->newAuthorizerWithFailingDoctrine();
+		$this->assertFalse( $authorizer->canModifyApplication( self::MEANINGLESS_APPLICATION_ID ) );
+	}
 
-		$this->specify( 'update authorization fails', function () use ( $authorizer ): void {
-			$this->assertFalse( $authorizer->canModifyApplication( self::MEANINGLESS_APPLICATION_ID ) );
-		} );
-
-		$this->specify( 'access authorization fails', function () use ( $authorizer ): void {
-			$this->assertFalse( $authorizer->canAccessApplication( self::MEANINGLESS_APPLICATION_ID ) );
-		} );
+	public function testWhenDoctrineThrowsException_accessCheckFails(): void {
+		$authorizer = $this->newAuthorizerWithFailingDoctrine();
+		$this->assertFalse( $authorizer->canAccessApplication( self::MEANINGLESS_APPLICATION_ID ) );
 	}
 
 	private function getThrowingEntityManager(): EntityManager {
@@ -180,6 +135,25 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 			->willThrowException( new ORMException() );
 
 		return $entityManager;
+	}
+
+	private function givenMembershipApplication(): MembershipApplication {
+		$application = new MembershipApplication();
+		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
+		$application->modifyDataObject( static function ( MembershipApplicationData $data ): void {
+			$data->setUpdateToken( self::CORRECT_UPDATE_TOKEN );
+			$data->setAccessToken( self::CORRECT_ACCESS_TOKEN );
+		} );
+		$this->storeApplication( $application );
+		return $application;
+	}
+
+	private function newAuthorizerWithFailingDoctrine() {
+		return new DoctrineApplicationAuthorizer(
+			$this->getThrowingEntityManager(),
+			self::CORRECT_UPDATE_TOKEN,
+			self::CORRECT_ACCESS_TOKEN
+		);
 	}
 
 }

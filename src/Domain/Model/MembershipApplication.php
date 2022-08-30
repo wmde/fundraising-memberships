@@ -4,16 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
-use RuntimeException;
 use Traversable;
-use WMDE\Fundraising\PaymentContext\Domain\Model\BookablePayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentTransactionData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class MembershipApplication {
 
 	public const ACTIVE_MEMBERSHIP = 'active';
@@ -23,28 +15,21 @@ class MembershipApplication {
 
 	private string $type;
 	private Applicant $applicant;
-	private Payment $payment;
-	/**
-	 * @var array ModerationReason[]
-	 */
+	private int $paymentId;
 	private array $moderationReasons;
 	private bool $cancelled = false;
-	private bool $confirmed = true;
+	private bool $confirmed = false;
 	private bool $exported = false;
 	private ?bool $donationReceipt;
 	/** @var Incentive[] */
 	private array $incentives = [];
 
-	public function __construct( ?int $id, string $type, Applicant $applicant, Payment $payment, ?bool $donationReceipt ) {
+	public function __construct( ?int $id, string $type, Applicant $applicant, int $paymentId, ?bool $donationReceipt ) {
 		$this->id = $id;
 		$this->type = $type;
 		$this->applicant = $applicant;
-		$this->payment = $payment;
+		$this->paymentId = $paymentId;
 		$this->donationReceipt = $donationReceipt;
-		$paymentMethod = $payment->getPaymentMethod();
-		if ( $paymentMethod instanceof BookablePayment ) {
-			$this->confirmed = $paymentMethod->paymentCompleted();
-		}
 		$this->moderationReasons = [];
 	}
 
@@ -60,8 +45,8 @@ class MembershipApplication {
 		return $this->applicant;
 	}
 
-	public function getPayment(): Payment {
-		return $this->payment;
+	public function getPaymentId(): int {
+		return $this->paymentId;
 	}
 
 	public function getType(): string {
@@ -124,6 +109,10 @@ class MembershipApplication {
 		return $this->cancelled;
 	}
 
+	public function confirm(): void {
+		$this->confirmed = true;
+	}
+
 	public function isConfirmed(): bool {
 		return $this->confirmed;
 	}
@@ -137,10 +126,6 @@ class MembershipApplication {
 			return false;
 		}
 
-		if ( $this->payment->getPaymentMethod()->hasExternalProvider() ) {
-			return false;
-		}
-
 		return true;
 	}
 
@@ -150,33 +135,6 @@ class MembershipApplication {
 
 	public function isExported(): bool {
 		return $this->exported;
-	}
-
-	public function confirmSubscriptionCreated( PaymentTransactionData $paymentTransactionData ): void {
-		$paymentMethod = $this->getPayment()->getPaymentMethod();
-		if ( !( $paymentMethod instanceof BookablePayment ) ) {
-			throw new RuntimeException( 'Only bookable payments can be confirmed as booked' );
-		}
-
-		if ( !$this->statusAllowsForBooking() ) {
-			throw new RuntimeException( 'Only unconfirmed membership applications can be confirmed as booked' );
-		}
-
-		$paymentMethod->bookPayment( $paymentTransactionData );
-		$this->confirmed = true;
-	}
-
-	private function statusAllowsForBooking(): bool {
-		return !$this->isConfirmed() &&
-			!$this->isMarkedForModeration();
-	}
-
-	public function notifyOfFirstPaymentDate( string $firstPaymentDate ): void {
-		$paymentMethod = $this->getPayment()->getPaymentMethod();
-
-		if ( $paymentMethod instanceof PayPalPayment ) {
-			$paymentMethod->getPayPalData()->setFirstPaymentDate( $firstPaymentDate );
-		}
 	}
 
 	public function addIncentive( Incentive $incentive ): void {

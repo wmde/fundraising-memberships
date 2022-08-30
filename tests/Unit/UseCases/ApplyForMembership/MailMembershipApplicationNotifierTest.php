@@ -6,10 +6,11 @@ use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
-use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TemplateBasedMailerSpy;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TemplateMailerStub;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MailMembershipApplicationNotifier;
+use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MailTemplateValueBuilder
@@ -20,7 +21,8 @@ class MailMembershipApplicationNotifierTest extends TestCase {
 		$confirmationSpy = new TemplateBasedMailerSpy( $this );
 		$notifier = new MailMembershipApplicationNotifier(
 			$confirmationSpy,
-			$this->createStub( TemplateMailerInterface::class ),
+			new TemplateMailerStub(),
+			$this->makePaymentRetriever(),
 			'admin@blabla.de'
 		);
 		$notifier->sendConfirmationFor( ValidMembershipApplication::newDomainEntity() );
@@ -48,7 +50,8 @@ class MailMembershipApplicationNotifierTest extends TestCase {
 		$confirmationSpy = new TemplateBasedMailerSpy( $this );
 		$notifier = new MailMembershipApplicationNotifier(
 			$confirmationSpy,
-			$this->createStub( TemplateMailerInterface::class ),
+			new TemplateMailerStub(),
+			$this->makePaymentRetriever(),
 			'admin@blabla.de'
 		);
 		$application = ValidMembershipApplication::newCompanyApplication();
@@ -65,7 +68,8 @@ class MailMembershipApplicationNotifierTest extends TestCase {
 		$confirmationSpy = new TemplateBasedMailerSpy( $this );
 		$notifier = new MailMembershipApplicationNotifier(
 			$confirmationSpy,
-			$this->createStub( TemplateMailerInterface::class ),
+			new TemplateMailerStub(),
+			$this->makePaymentRetriever(),
 			'admin@blabla.de'
 		);
 		$application = ValidMembershipApplication::newCompanyApplication();
@@ -83,6 +87,19 @@ class MailMembershipApplicationNotifierTest extends TestCase {
 			[ 'MANUALLY_FLAGGED_BY_ADMIN' => true, 'MEMBERSHIP_FEE_TOO_HIGH' => true ],
 			$templateArgsFromFirstCall['moderationFlags']
 		);
+	}
+
+	private function makePaymentRetriever(): GetPaymentUseCase {
+		$mock = $this->createMock( GetPaymentUseCase::class );
+		$mock->expects( $this->once() )
+			->method( 'getPaymentDataArray' )
+			->with( ValidMembershipApplication::PAYMENT_ID )
+			->willReturn( [
+				'amount' => 1000,
+				'interval' => ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS,
+				'paymentType' => ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT
+			] );
+		return $mock;
 	}
 
 }

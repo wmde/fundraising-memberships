@@ -17,9 +17,11 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymized
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\Data\ValidPayments;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedMembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ThrowingEntityManager;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
+use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository
@@ -31,24 +33,18 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 	private const VALID_TOKEN = 'access_token';
 	private const FUTURE_EXPIRY = '3000-01-01 0:00:00';
 
-	/**
-	 * @var EntityManager
-	 */
-	private $entityManager;
-
-	private ModerationReasonRepository $moderationRepository;
+	private EntityManager $entityManager;
 
 	public function setUp(): void {
 		$testEnvironment = TestEnvironment::newInstance();
 		$testEnvironment->setTokenGenerator( new FixedMembershipTokenGenerator( self::VALID_TOKEN, new \DateTime( self::FUTURE_EXPIRY ) ) );
 		$this->entityManager = $testEnvironment->getEntityManager();
-		$this->moderationRepository = new ModerationReasonRepository( $this->entityManager );
 		parent::setUp();
 	}
 
 	public function testValidMembershipApplicationGetPersisted(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
-		$this->newRepository()->storeApplication( $application );
+		$this->givenApplicationRepository()->storeApplication( $application );
 
 		$expected = ValidMembershipApplication::newDoctrineEntity();
 		$expected->setId( $application->getId() );
@@ -66,21 +62,10 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
-	private function newRepository(): ApplicationRepository {
-		return new DoctrineApplicationRepository( $this->entityManager, $this->moderationRepository );
-	}
-
-	private function getApplicationFromDatabase( int $id ): DoctrineApplication {
-		$applicationRepo = $this->entityManager->getRepository( DoctrineApplication::class );
-		$donation = $applicationRepo->find( $id );
-		$this->assertInstanceOf( DoctrineApplication::class, $donation );
-		return $donation;
-	}
-
 	public function testStoringAMembershipApplicationCreatesAndAssignsId(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 
-		$this->newRepository()->storeApplication( $application );
+		$this->givenApplicationRepository()->storeApplication( $application );
 
 		$this->assertSame( self::MEMBERSHIP_APPLICATION_ID, $application->getId() );
 	}
@@ -93,28 +78,23 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 		$this->assertEquals(
 			$expected,
-			$this->newRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID )
+			$this->givenApplicationRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID )
 		);
 	}
 
-	private function storeDoctrineApplication( DoctrineApplication $application ): void {
-		$this->entityManager->persist( $application );
-		$this->entityManager->flush();
-	}
-
 	public function testWhenEntityDoesNotExist_getEntityReturnsNull(): void {
-		$this->assertNull( $this->newRepository()->getApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB ) );
+		$this->assertNull( $this->givenApplicationRepository()->getApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB ) );
 	}
 
 	public function testWhenReadFails_domainExceptionIsThrown(): void {
-		$repository = new DoctrineApplicationRepository( ThrowingEntityManager::newInstance( $this ), $this->moderationRepository );
+		$repository = $this->givenApplicationRepository( entityManager: ThrowingEntityManager::newInstance( $this ) );
 
 		$this->expectException( GetMembershipApplicationException::class );
 		$repository->getApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB );
 	}
 
 	public function testWhenApplicationAlreadyExists_persistingCausesUpdate(): void {
-		$repository = $this->newRepository();
+		$repository = $this->givenApplicationRepository();
 		$originalApplication = ValidMembershipApplication::newDomainEntity();
 
 		$repository->storeApplication( $originalApplication );
@@ -132,7 +112,7 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 	}
 
 	public function testWriteAndReadRoundtrip(): void {
-		$repository = $this->newRepository();
+		$repository = $this->givenApplicationRepository();
 		$application = ValidMembershipApplication::newDomainEntity();
 
 		$repository->storeApplication( $application );
@@ -147,14 +127,14 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->cancel();
 
-		$this->newRepository()->storeApplication( $application );
+		$this->givenApplicationRepository()->storeApplication( $application );
 		$doctrineApplication = $this->getApplicationFromDatabase( $application->getId() );
 
 		$this->assertSame( DoctrineApplication::STATUS_CONFIRMED, $doctrineApplication->getDataObject()->getPreservedStatus() );
 	}
 
 	public function testGivenCompanyApplication_companyNameIsPersisted(): void {
-		$this->newRepository()->storeApplication( ValidMembershipApplication::newCompanyApplication() );
+		$this->givenApplicationRepository()->storeApplication( ValidMembershipApplication::newCompanyApplication() );
 
 		$expected = ValidMembershipApplication::newDoctrineCompanyEntity();
 		$expected->setId( self::MEMBERSHIP_APPLICATION_ID );
@@ -170,7 +150,7 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 		$this->expectException( ApplicationAnonymizedException::class );
 
-		$this->newRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID );
+		$this->givenApplicationRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID );
 	}
 
 	public function testApplicationWithIncentivesHasIncentivesAfterRoundtrip(): void {
@@ -179,7 +159,7 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$this->entityManager->flush();
 		$application = ValidMembershipApplication::newCompanyApplication();
 		$application->addIncentive( $incentive );
-		$repo = $this->newRepository();
+		$repo = $this->givenApplicationRepository();
 		$repo->storeApplication( $application );
 		// find() will retrieve a cached value, so we should clear the entity cache here
 		$this->entityManager->clear();
@@ -191,13 +171,39 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$this->assertEquals( $incentive, $incentives[0] );
 	}
 
+	private function givenApplicationRepository( ?EntityManager $entityManager = null ): ApplicationRepository {
+		return new DoctrineApplicationRepository(
+			$entityManager ?? $this->entityManager,
+			$this->givenGetPaymentUseCaseStub(),
+			new ModerationReasonRepository( $this->entityManager )
+		);
+	}
+
+	public function givenGetPaymentUseCaseStub(): GetPaymentUseCase {
+		$stub = $this->createStub( GetPaymentUseCase::class );
+		$stub->method( 'getLegacyPaymentDataObject' )->willReturn( ValidPayments::newDirectDebitLegacyData() );
+		return $stub;
+	}
+
+	private function getApplicationFromDatabase( int $id ): DoctrineApplication {
+		$applicationRepo = $this->entityManager->getRepository( DoctrineApplication::class );
+		$donation = $applicationRepo->find( $id );
+		$this->assertInstanceOf( DoctrineApplication::class, $donation );
+		return $donation;
+	}
+
+	private function storeDoctrineApplication( DoctrineApplication $application ): void {
+		$this->entityManager->persist( $application );
+		$this->entityManager->flush();
+	}
+
 	public function testNewModeratedMembershipApplicationPersistenceRoundTrip(): void {
 		$application = ValidMembershipApplication::newCompanyApplication();
 		$application->markForModeration(
 			new ModerationReason( ModerationIdentifier::ADDRESS_CONTENT_VIOLATION )
 		);
 
-		$repository = $this->newRepository();
+		$repository = $this->givenApplicationRepository();
 
 		$repository->storeApplication( $application );
 		// find() will retrieve a cached value, so we should clear the entity cache here

@@ -22,6 +22,7 @@ use WMDE\FunValidators\Validators\TextPolicyValidator;
 class ModerationService {
 
 	private const YEARLY_PAYMENT_MODERATION_THRESHOLD_IN_EURO = 1000;
+	private const MONTHS_PER_YEAR = 12;
 
 	private TextPolicyValidator $textPolicyValidator;
 	/**
@@ -35,16 +36,16 @@ class ModerationService {
 		$this->emailAddressBlocklist = $emailAddressBlocklist;
 	}
 
-	public function moderateMembershipApplicationRequest( MembershipApplication $application ): ModerationResult {
+	public function moderateMembershipApplicationRequest( MembershipApplication $application, int $amountInCents, int $interval ): ModerationResult {
 		$this->result = new ModerationResult();
 
-		$this->getAmountViolations( $application );
+		$this->getAmountViolations( $amountInCents, $interval );
 		$this->getBadWordViolations( $application );
 		return $this->result;
 	}
 
-	private function getAmountViolations( MembershipApplication $application ): void {
-		if ( $this->yearlyAmountExceedsLimit( $application ) ) {
+	private function getAmountViolations( int $amountInCents, int $interval ): void {
+		if ( $this->yearlyAmountExceedsLimit( $amountInCents, $interval ) ) {
 			$this->result->addModerationReason(
 				new ModerationReason(
 					ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH,
@@ -52,6 +53,11 @@ class ModerationService {
 				)
 			);
 		}
+	}
+
+	private function yearlyAmountExceedsLimit( int $amountInEuroCents, int $interval ): bool {
+		$yearlyAmount = self::MONTHS_PER_YEAR / $interval * ( $amountInEuroCents / 100 );
+		return $yearlyAmount > self::YEARLY_PAYMENT_MODERATION_THRESHOLD_IN_EURO;
 	}
 
 	public function isAutoDeleted( MembershipApplication $application ): bool {
@@ -62,11 +68,6 @@ class ModerationService {
 		}
 
 		return false;
-	}
-
-	private function yearlyAmountExceedsLimit( MembershipApplication $application ): bool {
-		return $application->getPayment()->getYearlyAmount()->getEuroFloat()
-			> self::YEARLY_PAYMENT_MODERATION_THRESHOLD_IN_EURO;
 	}
 
 	private function getBadWordViolations( MembershipApplication $application ): void {

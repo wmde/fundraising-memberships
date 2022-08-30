@@ -6,26 +6,19 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Data;
 
 use DateTime;
 use WMDE\EmailAddress\EmailAddress;
-use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
-use WMDE\Fundraising\MembershipContext\Domain\Model\Payment;
 use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
-use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 
 /**
  * newDomainEntity and newDoctrineEntity return equivalent objects.
- *
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class ValidMembershipApplication {
 
@@ -47,13 +40,15 @@ class ValidMembershipApplication {
 	public const APPLICANT_PHONE_NUMBER = '1337-1337-1337';
 
 	public const MEMBERSHIP_TYPE = MembershipApplication::SUSTAINING_MEMBERSHIP;
-	public const PAYMENT_TYPE_PAYPAL = 'PPL';
-	public const PAYMENT_TYPE_DIRECT_DEBIT = 'BEZ';
-	public const PAYMENT_PERIOD_IN_MONTHS = 3;
+	public const PAYMENT_TYPE_PAYPAL = PaymentType::Paypal;
+	public const PAYMENT_TYPE_DIRECT_DEBIT = PaymentType::DirectDebit;
+	public const PAYMENT_PERIOD_IN_MONTHS = PaymentInterval::Quarterly;
 	public const PAYMENT_AMOUNT_IN_EURO = 10;
 	public const COMPANY_PAYMENT_AMOUNT_IN_EURO = 25;
-	public const TOO_HIGH_QUARTERLY_PAYMENT_AMOUNT_IN_EURO = 250.1;
-	public const TOO_HIGH_YEARLY_PAYMENT_AMOUNT_IN_EURO = 1000.1;
+	public const TOO_HIGH_QUARTERLY_PAYMENT_AMOUNT_IN_EUROCENTS = 25010;
+	public const TOO_HIGH_YEARLY_PAYMENT_AMOUNT_IN_EUROCENTS = 100010;
+
+	public const PAYMENT_ID = 1;
 
 	public const PAYMENT_BANK_ACCOUNT = '0648489890';
 	public const PAYMENT_BANK_CODE = '50010517';
@@ -66,7 +61,6 @@ class ValidMembershipApplication {
 
 	public const TEMPLATE_CAMPAIGN = 'test161012';
 	public const TEMPLATE_NAME = 'Some_Membership_Form_Template.twig';
-	public const FIRST_PAYMENT_DATE = '2021-02-01';
 
 	public const OPTS_INTO_DONATION_RECEIPT = true;
 	public const INCENTIVE_NAME = 'eternal_thankfulness';
@@ -77,7 +71,7 @@ class ValidMembershipApplication {
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
-			$self->newPayment(),
+			self::PAYMENT_ID,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
@@ -88,48 +82,18 @@ class ValidMembershipApplication {
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newCompanyApplicantName() ),
-			$self->newPaymentWithHighAmount( self::PAYMENT_PERIOD_IN_MONTHS, self::COMPANY_PAYMENT_AMOUNT_IN_EURO ),
+			self::PAYMENT_ID,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
 
-	public static function newApplicationWithTooHighQuarterlyAmount(): MembershipApplication {
+	public static function newApplication(): MembershipApplication {
 		$self = ( new self() );
 		return new MembershipApplication(
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
-			$self->newPaymentWithHighAmount( self::PAYMENT_PERIOD_IN_MONTHS, self::TOO_HIGH_QUARTERLY_PAYMENT_AMOUNT_IN_EURO ),
-			self::OPTS_INTO_DONATION_RECEIPT
-		);
-	}
-
-	public static function newApplicationWithTooHighYearlyAmount(): MembershipApplication {
-		$self = ( new self() );
-		return new MembershipApplication(
-			null,
-			self::MEMBERSHIP_TYPE,
-			$self->newApplicant( $self->newPersonApplicantName() ),
-			$self->newPaymentWithHighAmount( 12, self::TOO_HIGH_YEARLY_PAYMENT_AMOUNT_IN_EURO ),
-			self::OPTS_INTO_DONATION_RECEIPT
-		);
-	}
-
-	public static function newDomainEntityUsingPayPal( PayPalData $payPalData = null ): MembershipApplication {
-		return ( new self() )->createApplicationUsingPayPal( $payPalData );
-	}
-
-	public static function newConfirmedSubscriptionDomainEntity(): MembershipApplication {
-		$self = ( new self() );
-
-		$payPalData = self::newBookedPayPalData()
-			->setSubscriberId( 'subscription_id' );
-
-		return new MembershipApplication(
-			null,
-			self::MEMBERSHIP_TYPE,
-			$self->newApplicant( $self->newPersonApplicantName() ),
-			$self->newPayPalPayment( $payPalData ),
+			self::PAYMENT_ID,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
@@ -150,7 +114,7 @@ class ValidMembershipApplication {
 			null,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicantWithEmailAddress( $self->newPersonApplicantName(), $emailAddress ),
-			$self->newPayment(),
+			self::PAYMENT_ID,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
@@ -162,17 +126,6 @@ class ValidMembershipApplication {
 			new EmailAddress( $emailAddress ),
 			new PhoneNumber( self::APPLICANT_PHONE_NUMBER ),
 			new \DateTime( self::APPLICANT_DATE_OF_BIRTH )
-		);
-	}
-
-	private function createApplicationUsingPayPal( PayPalData $payPalData = null ): MembershipApplication {
-		$self = ( new self() );
-		return new MembershipApplication(
-			null,
-			self::MEMBERSHIP_TYPE,
-			$self->newApplicant( $self->newPersonApplicantName() ),
-			$this->newPayPalPayment( $payPalData ),
-			self::OPTS_INTO_DONATION_RECEIPT
 		);
 	}
 
@@ -205,59 +158,6 @@ class ValidMembershipApplication {
 		return $address->freeze()->assertNoNullFields();
 	}
 
-	private function newPayment(): Payment {
-		return new Payment(
-			self::PAYMENT_PERIOD_IN_MONTHS,
-			Euro::newFromFloat( self::PAYMENT_AMOUNT_IN_EURO ),
-			$this->newDirectDebitPayment( $this->newBankData() )
-		);
-	}
-
-	private function newPaymentWithHighAmount( int $periodInMonths, float $amount ): Payment {
-		return new Payment(
-			$periodInMonths,
-			Euro::newFromFloat( $amount ),
-			$this->newDirectDebitPayment( $this->newBankData() )
-		);
-	}
-
-	private function newDirectDebitPayment( BankData $bankData ): DirectDebitPayment {
-		return new DirectDebitPayment( $bankData );
-	}
-
-	private function newPayPalPayment( PayPalData $payPalData = null ): Payment {
-		return new Payment(
-			self::PAYMENT_PERIOD_IN_MONTHS,
-			Euro::newFromFloat( self::PAYMENT_AMOUNT_IN_EURO ),
-			new PayPalPayment( $payPalData ?: self::newPayPalData() )
-		);
-	}
-
-	public static function newPayPalData(): PayPalData {
-		$payPalData = new PayPalData();
-		$payPalData->setFirstPaymentDate( self::FIRST_PAYMENT_DATE );
-		return $payPalData;
-	}
-
-	public static function newBookedPayPalData(): PayPalData {
-		$payPalData = self::newPayPalData();
-		$payPalData->setPayerId( self::PAYPAL_PAYER_ID );
-		$payPalData->setPaymentId( self::PAYPAL_TRANSACTION_ID );
-		return $payPalData;
-	}
-
-	private function newBankData(): BankData {
-		$bankData = new BankData();
-
-		$bankData->setAccount( self::PAYMENT_BANK_ACCOUNT );
-		$bankData->setBankCode( self::PAYMENT_BANK_CODE );
-		$bankData->setBankName( self::PAYMENT_BANK_NAME );
-		$bankData->setBic( self::PAYMENT_BIC );
-		$bankData->setIban( new Iban( self::PAYMENT_IBAN ) );
-
-		return $bankData->freeze()->assertNoNullFields();
-	}
-
 	public static function newDoctrineEntity(): DoctrineMembershipApplication {
 		$application = self::createDoctrineApplicationWithoutApplicantName();
 
@@ -266,6 +166,7 @@ class ValidMembershipApplication {
 		$application->setApplicantSalutation( self::APPLICANT_SALUTATION );
 		$application->setApplicantTitle( self::APPLICANT_TITLE );
 		$application->setDonationReceipt( self::OPTS_INTO_DONATION_RECEIPT );
+		$application->setPaymentId( self::PAYMENT_ID );
 
 		return $application;
 	}
@@ -273,7 +174,7 @@ class ValidMembershipApplication {
 	private static function createDoctrineApplicationWithoutApplicantName(): DoctrineMembershipApplication {
 		$application = new DoctrineMembershipApplication();
 
-		$application->setStatus( DoctrineMembershipApplication::STATUS_CONFIRMED );
+		$application->setStatus( DoctrineMembershipApplication::STATUS_NEUTRAL );
 
 		$application->setCity( self::APPLICANT_CITY );
 		$application->setCountry( self::APPLICANT_COUNTRY_CODE );
@@ -285,8 +186,8 @@ class ValidMembershipApplication {
 		$application->setApplicantDateOfBirth( new \DateTime( self::APPLICANT_DATE_OF_BIRTH ) );
 
 		$application->setMembershipType( self::MEMBERSHIP_TYPE );
-		$application->setPaymentType( self::PAYMENT_TYPE_DIRECT_DEBIT );
-		$application->setPaymentIntervalInMonths( self::PAYMENT_PERIOD_IN_MONTHS );
+		$application->setPaymentType( self::PAYMENT_TYPE_DIRECT_DEBIT->value );
+		$application->setPaymentIntervalInMonths( self::PAYMENT_PERIOD_IN_MONTHS->value );
 		$application->setPaymentAmount( self::PAYMENT_AMOUNT_IN_EURO );
 
 		$application->setPaymentBankAccount( self::PAYMENT_BANK_ACCOUNT );
@@ -306,6 +207,7 @@ class ValidMembershipApplication {
 		$application->setApplicantSalutation( self::APPLICANT_SALUTATION_COMPANY );
 		$application->setPaymentAmount( self::COMPANY_PAYMENT_AMOUNT_IN_EURO );
 		$application->setDonationReceipt( self::OPTS_INTO_DONATION_RECEIPT );
+		$application->setPaymentId( self::PAYMENT_ID );
 
 		return $application;
 	}
@@ -318,6 +220,14 @@ class ValidMembershipApplication {
 
 	public static function newIncentive(): Incentive {
 		return new Incentive( self::INCENTIVE_NAME );
+	}
+
+	public static function newPaymentCreationRequest(): PaymentCreationRequest {
+		return new PaymentCreationRequest(
+			self::PAYMENT_AMOUNT_IN_EURO,
+			self::PAYMENT_PERIOD_IN_MONTHS->value,
+			self::PAYMENT_TYPE_DIRECT_DEBIT->value
+		);
 	}
 
 }

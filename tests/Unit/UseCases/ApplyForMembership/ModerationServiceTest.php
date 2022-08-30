@@ -10,6 +10,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\FunValidators\Validators\TextPolicyValidator;
 
 /**
@@ -18,11 +19,11 @@ use WMDE\FunValidators\Validators\TextPolicyValidator;
 class ModerationServiceTest extends TestCase {
 
 	public function testGivenQuarterlyAmountTooHigh_MembershipApplicationNeedsModeration(): void {
-		$tooHighFeeApplication = ValidMembershipApplication::newApplicationWithTooHighQuarterlyAmount();
+		$application = ValidMembershipApplication::newApplication();
 		$textPolicyValidator = $this->newSucceedingTextPolicyValidator();
 		$policyValidator = new ModerationService( $textPolicyValidator );
 
-		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( $tooHighFeeApplication );
+		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( $application, 25001, PaymentInterval::Quarterly->value );
 
 		$this->assertEquals(
 			new ModerationReason( ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH, ApplicationValidationResult::SOURCE_PAYMENT_AMOUNT ),
@@ -37,11 +38,11 @@ class ModerationServiceTest extends TestCase {
 	}
 
 	public function testGivenYearlyAmountTooHigh_MembershipApplicationNeedsModeration(): void {
-		$tooHighFeeApplication = ValidMembershipApplication::newApplicationWithTooHighYearlyAmount();
+		$application = ValidMembershipApplication::newApplication();
 		$textPolicyValidator = $this->newSucceedingTextPolicyValidator();
 		$policyValidator = new ModerationService( $textPolicyValidator );
 
-		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( $tooHighFeeApplication );
+		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( $application, 100010, PaymentInterval::Yearly->value );
 
 		$this->assertEquals(
 			new ModerationReason( ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH, ApplicationValidationResult::SOURCE_PAYMENT_AMOUNT ),
@@ -50,11 +51,11 @@ class ModerationServiceTest extends TestCase {
 	}
 
 	public function testFailingTextPolicyValidation_MembershipApplicationNeedsModeration(): void {
-		$textPolicyValidator = $this->createMock( TextPolicyValidator::class );
+		$textPolicyValidator = $this->createStub( TextPolicyValidator::class );
 		$textPolicyValidator->method( 'textIsHarmless' )->willReturn( false );
 		$policyValidator = new ModerationService( $textPolicyValidator );
 
-		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( ValidMembershipApplication::newDomainEntity() );
+		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( ValidMembershipApplication::newDomainEntity(), 2500, PaymentInterval::Yearly->value );
 
 		$this->assertEquals(
 			new ModerationReason( ModerationIdentifier::ADDRESS_CONTENT_VIOLATION, ApplicationValidationResult::SOURCE_APPLICANT_FIRST_NAME ),

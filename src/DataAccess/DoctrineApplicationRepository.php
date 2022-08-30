@@ -15,6 +15,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymized
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
+use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 /**
  * @license GPL-2.0-or-later
@@ -22,10 +23,12 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplic
 class DoctrineApplicationRepository implements ApplicationRepository {
 
 	private DoctrineApplicationTable $table;
+	private GetPaymentUseCase $getPaymentUseCase;
 	private ModerationReasonRepository $moderationReasonRepository;
 
-	public function __construct( EntityManager $entityManager, ModerationReasonRepository $moderationReasonRepository ) {
+	public function __construct( EntityManager $entityManager, GetPaymentUseCase $getPaymentUseCase, ModerationReasonRepository $moderationReasonRepository ) {
 		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
+		$this->getPaymentUseCase = $getPaymentUseCase;
 		$this->moderationReasonRepository = $moderationReasonRepository;
 	}
 
@@ -67,7 +70,12 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 
 	private function updateDoctrineApplication( DoctrineApplication $doctrineApplication, MembershipApplication $application, array $existingModerationReasons ): void {
 		$converter = new DomainToLegacyConverter();
-		$converter->convert( $doctrineApplication, $application, $existingModerationReasons );
+		$converter->convert(
+			$doctrineApplication,
+			$application,
+			$this->getPaymentUseCase->getLegacyPaymentDataObject( $application->getPaymentId() ),
+			$existingModerationReasons
+		);
 	}
 
 	/**
