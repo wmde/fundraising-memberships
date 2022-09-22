@@ -6,17 +6,18 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\RestoreMembershipApplicati
 
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogger;
+use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\CancelPaymentUseCase;
+use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\FailureResponse;
 
 class RestoreMembershipApplicationUseCase {
 
 	public const LOG_MESSAGE_MARKED_AS_RESTORED = 'restored by user: %s';
 
-	private ApplicationRepository $applicationRepository;
-	private MembershipApplicationEventLogger $applicationEventLogger;
-
-	public function __construct( ApplicationRepository $applicationRepository, MembershipApplicationEventLogger $applicationEventLogger ) {
-		$this->applicationRepository = $applicationRepository;
-		$this->applicationEventLogger = $applicationEventLogger;
+	public function __construct(
+		private readonly ApplicationRepository $applicationRepository,
+		private readonly MembershipApplicationEventLogger $applicationEventLogger,
+		private readonly CancelPaymentUseCase $cancelPaymentUseCase
+	) {
 	}
 
 	public function restoreApplication( int $membershipApplicationId, string $authorizedUser ): RestoreMembershipApplicationResponse {
@@ -27,6 +28,12 @@ class RestoreMembershipApplicationUseCase {
 		}
 
 		if ( !$membershipApplication->isCancelled() ) {
+			return RestoreMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
+		}
+
+		$cancelPaymentResponse = $this->cancelPaymentUseCase->restorePayment( $membershipApplication->getPaymentId() );
+
+		if ( $cancelPaymentResponse instanceof FailureResponse ) {
 			return RestoreMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
 		}
 
