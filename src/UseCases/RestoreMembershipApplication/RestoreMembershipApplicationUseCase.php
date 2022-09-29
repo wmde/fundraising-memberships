@@ -37,6 +37,10 @@ class RestoreMembershipApplicationUseCase {
 			return RestoreMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
 		}
 
+		if ( $cancelPaymentResponse->paymentIsCompleted ) {
+			$membershipApplication->confirm();
+		}
+
 		$membershipApplication->restore();
 		$this->applicationRepository->storeApplication( $membershipApplication );
 

@@ -89,6 +89,24 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertContains( $message, $logs );
 	}
 
+	public function testOnRestoreMembershipApplication_andPaymentIsNotCompleted_membershipISNotConfirmed(): void {
+		$application = ValidMembershipApplication::newDomainEntity();
+		$application->cancel();
+		$useCase = $this->newUseCase( $application, $this->givenSucceedingCancelPaymentUseCase( paymentIsCompleted: false ) );
+		$useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
+
+		$this->assertFalse( $this->applicationRepository->getApplicationById( 1 )->isConfirmed() );
+	}
+
+	public function testOnRestoreMembershipApplication_andPaymentIsCompleted_confirmsMembership(): void {
+		$application = ValidMembershipApplication::newDomainEntity();
+		$application->cancel();
+		$useCase = $this->newUseCase( $application, $this->givenSucceedingCancelPaymentUseCase( paymentIsCompleted: true ) );
+		$useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
+
+		$this->assertTrue( $this->applicationRepository->getApplicationById( 1 )->isConfirmed() );
+	}
+
 	public function testWhenPaymentRestorationFails_restorationFails(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->cancel();
@@ -110,10 +128,10 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 		);
 	}
 
-	private function givenSucceedingCancelPaymentUseCase(): CancelPaymentUseCase {
+	private function givenSucceedingCancelPaymentUseCase( bool $paymentIsCompleted = false ): CancelPaymentUseCase {
 		$useCase = $this->createMock( CancelPaymentUseCase::class );
 		$useCase->method( 'restorePayment' )
-			->willReturn( new SuccessResponse() );
+			->willReturn( new SuccessResponse( $paymentIsCompleted ) );
 		return $useCase;
 	}
 
