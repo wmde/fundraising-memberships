@@ -8,6 +8,9 @@ use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FakeApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\MembershipApplicationEventLoggerSpy;
 use WMDE\Fundraising\MembershipContext\UseCases\RestoreMembershipApplication\RestoreMembershipApplicationUseCase;
+use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\CancelPaymentUseCase;
+use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\FailureResponse;
+use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\SuccessResponse;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\RestoreMembershipApplication\RestoreMembershipApplicationUseCase
@@ -86,14 +89,56 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertContains( $message, $logs );
 	}
 
-	private function newUseCase( MembershipApplication ...$applications ): RestoreMembershipApplicationUseCase {
-		foreach ( $applications as $application ) {
+	public function testOnRestoreMembershipApplication_andPaymentIsNotCompleted_membershipISNotConfirmed(): void {
+		$application = ValidMembershipApplication::newDomainEntity();
+		$application->cancel();
+		$useCase = $this->newUseCase( $application, $this->givenSucceedingCancelPaymentUseCase( paymentIsCompleted: false ) );
+		$useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
+
+		$this->assertFalse( $this->applicationRepository->getApplicationById( 1 )->isConfirmed() );
+	}
+
+	public function testOnRestoreMembershipApplication_andPaymentIsCompleted_confirmsMembership(): void {
+		$application = ValidMembershipApplication::newDomainEntity();
+		$application->cancel();
+		$useCase = $this->newUseCase( $application, $this->givenSucceedingCancelPaymentUseCase( paymentIsCompleted: true ) );
+		$useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
+
+		$this->assertTrue( $this->applicationRepository->getApplicationById( 1 )->isConfirmed() );
+	}
+
+	public function testWhenPaymentRestorationFails_restorationFails(): void {
+		$application = ValidMembershipApplication::newDomainEntity();
+		$application->cancel();
+		$useCase = $this->newUseCase( $application, $this->givenFailingCancelPaymentUseCase() );
+
+		$response = $useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
+		$this->assertFalse( $response->isSuccess() );
+	}
+
+	private function newUseCase( ?MembershipApplication $application = null, ?CancelPaymentUseCase $cancelPaymentUseCase = null ): RestoreMembershipApplicationUseCase {
+		if ( $application !== null ) {
 			$this->applicationRepository->storeApplication( $application );
 		}
 
 		return new RestoreMembershipApplicationUseCase(
 			$this->applicationRepository,
-			$this->membershipApplicationEventLogger
+			$this->membershipApplicationEventLogger,
+			$cancelPaymentUseCase ?? $this->givenSucceedingCancelPaymentUseCase()
 		);
+	}
+
+	private function givenSucceedingCancelPaymentUseCase( bool $paymentIsCompleted = false ): CancelPaymentUseCase {
+		$useCase = $this->createMock( CancelPaymentUseCase::class );
+		$useCase->method( 'restorePayment' )
+			->willReturn( new SuccessResponse( $paymentIsCompleted ) );
+		return $useCase;
+	}
+
+	private function givenFailingCancelPaymentUseCase(): CancelPaymentUseCase {
+		$useCase = $this->createMock( CancelPaymentUseCase::class );
+		$useCase->method( 'restorePayment' )
+			->willReturn( new FailureResponse( 'This payment is already cancelled' ) );
+		return $useCase;
 	}
 }

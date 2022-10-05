@@ -217,7 +217,7 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 	private function givenSucceedingCancelPaymentUseCase(): CancelPaymentUseCase {
 		$useCase = $this->createMock( CancelPaymentUseCase::class );
 		$useCase->method( 'cancelPayment' )
-			->willReturn( new SuccessResponse() );
+			->willReturn( new SuccessResponse( true ) );
 		return $useCase;
 	}
 
