@@ -16,10 +16,10 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidPayments;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedMembershipTokenGenerator;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ThrowingEntityManager;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidPayments;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FixedMembershipTokenGenerator;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManager;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 

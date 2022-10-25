@@ -11,7 +11,7 @@ use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\LegacyToDomai
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\LegacyToDomainConverter

@@ -8,9 +8,9 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FakeApplicationRepository;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\MembershipApplicationEventLoggerSpy;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\MembershipApplicationEventLoggerSpy;
 use WMDE\Fundraising\MembershipContext\UseCases\ModerateMembershipApplication\ModerateMembershipApplicationUseCase;
 
 /**

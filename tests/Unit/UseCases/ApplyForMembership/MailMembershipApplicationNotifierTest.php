@@ -6,9 +6,9 @@ use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TemplateBasedMailerSpy;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\TemplateMailerStub;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateBasedMailerSpy;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateMailerStub;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MailMembershipApplicationNotifier;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 

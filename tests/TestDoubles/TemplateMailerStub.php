@@ -1,7 +1,7 @@
 <?php
 declare( strict_types=1 );
 
-namespace WMDE\Fundraising\MembershipContext\Tests\Fixtures;
+namespace WMDE\Fundraising\MembershipContext\Tests\TestDoubles;
 
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;

@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembers
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Domain\MembershipPaymentValidator;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicantType;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentType;

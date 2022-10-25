@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\MembershipContext\Tests\Fixtures;
+namespace WMDE\Fundraising\MembershipContext\Tests\TestDoubles;
 
 use WMDE\FunValidators\DomainNameValidator;
 use WMDE\FunValidators\ValidationResult;

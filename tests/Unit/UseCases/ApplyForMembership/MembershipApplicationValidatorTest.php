@@ -5,9 +5,9 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplicationRequest;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\SucceedingEmailValidator;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplicationRequest;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingEmailValidator;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator;

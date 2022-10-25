@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 use Doctrine\ORM\EntityManager;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationTracker;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;

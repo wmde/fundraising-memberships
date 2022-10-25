@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembers
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;

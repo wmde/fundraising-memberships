@@ -10,7 +10,7 @@ use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\DomainToLegac
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
 

@@ -4,9 +4,9 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\RestoreMembersh
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FakeApplicationRepository;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\MembershipApplicationEventLoggerSpy;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\MembershipApplicationEventLoggerSpy;
 use WMDE\Fundraising\MembershipContext\UseCases\RestoreMembershipApplication\RestoreMembershipApplicationUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\CancelPaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\FailureResponse;
