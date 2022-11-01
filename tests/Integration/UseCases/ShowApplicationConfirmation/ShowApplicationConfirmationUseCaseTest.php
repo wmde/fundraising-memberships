@@ -7,11 +7,11 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ShowAppl
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FailingAuthorizer;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FakeApplicationRepository;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FixedApplicationTokenFetcher;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\SucceedingAuthorizer;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FailingAuthorizer;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FixedApplicationTokenFetcher;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingAuthorizer;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowAppConfirmationRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;

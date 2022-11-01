@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipApplicationEventLogger;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogException;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ThrowingEntityManager;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManager;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
 /**

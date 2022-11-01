@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\MembershipContext\Tests\Fixtures;
+namespace WMDE\Fundraising\MembershipContext\Tests\TestDoubles;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;

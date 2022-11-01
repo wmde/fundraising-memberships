@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\MembershipContext\Tests\Data;
+namespace WMDE\Fundraising\MembershipContext\Tests\Fixtures;
 
 use DateTime;
 use WMDE\EmailAddress\EmailAddress;

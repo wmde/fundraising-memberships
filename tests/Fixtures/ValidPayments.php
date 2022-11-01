@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\MembershipContext\Tests\Data;
+namespace WMDE\Fundraising\MembershipContext\Tests\Fixtures;
 
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;

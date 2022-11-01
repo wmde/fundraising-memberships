@@ -5,13 +5,20 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ModerateMembershipApplication;
 
 use PHPUnit\Framework\TestCase;
+use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
-use WMDE\Fundraising\MembershipContext\Tests\Data\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FakeApplicationRepository;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\MembershipApplicationEventLoggerSpy;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\InMemoryPaymentRepository;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\MembershipApplicationEventLoggerSpy;
 use WMDE\Fundraising\MembershipContext\UseCases\ModerateMembershipApplication\ModerateMembershipApplicationUseCase;
+use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ModerateMembershipApplication\ModerateMembershipApplicationUseCase
@@ -23,11 +30,22 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 	private MembershipApplicationEventLoggerSpy $membershipApplicationEventLogger;
 	private FakeApplicationRepository $applicationRepository;
+	private PaymentRepository $paymentRepository;
 
 	protected function setUp(): void {
 		parent::setUp();
 		$this->membershipApplicationEventLogger = new MembershipApplicationEventLoggerSpy();
 		$this->applicationRepository = new FakeApplicationRepository();
+
+		$this->paymentRepository = new InMemoryPaymentRepository( [
+			ValidMembershipApplication::PAYMENT_ID => DirectDebitPayment::create(
+				ValidMembershipApplication::PAYMENT_ID,
+				Euro::newFromCents( 2500 ),
+				PaymentInterval::Quarterly,
+				new Iban( ValidMembershipApplication::PAYMENT_IBAN ),
+				ValidMembershipApplication::PAYMENT_BIC
+			)
+		] );
 	}
 
 	public function testModerateNonExistentMembershipApplication_actionFails() {
@@ -130,6 +148,33 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertContains( $message, $logs );
 	}
 
+	public function testGivenConfirmedPayment_onApproveConfirmsMembership(): void {
+		$application = ValidMembershipApplication::newDomainEntity();
+		$application->markForModeration( $this->makeGenericModerationReason() );
+		$useCase = $this->newUseCase( $application );
+
+		$useCase->approveMembershipApplication( 1, self::AUTH_USER_NAME );
+
+		$storedApplication = $this->applicationRepository->getApplicationById( $application->getId() );
+		$this->assertTrue( $storedApplication->isConfirmed() );
+	}
+
+	public function testGivenUnConfirmedPayment_onApproveLeavesMembershipUnconfirmed(): void {
+		$application = ValidMembershipApplication::newDomainEntity();
+		$application->markForModeration( $this->makeGenericModerationReason() );
+		$this->paymentRepository->storePayment( new PayPalPayment(
+			ValidMembershipApplication::PAYMENT_ID,
+			Euro::newFromCents( 2500 ),
+			PaymentInterval::Quarterly
+		) );
+		$useCase = $this->newUseCase( $application );
+
+		$useCase->approveMembershipApplication( 1, self::AUTH_USER_NAME );
+
+		$storedApplication = $this->applicationRepository->getApplicationById( $application->getId() );
+		$this->assertFalse( $storedApplication->isConfirmed() );
+	}
+
 	public function testOnApproveMembershipApplication_adminUserNameIsWrittenAsLogEntry(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->markForModeration( $this->makeGenericModerationReason() );
@@ -151,7 +196,8 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 		return new ModerateMembershipApplicationUseCase(
 			$this->applicationRepository,
-			$this->membershipApplicationEventLogger
+			$this->membershipApplicationEventLogger,
+			$this->paymentRepository
 		);
 	}
 }
