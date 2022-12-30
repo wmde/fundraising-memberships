@@ -65,25 +65,19 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 		$this->paymentIntervalInMonths = $interval;
 		$this->paymentType = $paymentType;
 
+		$errors = [];
+
 		if ( $this->isInvalidPaymentIntervalForMemberships( $this->paymentIntervalInMonths ) ) {
-			return ValidationResponse::newFailureResponse( [
-				new ConstraintViolation( $interval, self::INVALID_INTERVAL, self::SOURCE_INTERVAL )
-			] );
+			$errors[] = new ConstraintViolation( $interval, self::INVALID_INTERVAL, self::SOURCE_INTERVAL );
+		} elseif ( $this->getYearlyPaymentAmount() < $this->getYearlyPaymentRequirement() ) {
+			$errors[] = new ConstraintViolation( $interval, self::FEE_TOO_LOW, self::SOURCE_MEMBERSHIP_FEE );
 		}
 
 		if ( $this->isInvalidPaymentTypeForMemberships( $this->paymentType ) ) {
-			return ValidationResponse::newFailureResponse( [
-				new ConstraintViolation( $interval, self::INVALID_PAYMENT_TYPE, self::SOURCE_PAYMENT_TYPE )
-			] );
+			$errors[] = new ConstraintViolation( $interval, self::INVALID_PAYMENT_TYPE, self::SOURCE_PAYMENT_TYPE );
 		}
 
-		if ( $this->getYearlyPaymentAmount() < $this->getYearlyPaymentRequirement() ) {
-			return ValidationResponse::newFailureResponse( [
-				new ConstraintViolation( $interval, self::FEE_TOO_LOW, self::SOURCE_MEMBERSHIP_FEE )
-			] );
-		}
-
-		return ValidationResponse::newSuccessResponse();
+		return new ValidationResponse( $errors );
 	}
 
 	private function getYearlyPaymentAmount(): float {
