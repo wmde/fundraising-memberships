@@ -80,7 +80,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 		);
 	}
 
-	public function invalidPhoneNumberProvider(): array {
+	public static function invalidPhoneNumberProvider(): array {
 		return [
 			'potato' => [ 'potato' ],
 
@@ -104,7 +104,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 		);
 	}
 
-	public function emailViolationTypeProvider(): array {
+	public static function emailViolationTypeProvider(): array {
 		return [
 			[ 'email_address_wrong_format' ],
 			[ 'email_address_invalid' ],
@@ -113,12 +113,9 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	private function newFailingEmailValidator( string $violationType ): EmailValidator {
-		$feeValidator = $this->getMockBuilder( EmailValidator::class )
-			->disableOriginalConstructor()->getMock();
-
+		$feeValidator = $this->createMock( EmailValidator::class );
 		$feeValidator->method( 'validate' )
 			->willReturn( new ValidationResult( new ConstraintViolation( 'this is not a valid email', $violationType ) ) );
-
 		return $feeValidator;
 	}
 

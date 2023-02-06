@@ -73,7 +73,7 @@ class ModerationServiceTest extends TestCase {
 		);
 	}
 
-	public function blocklistedEmailAddressProvider(): array {
+	public static function blocklistedEmailAddressProvider(): array {
 		return [
 			[ 'foo@bar.baz' ],
 			[ 'test@example.com' ],
@@ -91,7 +91,7 @@ class ModerationServiceTest extends TestCase {
 		);
 	}
 
-	public function allowedEmailAddressProvider(): array {
+	public static function allowedEmailAddressProvider(): array {
 		return [
 			[ 'other.person@bar.baz' ],
 			[ 'test@example.computer.says.no' ],

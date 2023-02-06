@@ -47,7 +47,7 @@ class DoctrineMembershipApplicationTrackerTest extends \PHPUnit\Framework\TestCa
 		$this->assertSame( $campaignCode, $storedApplication->getDecodedData()['confirmationPageCampaign'] );
 	}
 
-	public function validTrackingDataProvider(): array {
+	public static function validTrackingDataProvider(): array {
 		return [
 			[ 'campaignCode', 'keyword' ],
 			[ '', 'keyword', 'keyword' ],

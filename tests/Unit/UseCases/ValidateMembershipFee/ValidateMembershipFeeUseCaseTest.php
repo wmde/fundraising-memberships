@@ -48,7 +48,7 @@ class ValidateMembershipFeeUseCaseTest extends TestCase {
 		$this->assertEquals( $expectedError, $constraintViolation->getMessageIdentifier() );
 	}
 
-	public function invalidAmountProvider(): iterable {
+	public static function invalidAmountProvider(): iterable {
 		yield 'too low single payment' => [ 1, 12, MembershipPaymentValidator::FEE_TOO_LOW ];
 		yield 'just too low single payment' => [ 23, 12, MembershipPaymentValidator::FEE_TOO_LOW ];
 
@@ -67,7 +67,7 @@ class ValidateMembershipFeeUseCaseTest extends TestCase {
 		);
 	}
 
-	public function validAmountProvider(): iterable {
+	public static function validAmountProvider(): iterable {
 		yield 'single payment' => [ 50, 12 ];
 		yield 'just enough single payment' => [ 24, 12 ];
 		yield 'high single payment' => [ 31333, 12 ];

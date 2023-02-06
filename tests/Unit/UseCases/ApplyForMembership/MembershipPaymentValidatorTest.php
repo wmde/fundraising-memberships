@@ -50,13 +50,13 @@ class MembershipPaymentValidatorTest extends TestCase {
 		$this->assertEquals( $isValid, $response->isSuccessful() );
 	}
 
-	public function companyAmountProvider(): iterable {
+	public static function companyAmountProvider(): iterable {
 		yield [ true, self::VALID_MIN_AMOUNT_FOR_COMPANY ];
 		yield [ false, self::VALID_MIN_AMOUNT_FOR_COMPANY - 1 ];
 		yield [ true, self::VALID_MIN_AMOUNT_FOR_COMPANY + 1 ];
 	}
 
-	public function privatePersonAmountProvider(): iterable {
+	public static function privatePersonAmountProvider(): iterable {
 		yield [ true, self::VALID_MIN_AMOUNT_FOR_PRIVATE_PERSON ];
 		yield [ false, self::VALID_MIN_AMOUNT_FOR_PRIVATE_PERSON - 1 ];
 		yield [ true, self::VALID_MIN_AMOUNT_FOR_PRIVATE_PERSON + 1 ];
@@ -78,7 +78,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 		$this->assertEquals( MembershipPaymentValidator::FEE_TOO_LOW, $feeViolation->getMessageIdentifier() );
 	}
 
-	public function tooLowAmountProvider(): iterable {
+	public static function tooLowAmountProvider(): iterable {
 		yield [ ApplicantType::PERSON_APPLICANT, 5 ];
 		yield [ ApplicantType::PERSON_APPLICANT, 4 ];
 		yield [ ApplicantType::PERSON_APPLICANT, 0 ];
@@ -111,7 +111,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 		$this->assertTrue( $response->isSuccessful() );
 	}
 
-	public function validIntervalProvider(): iterable {
+	public static function validIntervalProvider(): iterable {
 		yield [ PaymentInterval::Quarterly ];
 		yield [ PaymentInterval::HalfYearly ];
 		yield [ PaymentInterval::Monthly ];
@@ -131,7 +131,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 		$this->assertFalse( $response->isSuccessful() );
 	}
 
-	public function invalidPaymentTypeProvider(): iterable {
+	public static function invalidPaymentTypeProvider(): iterable {
 		yield [ PaymentType::BankTransfer ];
 		yield [ PaymentType::Sofort ];
 		yield [ PaymentType::CreditCard ];
