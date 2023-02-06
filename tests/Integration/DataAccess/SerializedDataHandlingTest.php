@@ -41,7 +41,7 @@ class SerializedDataHandlingTest extends TestCase {
 		$this->assertEquals( $data, $doctrineMembershipApplication->getDecodedData() );
 	}
 
-	public function encodedMembershipDataProvider(): array {
+	public static function encodedMembershipDataProvider(): array {
 		return [
 			[
 				[

@@ -59,7 +59,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	/**
 	 * @return iterable<string,array{string,bool}>
 	 */
-	public function updateTokenProvider(): iterable {
+	public static function updateTokenProvider(): iterable {
 		yield 'correct update token' => [ self::CORRECT_UPDATE_TOKEN, true ];
 		yield 'incorrect update token' => [ self::WRONG__UPDATE_TOKEN, false ];
 	}
@@ -76,7 +76,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	/**
 	 * @return iterable<string,array{string,bool}>
 	 */
-	public function accessTokenProvider(): iterable {
+	public static function accessTokenProvider(): iterable {
 		yield 'correct access token' => [ self::CORRECT_ACCESS_TOKEN, true ];
 		yield 'incorrect update token' => [ self::WRONG_ACCESS_TOKEN, false ];
 	}
