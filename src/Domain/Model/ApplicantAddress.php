@@ -6,18 +6,13 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
 use WMDE\FreezableValueObject\FreezableValueObject;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- */
 class ApplicantAddress {
 	use FreezableValueObject;
 
-	private $streetAddress = '';
-	private $postalCode = '';
-	private $city = '';
-	private $countryCode = '';
+	private string $streetAddress = '';
+	private string $postalCode = '';
+	private string $city = '';
+	private string $countryCode = '';
 
 	public function getStreetAddress(): string {
 		return $this->streetAddress;

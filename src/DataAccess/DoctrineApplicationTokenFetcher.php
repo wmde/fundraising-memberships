@@ -18,7 +18,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicat
  */
 class DoctrineApplicationTokenFetcher implements ApplicationTokenFetcher {
 
-	private $table;
+	private DoctrineApplicationTable $table;
 
 	public function __construct( EntityManager $entityManager ) {
 		// TODO: Add non-null logger
@@ -26,18 +26,17 @@ class DoctrineApplicationTokenFetcher implements ApplicationTokenFetcher {
 	}
 
 	/**
-	 * @param int $applicationId
+	 * @param int $membershipApplicationId
 	 *
 	 * @return MembershipApplicationTokens
 	 * @throws ApplicationTokenFetchingException
 	 */
-	public function getTokens( int $applicationId ): MembershipApplicationTokens {
+	public function getTokens( int $membershipApplicationId ): MembershipApplicationTokens {
 		try {
-			$application = $this->table->getApplicationById( $applicationId );
-		}
-		catch ( GetMembershipApplicationException $ex ) {
+			$application = $this->table->getApplicationById( $membershipApplicationId );
+		} catch ( GetMembershipApplicationException $ex ) {
 			throw new ApplicationTokenFetchingException(
-				sprintf( 'Could not get membership application with ID %d', $applicationId ),
+				sprintf( 'Could not get membership application with ID %d', $membershipApplicationId ),
 				$ex
 			);
 		}

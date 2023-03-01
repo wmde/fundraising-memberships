@@ -10,17 +10,13 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class FakeApplicationRepository implements ApplicationRepository {
 
-	private $calls = 0;
-	private $applications = [];
-	private $throwOnRead = false;
-	private $throwOnWrite = false;
-	private $throwAnonymizedOnRead = false;
+	private int $calls = 0;
+	private array $applications = [];
+	private bool $throwOnRead = false;
+	private bool $throwOnWrite = false;
+	private bool $throwAnonymizedOnRead = false;
 
 	public function __construct( MembershipApplication ...$applications ) {
 		foreach ( $applications as $application ) {

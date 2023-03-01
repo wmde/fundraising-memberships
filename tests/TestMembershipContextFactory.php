@@ -66,7 +66,7 @@ class TestMembershipContextFactory {
 		}
 	}
 
-	public function setTokenGenerator( MembershipTokenGenerator $tokenGenerator ) {
+	public function setTokenGenerator( MembershipTokenGenerator $tokenGenerator ): void {
 		$this->factory->setTokenGenerator( $tokenGenerator );
 	}
 

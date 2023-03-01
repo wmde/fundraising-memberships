@@ -149,10 +149,15 @@ class MembershipApplication {
 		return $this->id;
 	}
 
-	public function setId( ?int $id ) {
+	public function setId( ?int $id ): void {
 		$this->id = $id;
 	}
 
+	/**
+	 * @deprecated We should no longer set this
+	 * @param int|null $donationId
+	 * @return $this
+	 */
 	public function setDonationId( ?int $donationId ): self {
 		$this->donationId = $donationId;
 
@@ -164,6 +169,7 @@ class MembershipApplication {
 	 * or null when the application is not linked to any donation.
 	 *
 	 * @return int|null
+	 * @deprecated
 	 */
 	public function getDonationId(): ?int {
 		return $this->donationId;

@@ -30,8 +30,7 @@ class DoctrineApplicationAuthorizer implements ApplicationAuthorizer {
 	public function canModifyApplication( int $applicationId ): bool {
 		try {
 			$application = $this->table->getApplicationById( $applicationId );
-		}
-		catch ( GetMembershipApplicationException $ex ) {
+		} catch ( GetMembershipApplicationException $ex ) {
 			return false;
 		}
 
@@ -48,8 +47,7 @@ class DoctrineApplicationAuthorizer implements ApplicationAuthorizer {
 	public function canAccessApplication( int $applicationId ): bool {
 		try {
 			$application = $this->table->getApplicationById( $applicationId );
-		}
-		catch ( GetMembershipApplicationException $ex ) {
+		} catch ( GetMembershipApplicationException $ex ) {
 			return false;
 		}
 

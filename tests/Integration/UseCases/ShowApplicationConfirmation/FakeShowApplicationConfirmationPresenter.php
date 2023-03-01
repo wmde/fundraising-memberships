@@ -7,18 +7,14 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ShowAppl
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationPresenter;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirmationPresenter {
 
-	private $application;
-	private $paymentData;
-	private $updateToken;
-	private $anonymizedResponseWasShown = false;
-	private $accessViolationWasShown = false;
-	private $shownTechnicalError;
+	private ?MembershipApplication $application = null;
+	private array $paymentData;
+	private string $updateToken;
+	private bool $anonymizedResponseWasShown = false;
+	private bool $accessViolationWasShown = false;
+	private string $shownTechnicalError;
 
 	public function presentConfirmation( MembershipApplication $application, array $paymentData, string $updateToken ): void {
 		if ( $this->application !== null ) {
@@ -58,8 +54,8 @@ class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirm
 		return $this->accessViolationWasShown;
 	}
 
-	public function presentTechnicalError( string $error ): void {
-		$this->shownTechnicalError = $error;
+	public function presentTechnicalError( string $message ): void {
+		$this->shownTechnicalError = $message;
 	}
 
 	public function getShownTechnicalError(): string {

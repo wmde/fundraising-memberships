@@ -18,9 +18,9 @@ class InMemoryApplicationRepository implements ApplicationRepository {
 	/**
 	 * @var MembershipApplication[]
 	 */
-	private $applications = [];
+	private array $applications = [];
 
-	private $nextNewId = 1;
+	private int $nextNewId = 1;
 
 	/**
 	 * @param MembershipApplication $application

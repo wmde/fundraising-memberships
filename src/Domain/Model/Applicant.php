@@ -6,29 +6,19 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
 use WMDE\EmailAddress\EmailAddress;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class Applicant {
 
-	private $personName;
-	private $physicalAddress;
-	private $email;
-	private $phone;
-	private $dateOfBirth;
-
-	public function __construct( ApplicantName $name, ApplicantAddress $address, EmailAddress $email,
-		PhoneNumber $phone, \DateTime $dateOfBirth = null ) {
-		$this->personName = $name;
-		$this->physicalAddress = $address;
-		$this->email = $email;
-		$this->phone = $phone;
-		$this->dateOfBirth = $dateOfBirth;
+	public function __construct(
+		private readonly ApplicantName $name,
+		private readonly ApplicantAddress $physicalAddress,
+		private EmailAddress $email,
+		private readonly PhoneNumber $phone,
+		private readonly ?\DateTime $dateOfBirth = null
+	) {
 	}
 
 	public function getName(): ApplicantName {
-		return $this->personName;
+		return $this->name;
 	}
 
 	public function getPhysicalAddress(): ApplicantAddress {

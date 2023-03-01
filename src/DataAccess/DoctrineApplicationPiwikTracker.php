@@ -13,13 +13,9 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplic
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTrackingException;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class DoctrineApplicationPiwikTracker implements ApplicationPiwikTracker {
 
-	private $table;
+	private DoctrineApplicationTable $table;
 
 	public function __construct( EntityManager $entityManager ) {
 		// TODO: Add non-null logger
@@ -34,8 +30,7 @@ class DoctrineApplicationPiwikTracker implements ApplicationPiwikTracker {
 					$application->setTracking( $trackingString );
 				}
 			);
-		}
-		catch ( GetMembershipApplicationException | StoreMembershipApplicationException $ex ) {
+		} catch ( GetMembershipApplicationException | StoreMembershipApplicationException $ex ) {
 			throw new ApplicationPiwikTrackingException( 'Could not add tracking info', $ex );
 		}
 	}

@@ -10,20 +10,12 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 
-/**
- * @license GPL-2.0-or-later
- * @author Gabriel Birke < gabriel.birke@wikimedia.de >
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class DoctrineMembershipApplicationPrePersistSubscriber implements EventSubscriber {
 
-	private $updateTokenGenerator;
-	private $accessTokenGenerator;
-
-	public function __construct( MembershipTokenGenerator $updateTokenGenerator, MembershipTokenGenerator $accessTokenGenerator ) {
-		$this->updateTokenGenerator = $updateTokenGenerator;
-		$this->accessTokenGenerator = $accessTokenGenerator;
+	public function __construct(
+		private readonly MembershipTokenGenerator $updateTokenGenerator,
+		private readonly MembershipTokenGenerator $accessTokenGenerator
+	) {
 	}
 
 	public function getSubscribedEvents(): array {

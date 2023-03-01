@@ -49,7 +49,6 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 
 	private Euro $membershipFee;
 	private PaymentInterval $paymentIntervalInMonths;
-	private PaymentType $paymentType;
 
 	/**
 	 * @param ApplicantType $applicantType
@@ -57,13 +56,13 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 	 */
 	public function __construct(
 		private ApplicantType $applicantType,
-		private array $allowedPaymentTypes ) {
+		private array $allowedPaymentTypes
+	) {
 	}
 
 	public function validatePaymentData( Euro $amount, PaymentInterval $interval, PaymentType $paymentType ): ValidationResponse {
 		$this->membershipFee = $amount;
 		$this->paymentIntervalInMonths = $interval;
-		$this->paymentType = $paymentType;
 
 		$errors = [];
 
@@ -73,7 +72,7 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 			$errors[] = new ConstraintViolation( $interval, self::FEE_TOO_LOW, self::SOURCE_MEMBERSHIP_FEE );
 		}
 
-		if ( $this->isInvalidPaymentTypeForMemberships( $this->paymentType ) ) {
+		if ( $this->isInvalidPaymentTypeForMemberships( $paymentType ) ) {
 			$errors[] = new ConstraintViolation( $interval, self::INVALID_PAYMENT_TYPE, self::SOURCE_PAYMENT_TYPE );
 		}
 
@@ -91,7 +90,6 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 		return match( $this->applicantType ) {
 			ApplicantType::COMPANY_APPLICANT => self::MIN_COMPANY_YEARLY_PAYMENT_IN_EURO,
 			ApplicantType::PERSON_APPLICANT => self::MIN_PERSON_YEARLY_PAYMENT_IN_EURO,
-			default => throw new \Exception( 'Unexpected applicant type' ),
 		};
 	}
 

@@ -4,26 +4,16 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Authorization;
 
-/**
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- */
 class MembershipApplicationTokens {
 
-	private $accessToken;
-	private $updateToken;
-
-	public function __construct( string $accessToken, string $updateToken ) {
+	public function __construct( private readonly string $accessToken, private readonly string $updateToken ) {
 		if ( $accessToken === '' ) {
-			throw new \InvalidArgumentException( 'Access token cannot be empty' );
+			throw new \InvalidArgumentException( 'Access token must not be empty' );
 		}
 
 		if ( $updateToken === '' ) {
-			throw new \InvalidArgumentException( 'Update token cannot be empty' );
+			throw new \InvalidArgumentException( 'Update token must not be empty' );
 		}
-
-		$this->accessToken = $accessToken;
-		$this->updateToken = $updateToken;
 	}
 
 	public function getAccessToken(): string {

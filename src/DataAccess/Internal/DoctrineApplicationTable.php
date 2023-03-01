@@ -12,25 +12,18 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApp
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class DoctrineApplicationTable {
 
-	private $entityManager;
-	private $logger;
-
-	public function __construct( EntityManager $entityManager, LoggerInterface $logger ) {
-		$this->entityManager = $entityManager;
-		$this->logger = $logger;
+	public function __construct(
+		private readonly EntityManager $entityManager,
+		private readonly LoggerInterface $logger
+	) {
 	}
 
 	public function getApplicationOrNullById( int $applicationId ): ?MembershipApplication {
 		try {
 			$application = $this->entityManager->find( MembershipApplication::class, $applicationId );
-		}
-		catch ( ORMException $ex ) {
+		} catch ( ORMException $ex ) {
 			$this->logPersistenceError( $ex, 'Membership application could not be accessed' );
 			throw new GetMembershipApplicationException( 'Membership application could not be accessed' );
 		}
@@ -38,7 +31,7 @@ class DoctrineApplicationTable {
 		return $application;
 	}
 
-	private function logPersistenceError( ORMException $previous, string $message ) {
+	private function logPersistenceError( ORMException $previous, string $message ): void {
 		$this->logger->log( LogLevel::CRITICAL, $message, [ 'exception' => $previous ] );
 	}
 
@@ -52,12 +45,11 @@ class DoctrineApplicationTable {
 		return $application;
 	}
 
-	public function persistApplication( MembershipApplication $application ) {
+	public function persistApplication( MembershipApplication $application ): void {
 		try {
 			$this->entityManager->persist( $application );
 			$this->entityManager->flush();
-		}
-		catch ( ORMException $ex ) {
+		} catch ( ORMException $ex ) {
 			$this->logPersistenceError( $ex, 'Failed to persist membership application' );
 			throw new StoreMembershipApplicationException( 'Failed to persist membership application', $ex );
 		}
@@ -70,7 +62,7 @@ class DoctrineApplicationTable {
 	 * @throws GetMembershipApplicationException
 	 * @throws StoreMembershipApplicationException
 	 */
-	public function modifyApplication( int $applicationId, callable $modificationFunction ) {
+	public function modifyApplication( int $applicationId, callable $modificationFunction ): void {
 		$application = $this->getApplicationById( $applicationId );
 
 		$modificationFunction( $application );

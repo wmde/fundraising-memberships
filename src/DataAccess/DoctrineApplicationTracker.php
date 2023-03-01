@@ -14,13 +14,9 @@ use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTrackingException;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 
-/**
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- */
 class DoctrineApplicationTracker implements ApplicationTracker {
 
-	private $table;
+	private DoctrineApplicationTable $table;
 
 	public function __construct( EntityManager $entityManager ) {
 		// TODO: Add non-null logger
@@ -38,8 +34,7 @@ class DoctrineApplicationTracker implements ApplicationTracker {
 					$application->encodeAndSetData( $data );
 				}
 			);
-		}
-		catch ( GetMembershipApplicationException | StoreMembershipApplicationException $ex ) {
+		} catch ( GetMembershipApplicationException | StoreMembershipApplicationException $ex ) {
 			throw new ApplicationTrackingException( 'Failed to track membership application', $ex );
 		}
 	}
