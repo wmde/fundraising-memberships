@@ -35,6 +35,7 @@ class MembershipApplication {
 	 * Until we remove all references to this field in the backend, the field is not removed but just marked as deprecated.
 	 *
 	 * @deprecated
+	 * @phpstan-ignore-next-line
 	 */
 	private ?int $donationId = null;
 
@@ -120,12 +121,19 @@ class MembershipApplication {
 	 */
 	private string $paymentBic = '';
 
+	/**
+	 * @deprecated This is probably a db modeling leftover from donations - we never had comments for memberships
+	 */
 	private string $comment = '';
 
 	private ?DateTime $export = null;
 
 	private ?DateTime $backup = null;
 
+	/**
+	 * @deprecated This was used to track if a new member was logged into wikipedia at the time of the application.
+	 *             Hasn't been used since 2015.
+	 */
 	private bool $wikilogin = false;
 
 	private ?string $tracking = null;
@@ -151,28 +159,6 @@ class MembershipApplication {
 
 	public function setId( ?int $id ): void {
 		$this->id = $id;
-	}
-
-	/**
-	 * @deprecated We should no longer set this
-	 * @param int|null $donationId
-	 * @return $this
-	 */
-	public function setDonationId( ?int $donationId ): self {
-		$this->donationId = $donationId;
-
-		return $this;
-	}
-
-	/**
-	 * Returns the id of the donation that led to the membership application,
-	 * or null when the application is not linked to any donation.
-	 *
-	 * @return int|null
-	 * @deprecated
-	 */
-	public function getDonationId(): ?int {
-		return $this->donationId;
 	}
 
 	public function setCreationTime( ?DateTime $creationTime ): self {
