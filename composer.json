@@ -38,7 +38,7 @@
 		"phpunit/phpunit": "~10.0.4",
 		"symfony/cache": "^6.1",
 		"phpstan/phpstan": "~1.2",
-		"wmde/fundraising-phpcs": "~7.0.0",
+		"wmde/fundraising-phpcs": "~8.0.0",
 		"wmde/psr-log-test-doubles": "~3.0",
 		"phpstan/phpstan-phpunit": "~1.0"
 	},
