@@ -6,10 +6,6 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
 use WMDE\FreezableValueObject\FreezableValueObject;
 
-/**
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- */
 class ApplicantName {
 	use FreezableValueObject;
 
@@ -18,14 +14,14 @@ class ApplicantName {
 	public const PERSON_PRIVATE = 'person';
 	public const PERSON_COMPANY = 'firma';
 
-	private $personType = '';
+	private string $personType = '';
 
-	private $salutation = '';
-	private $title = '';
-	private $firstName = '';
-	private $lastName = '';
+	private string $salutation = '';
+	private string $title = '';
+	private string $firstName = '';
+	private string $lastName = '';
 
-	private $companyName = '';
+	private string $companyName = '';
 
 	private function __construct( string $personType ) {
 		$this->personType = $personType;

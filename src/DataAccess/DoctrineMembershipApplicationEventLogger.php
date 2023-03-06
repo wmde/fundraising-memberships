@@ -25,8 +25,7 @@ class DoctrineMembershipApplicationEventLogger implements MembershipApplicationE
 				MembershipApplication::class,
 				$membershipApplicationId
 			);
-		}
-		catch ( ORMException $e ) {
+		} catch ( ORMException $e ) {
 			throw new MembershipApplicationEventLogException( 'Could not get application', $e );
 		}
 
@@ -47,8 +46,7 @@ class DoctrineMembershipApplicationEventLogger implements MembershipApplicationE
 		try {
 			$this->entityManager->persist( $membershipApplication );
 			$this->entityManager->flush();
-		}
-		catch ( ORMException $e ) {
+		} catch ( ORMException $e ) {
 			throw new MembershipApplicationEventLogException( 'Could not store application', $e );
 		}
 	}

@@ -27,15 +27,9 @@ class DoctrineApplicationTableTest extends TestCase {
 	private const UNKNOWN_ID = 32205;
 	private const IRRELEVANT_ID = 11111;
 
-	/**
-	 * @var EntityManager
-	 */
-	private $entityManager;
+	private EntityManager $entityManager;
 
-	/**
-	 * @var LoggerSpy
-	 */
-	private $logger;
+	private LoggerSpy $logger;
 
 	public function setUp(): void {
 		$this->entityManager = TestEnvironment::newInstance()->getEntityManager();
@@ -144,7 +138,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		);
 	}
 
-	public function testGivenKnownId_modifyApplicationModifiesTheApplication() {
+	public function testGivenKnownId_modifyApplicationModifiesTheApplication(): void {
 		$application = ValidMembershipApplication::newDoctrineEntity();
 		$table = $this->getTable();
 		$table->persistApplication( $application );
@@ -162,38 +156,35 @@ class DoctrineApplicationTableTest extends TestCase {
 		);
 	}
 
-	public function testWhenDoctrineThrowsException_getApplicationOrNullLogsIt() {
+	public function testWhenDoctrineThrowsException_getApplicationOrNullLogsIt(): void {
 		$this->entityManager = ThrowingEntityManager::newInstance( $this );
 
 		try {
 			$this->getTable()->getApplicationOrNullById( self::IRRELEVANT_ID );
-		}
-		catch ( \Exception $ex ) {
+		} catch ( \Exception $ex ) {
 		}
 
 		$this->assertNotEmpty( $this->logger->getLogCalls() );
 	}
 
-	public function testWhenDoctrineThrowsException_persistApplicationLogsIt() {
+	public function testWhenDoctrineThrowsException_persistApplicationLogsIt(): void {
 		$this->entityManager = ThrowingEntityManager::newInstance( $this );
 
 		try {
 			$this->getTable()->persistApplication( ValidMembershipApplication::newDoctrineEntity() );
-		}
-		catch ( \Exception $ex ) {
+		} catch ( \Exception $ex ) {
 		}
 
 		$this->assertNotEmpty( $this->logger->getLogCalls() );
 	}
 
-	public function testWhenDoctrineThrowsException_modifyApplicationLogsIt() {
+	public function testWhenDoctrineThrowsException_modifyApplicationLogsIt(): void {
 		$this->entityManager = ThrowingEntityManager::newInstance( $this );
 
 		try {
 			$this->getTable()->modifyApplication( self::IRRELEVANT_ID, static function () {
 			} );
-		}
-		catch ( \Exception $ex ) {
+		} catch ( \Exception $ex ) {
 		}
 
 		$this->assertNotEmpty( $this->logger->getLogCalls() );

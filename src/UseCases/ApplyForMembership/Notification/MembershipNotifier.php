@@ -10,5 +10,5 @@ interface MembershipNotifier {
 
 	public function sendConfirmationFor( MembershipApplication $application ): void;
 
-	public function sendModerationNotificationToAdmin( MembershipApplication $application );
+	public function sendModerationNotificationToAdmin( MembershipApplication $application ): void;
 }

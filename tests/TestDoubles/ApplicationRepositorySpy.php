@@ -13,8 +13,16 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicat
  */
 class ApplicationRepositorySpy extends FakeApplicationRepository {
 
-	private $storeApplicationCalls = [];
-	private $getApplicationCalls = [];
+	/**
+	 * @var MembershipApplication[]
+	 */
+	private array $storeApplicationCalls = [];
+
+	/**
+	 * Membership IDs
+	 * @var int[]
+	 */
+	private array $getApplicationCalls = [];
 
 	public function __construct( MembershipApplication ...$applications ) {
 		parent::__construct( ...$applications );

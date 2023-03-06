@@ -6,17 +6,10 @@ namespace WMDE\Fundraising\MembershipContext\Tests\TestDoubles;
 
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class FixedMembershipTokenGenerator implements MembershipTokenGenerator {
+	private \DateTime $expiry;
 
-	private $token;
-	private $expiry;
-
-	public function __construct( string $token, \DateTime $expiry = null ) {
-		$this->token = $token;
+	public function __construct( private readonly string $token, \DateTime $expiry = null ) {
 		$this->expiry = $expiry === null ? new \DateTime() : $expiry;
 	}
 

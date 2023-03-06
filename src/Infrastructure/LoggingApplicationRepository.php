@@ -12,20 +12,18 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicat
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 
 /**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * @deprecated Doctrine errors are rare, use application-level logging for Doctrine errors
  */
 class LoggingApplicationRepository implements ApplicationRepository {
 
 	private const CONTEXT_EXCEPTION_KEY = 'exception';
 
-	private $repository;
-	private $logger;
-	private $logLevel;
+	private string $logLevel;
 
-	public function __construct( ApplicationRepository $repository, LoggerInterface $logger ) {
-		$this->repository = $repository;
-		$this->logger = $logger;
+	public function __construct(
+		private readonly ApplicationRepository $repository,
+		private readonly LoggerInterface $logger
+	) {
 		$this->logLevel = LogLevel::CRITICAL;
 	}
 
@@ -39,8 +37,7 @@ class LoggingApplicationRepository implements ApplicationRepository {
 	public function storeApplication( MembershipApplication $application ): void {
 		try {
 			$this->repository->storeApplication( $application );
-		}
-		catch ( StoreMembershipApplicationException $ex ) {
+		} catch ( StoreMembershipApplicationException $ex ) {
 			$this->logger->log( $this->logLevel, $ex->getMessage(), [ self::CONTEXT_EXCEPTION_KEY => $ex ] );
 			throw $ex;
 		}
@@ -56,8 +53,7 @@ class LoggingApplicationRepository implements ApplicationRepository {
 	public function getApplicationById( int $id ): ?MembershipApplication {
 		try {
 			return $this->repository->getApplicationById( $id );
-		}
-		catch ( GetMembershipApplicationException $ex ) {
+		} catch ( GetMembershipApplicationException $ex ) {
 			$this->logger->log( $this->logLevel, $ex->getMessage(), [ self::CONTEXT_EXCEPTION_KEY => $ex ] );
 			throw $ex;
 		}

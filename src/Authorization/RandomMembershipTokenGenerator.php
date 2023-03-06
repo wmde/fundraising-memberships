@@ -4,18 +4,9 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Authorization;
 
-/**
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- */
 class RandomMembershipTokenGenerator implements MembershipTokenGenerator {
 
-	private $tokenLength;
-	private $validityTimeSpan;
-
-	public function __construct( int $tokenLength, \DateInterval $validityTimeSpan ) {
-		$this->tokenLength = $tokenLength;
-		$this->validityTimeSpan = $validityTimeSpan;
+	public function __construct( private readonly int $tokenLength, private readonly \DateInterval $validityTimeSpan ) {
 	}
 
 	public function generateToken(): string {

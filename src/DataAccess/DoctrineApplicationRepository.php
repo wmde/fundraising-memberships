@@ -62,8 +62,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 					$this->updateDoctrineApplication( $doctrineApplication, $application, $existingModerationReasons );
 				}
 			);
-		}
-		catch ( GetMembershipApplicationException | StoreMembershipApplicationException $ex ) {
+		} catch ( GetMembershipApplicationException | StoreMembershipApplicationException $ex ) {
 			throw new StoreMembershipApplicationException( null, $ex );
 		}
 	}
