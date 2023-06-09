@@ -11,7 +11,7 @@
 
 		"psr/log": "~3.0",
 
-		"wmde/fundraising-payments": "~5.2",
+		"wmde/fundraising-payments": "~6.0",
 		"wmde/euro": "~1.0",
 		"wmde/email-address": "~1.0",
 		"wmde/fun-validators": "~4.0.0",
