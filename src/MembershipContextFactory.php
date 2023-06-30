@@ -5,13 +5,11 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext;
 
 use DateInterval;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Mapping\Driver\XmlDriver;
 use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
-use Gedmo\Timestampable\TimestampableListener;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Authorization\RandomMembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipApplicationPrePersistSubscriber;
@@ -84,20 +82,8 @@ class MembershipContextFactory {
 	 * @return EventSubscriber[]
 	 */
 	public function newEventSubscribers(): array {
-		return array_merge(
-			$this->newDoctrineSpecificEventSubscribers(),
-			[
-				DoctrineMembershipApplicationPrePersistSubscriber::class => $this->newDoctrineMembershipPrePersistSubscriber(
-				)
-			]
-		);
-	}
-
-	private function newDoctrineSpecificEventSubscribers(): array {
-		$timestampableListener = new TimestampableListener();
-		$timestampableListener->setAnnotationReader( new AnnotationReader() );
 		return [
-			TimestampableListener::class => $timestampableListener
+			DoctrineMembershipApplicationPrePersistSubscriber::class => $this->newDoctrineMembershipPrePersistSubscriber()
 		];
 	}
 

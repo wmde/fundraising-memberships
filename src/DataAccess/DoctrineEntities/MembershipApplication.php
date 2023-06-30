@@ -151,6 +151,7 @@ class MembershipApplication {
 	public function __construct() {
 		$this->incentives = new ArrayCollection();
 		$this->moderationReasons = new ArrayCollection();
+		$this->creationTime = new DateTime();
 	}
 
 	public function getId(): ?int {

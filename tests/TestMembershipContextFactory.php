@@ -4,13 +4,11 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
-use Gedmo\Timestampable\TimestampableListener;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\MembershipContextFactory;
 use WMDE\Fundraising\PaymentContext\PaymentContextFactory;
@@ -71,14 +69,6 @@ class TestMembershipContextFactory {
 	}
 
 	public function newSchemaCreator(): SchemaCreator {
-		return new SchemaCreator( $this->newEntityManager( [
-			TimestampableListener::class => $this->newTimestampableListener()
-		] ) );
-	}
-
-	private function newTimestampableListener(): TimestampableListener {
-		$timestampableListener = new TimestampableListener;
-		$timestampableListener->setAnnotationReader( new AnnotationReader() );
-		return $timestampableListener;
+		return new SchemaCreator( $this->newEntityManager() );
 	}
 }
