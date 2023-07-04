@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd" xmlns:gedmo="http://gediminasm.org/schemas/orm/doctrine-extensions-mapping">
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
   <entity name="WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication" table="request">
     <indexes>
       <index name="m_email" columns="email" flags="fulltext"/>
@@ -16,9 +16,7 @@
       </options>
     </field>
     <field name="donationId" type="integer" column="donation_id" nullable="true"/>
-    <field name="creationTime" type="datetime" column="timestamp" nullable="false">
-      <gedmo:timestampable on="create"/>
-    </field>
+    <field name="creationTime" type="datetime" column="timestamp" nullable="false"/>
     <field name="applicantSalutation" type="string" column="anrede" length="16" nullable="true"/>
     <field name="company" type="string" column="firma" length="100" nullable="true"/>
     <field name="applicantTitle" type="string" column="titel" length="16" nullable="true"/>

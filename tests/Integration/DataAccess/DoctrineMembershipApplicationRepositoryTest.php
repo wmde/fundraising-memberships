@@ -50,8 +50,9 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$expected->setId( $application->getId() );
 
 		$actual = $this->getApplicationFromDatabase( $application->getId() );
+		// Sync the creation dates as they get set to now()
+		$actual->setCreationTime( $expected->getCreationTime() );
 		// Override values that get created on persistence
-		$actual->setCreationTime( null );
 		$actual->setData( null );
 		$actual->setCompany( null );
 		$actual->setIncentives( new ArrayCollection() );
