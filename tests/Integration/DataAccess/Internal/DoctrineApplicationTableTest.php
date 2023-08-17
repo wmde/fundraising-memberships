@@ -5,7 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess\Internal;
 
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
@@ -18,13 +18,12 @@ use WMDE\PsrLogTestDoubles\LoggerSpy;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable
- *
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class DoctrineApplicationTableTest extends TestCase {
 
+	private const KNOWN_ID = 12345;
 	private const UNKNOWN_ID = 32205;
+
 	private const IRRELEVANT_ID = 11111;
 
 	private EntityManager $entityManager;
@@ -48,13 +47,13 @@ class DoctrineApplicationTableTest extends TestCase {
 	}
 
 	public function testGivenKnownId_getApplicationOrNullByIdReturnsTheApplication(): void {
-		$application = ValidMembershipApplication::newDoctrineEntity();
+		$application = ValidMembershipApplication::newDoctrineEntity( self::KNOWN_ID );
 		$table = $this->getTable();
 		$table->persistApplication( $application );
 
 		$this->assertEquals(
 			$application,
-			$table->getApplicationOrNullById( $application->getId() )
+			$table->getApplicationOrNullById( self::KNOWN_ID )
 		);
 	}
 
@@ -75,13 +74,13 @@ class DoctrineApplicationTableTest extends TestCase {
 	}
 
 	public function testGivenKnownId_getApplicationByIdReturnsTheApplication(): void {
-		$application = ValidMembershipApplication::newDoctrineEntity();
+		$application = ValidMembershipApplication::newDoctrineEntity( self::KNOWN_ID );
 		$table = $this->getTable();
 		$table->persistApplication( $application );
 
 		$this->assertEquals(
 			$application,
-			$table->getApplicationById( $application->getId() )
+			$table->getApplicationById( self::KNOWN_ID )
 		);
 	}
 
@@ -139,7 +138,7 @@ class DoctrineApplicationTableTest extends TestCase {
 	}
 
 	public function testGivenKnownId_modifyApplicationModifiesTheApplication(): void {
-		$application = ValidMembershipApplication::newDoctrineEntity();
+		$application = ValidMembershipApplication::newDoctrineEntity( self::KNOWN_ID );
 		$table = $this->getTable();
 		$table->persistApplication( $application );
 
@@ -152,7 +151,7 @@ class DoctrineApplicationTableTest extends TestCase {
 
 		$this->assertSame(
 			'Such a comment',
-			$table->getApplicationById( $application->getId() )->getComment()
+			$table->getApplicationById( self::KNOWN_ID )->getComment()
 		);
 	}
 

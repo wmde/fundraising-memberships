@@ -50,9 +50,9 @@ class LoggingApplicationRepository implements ApplicationRepository {
 	 *
 	 * @throws GetMembershipApplicationException
 	 */
-	public function getApplicationById( int $id ): ?MembershipApplication {
+	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication {
 		try {
-			return $this->repository->getApplicationById( $id );
+			return $this->repository->getUnexportedMembershipApplicationById( $id );
 		} catch ( GetMembershipApplicationException $ex ) {
 			$this->logger->log( $this->logLevel, $ex->getMessage(), [ self::CONTEXT_EXCEPTION_KEY => $ex ] );
 			throw $ex;

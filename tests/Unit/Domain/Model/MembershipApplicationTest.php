@@ -5,7 +5,6 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\Domain\Model;
 
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
@@ -18,29 +17,9 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication
  */
 class MembershipApplicationTest extends TestCase {
 
-	public function testIdIsNullWhenNotAssigned(): void {
-		$this->assertNull( ValidMembershipApplication::newDomainEntity()->getId() );
-	}
-
-	public function testCanAssignIdToNewDonation(): void {
-		$donation = ValidMembershipApplication::newDomainEntity();
-
-		$donation->assignId( 42 );
-		$this->assertSame( 42, $donation->getId() );
-	}
-
-	public function testCannotAssignIdToDonationWithIdentity(): void {
-		$donation = ValidMembershipApplication::newDomainEntity();
-		$donation->assignId( 42 );
-
-		$this->expectException( RuntimeException::class );
-		$donation->assignId( 43 );
-	}
-
 	public function testNewApplicationHasExpectedDefaults(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 
-		$this->assertNull( $application->getId() );
 		$this->assertFalse( $application->isCancelled() );
 		$this->assertFalse( $application->isMarkedForModeration() );
 	}

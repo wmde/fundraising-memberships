@@ -24,6 +24,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	private const WRONG_ACCESS_TOKEN = 'WrongAccessToken';
 	private const EMPTY_TOKEN = '';
 	private const MEANINGLESS_APPLICATION_ID = 1337;
+	private const APPLICATION_ID = 4223;
 	private const DUMMY_PAYMENT_ID = 42;
 
 	private EntityManager $entityManager;
@@ -82,36 +83,28 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	}
 
 	public function testGivenMembershipWithoutToken_updateAuthorizationFails(): void {
-		$application = new MembershipApplication();
-		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
-		$this->storeApplication( $application );
+		$application = $this->storeMembershipApplication();
 		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
 
 		$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
 	}
 
 	public function testGivenMembershipWithoutTokenAndEmptyAccessToken_accessAuthorizationFails(): void {
-		$application = new MembershipApplication();
-		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
-		$this->storeApplication( $application );
+		$application = $this->storeMembershipApplication();
 		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
 
 		$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
 	}
 
 	public function testGivenMembershipWithoutTokenAndEmptyUpdateToken_updateAuthorizationFails(): void {
-		$application = new MembershipApplication();
-		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
-		$this->storeApplication( $application );
+		$application = $this->storeMembershipApplication();
 		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
 
 		$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
 	}
 
 	public function testGivenMembershipWithoutToken_accessAuthorizationFails(): void {
-		$application = new MembershipApplication();
-		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
-		$this->storeApplication( $application );
+		$application = $this->storeMembershipApplication();
 		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
 
 		$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
@@ -139,6 +132,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 
 	private function givenMembershipApplication(): MembershipApplication {
 		$application = new MembershipApplication();
+		$application->setId( self::APPLICATION_ID );
 		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$application->modifyDataObject( static function ( MembershipApplicationData $data ): void {
 			$data->setUpdateToken( self::CORRECT_UPDATE_TOKEN );
@@ -148,12 +142,20 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		return $application;
 	}
 
-	private function newAuthorizerWithFailingDoctrine() {
+	private function newAuthorizerWithFailingDoctrine(): DoctrineApplicationAuthorizer {
 		return new DoctrineApplicationAuthorizer(
 			$this->getThrowingEntityManager(),
 			self::CORRECT_UPDATE_TOKEN,
 			self::CORRECT_ACCESS_TOKEN
 		);
+	}
+
+	private function storeMembershipApplication(): MembershipApplication {
+		$application = new MembershipApplication();
+		$application->setId( self::APPLICATION_ID );
+		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
+		$this->storeApplication( $application );
+		return $application;
 	}
 
 }

@@ -11,7 +11,7 @@ class MembershipApplication {
 	public const ACTIVE_MEMBERSHIP = 'active';
 	public const SUSTAINING_MEMBERSHIP = 'sustaining';
 
-	private ?int $id;
+	private int $id;
 
 	private string $type;
 	private Applicant $applicant;
@@ -24,7 +24,7 @@ class MembershipApplication {
 	/** @var Incentive[] */
 	private array $incentives = [];
 
-	public function __construct( ?int $id, string $type, Applicant $applicant, int $paymentId, ?bool $donationReceipt ) {
+	public function __construct( int $id, string $type, Applicant $applicant, int $paymentId, ?bool $donationReceipt ) {
 		$this->id = $id;
 		$this->type = $type;
 		$this->applicant = $applicant;
@@ -33,12 +33,8 @@ class MembershipApplication {
 		$this->moderationReasons = [];
 	}
 
-	public function getId(): ?int {
+	public function getId(): int {
 		return $this->id;
-	}
-
-	public function hasId(): bool {
-		return $this->id !== null;
 	}
 
 	public function getApplicant(): Applicant {
@@ -55,18 +51,6 @@ class MembershipApplication {
 
 	public function getDonationReceipt(): ?bool {
 		return $this->donationReceipt;
-	}
-
-	/**
-	 * @param int $id
-	 * @throws \RuntimeException
-	 */
-	public function assignId( int $id ): void {
-		if ( $this->id !== null && $this->id !== $id ) {
-			throw new \RuntimeException( 'Id cannot be changed after initial assignment' );
-		}
-
-		$this->id = $id;
 	}
 
 	/**

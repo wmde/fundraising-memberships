@@ -74,24 +74,23 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 	public function testWhenMembershipApplicationInDatabase_itIsReturnedAsMatchingDomainEntity(): void {
 		$this->storeDoctrineApplication( ValidMembershipApplication::newDoctrineEntity() );
 
-		$expected = ValidMembershipApplication::newDomainEntity();
-		$expected->assignId( self::MEMBERSHIP_APPLICATION_ID );
+		$expected = ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID );
 
 		$this->assertEquals(
 			$expected,
-			$this->givenApplicationRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID )
+			$this->givenApplicationRepository()->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )
 		);
 	}
 
 	public function testWhenEntityDoesNotExist_getEntityReturnsNull(): void {
-		$this->assertNull( $this->givenApplicationRepository()->getApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB ) );
+		$this->assertNull( $this->givenApplicationRepository()->getUnexportedMembershipApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB ) );
 	}
 
 	public function testWhenReadFails_domainExceptionIsThrown(): void {
 		$repository = $this->givenApplicationRepository( entityManager: ThrowingEntityManager::newInstance( $this ) );
 
 		$this->expectException( GetMembershipApplicationException::class );
-		$repository->getApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB );
+		$repository->getUnexportedMembershipApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB );
 	}
 
 	public function testWhenApplicationAlreadyExists_persistingCausesUpdate(): void {
@@ -101,8 +100,7 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$repository->storeApplication( $originalApplication );
 
 		// It is important a new instance is created here to test "detached entity" handling
-		$newApplication = ValidMembershipApplication::newDomainEntity();
-		$newApplication->assignId( $originalApplication->getId() );
+		$newApplication = ValidMembershipApplication::newDomainEntity( $originalApplication->getId() );
 		$newApplication->getApplicant()->changeEmailAddress( new EmailAddress( 'chuck.norris@always.win' ) );
 
 		$repository->storeApplication( $newApplication );
@@ -120,7 +118,7 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 		$this->assertEquals(
 			$application,
-			$repository->getApplicationById( self::MEMBERSHIP_APPLICATION_ID )
+			$repository->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )
 		);
 	}
 
@@ -151,7 +149,7 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 		$this->expectException( ApplicationAnonymizedException::class );
 
-		$this->givenApplicationRepository()->getApplicationById( self::MEMBERSHIP_APPLICATION_ID );
+		$this->givenApplicationRepository()->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID );
 	}
 
 	public function testApplicationWithIncentivesHasIncentivesAfterRoundtrip(): void {
@@ -165,7 +163,7 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		// find() will retrieve a cached value, so we should clear the entity cache here
 		$this->entityManager->clear();
 
-		$actual = $repo->getApplicationById( $application->getId() );
+		$actual = $repo->getUnexportedMembershipApplicationById( $application->getId() );
 		$incentives = $actual->getIncentives();
 
 		$this->assertCount( 1, $incentives );
@@ -212,7 +210,7 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 		$this->assertEquals(
 			$application->getModerationReasons(),
-			$repository->getApplicationById( $application->getId() )->getModerationReasons()
+			$repository->getUnexportedMembershipApplicationById( $application->getId() )->getModerationReasons()
 		);
 	}
 

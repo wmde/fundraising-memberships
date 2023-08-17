@@ -23,13 +23,16 @@ class MembershipApplicationBuilderTest extends TestCase {
 	private const COMPANY_NAME = 'Malenfant asteroid mining';
 	private const OMIT_OPTIONAL_FIELDS = true;
 
+	private const MEMBERSHIP_ID = 9;
+
 	private const PAYMENT_ID = 1;
 
 	public function testCompanyMembershipRequestGetsBuildCorrectly(): void {
 		$request = $this->newCompanyMembershipRequest();
-
 		$testIncentiveFinder = new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] );
-		$application = ( new MembershipApplicationBuilder( $testIncentiveFinder ) )->newApplicationFromRequest( $request, self::PAYMENT_ID );
+		$builder = new MembershipApplicationBuilder( $testIncentiveFinder );
+
+		$application = $builder->newApplicationFromRequest( $request, self::MEMBERSHIP_ID, self::PAYMENT_ID );
 
 		$this->assertIsExpectedCompanyPersonName( $application->getApplicant()->getName() );
 		$this->assertIsExpectedAddress( $application->getApplicant()->getPhysicalAddress() );
@@ -118,9 +121,10 @@ class MembershipApplicationBuilderTest extends TestCase {
 
 	public function testWhenNoBirthDateAndPhoneNumberIsGiven_membershipApplicationIsStillBuiltCorrectly(): void {
 		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS );
-
 		$testIncentiveFinder = new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] );
-		$application = ( new MembershipApplicationBuilder( $testIncentiveFinder ) )->newApplicationFromRequest( $request, self::PAYMENT_ID );
+		$builder = new MembershipApplicationBuilder( $testIncentiveFinder );
+
+		$application = $builder->newApplicationFromRequest( $request, self::MEMBERSHIP_ID, self::PAYMENT_ID );
 
 		$this->assertIsExpectedCompanyPersonName( $application->getApplicant()->getName() );
 		$this->assertIsExpectedAddress( $application->getApplicant()->getPhysicalAddress() );
@@ -128,9 +132,10 @@ class MembershipApplicationBuilderTest extends TestCase {
 
 	public function testWhenBuildingCompanyApplication_salutationFieldIsSet(): void {
 		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS );
-
 		$testIncentiveFinder = new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] );
-		$application = ( new MembershipApplicationBuilder( $testIncentiveFinder ) )->newApplicationFromRequest( $request, self::PAYMENT_ID );
+		$builder = new MembershipApplicationBuilder( $testIncentiveFinder );
+
+		$application = $builder->newApplicationFromRequest( $request, self::MEMBERSHIP_ID, self::PAYMENT_ID );
 
 		$this->assertSame( ApplicantName::COMPANY_SALUTATION, $application->getApplicant()->getName()->getSalutation() );
 	}
@@ -140,15 +145,14 @@ class MembershipApplicationBuilderTest extends TestCase {
 			$this->newIncentiveWithNameAndId( 'inner_peace', 1 ),
 			$this->newIncentiveWithNameAndId( 'a_better_world', 2 )
 		];
-
 		$incentiveFinder = new TestIncentiveFinder( $incentives );
-
 		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS, array_map(
 			fn( $incentive ) => $incentive->getName(),
 			$incentives
 		) );
+		$builder = new MembershipApplicationBuilder( $incentiveFinder );
 
-		$application = ( new MembershipApplicationBuilder( $incentiveFinder ) )->newApplicationFromRequest( $request, self::PAYMENT_ID );
+		$application = $builder->newApplicationFromRequest( $request, self::MEMBERSHIP_ID, self::PAYMENT_ID );
 		$applicationIncentives = iterator_to_array( $application->getIncentives() );
 
 		$this->assertCount( 2, $applicationIncentives );

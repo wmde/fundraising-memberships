@@ -30,6 +30,6 @@ interface ApplicationRepository {
 	 *
 	 * @throws GetMembershipApplicationException
 	 */
-	public function getApplicationById( int $id ): ?MembershipApplication;
+	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication;
 
 }

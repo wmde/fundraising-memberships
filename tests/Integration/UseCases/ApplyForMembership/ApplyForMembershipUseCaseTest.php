@@ -13,12 +13,14 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipIdGenerator;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Infrastructure\PaymentServiceFactory;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\EventEmitterSpy;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FixedApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\InMemoryApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\InMemoryMembershipIdGenerator;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateBasedMailerSpy;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateMailerStub;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TestIncentiveFinder;
@@ -48,7 +50,10 @@ use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
  */
 class ApplyForMembershipUseCaseTest extends TestCase {
 
-	private const FIRST_APPLICATION_ID = 1;
+	/**
+	 * We prepare the id generator to always return the same id, so we can find the application in the database
+	 */
+	private const MEMBERSHIP_APPLICATION_ID = 55;
 	private const ACCESS_TOKEN = 'Gimmeh all the access';
 	private const UPDATE_TOKEN = 'Lemme change all the stuff';
 	private const PAYMENT_PROVIDER_URL = 'https://paypal.example.com/';
@@ -152,15 +157,13 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 	public function testGivenValidRequest_applicationGetsPersisted(): void {
 		$repository = $this->makeMembershipRepositoryStub();
+
 		$this->makeUseCase( repository: $repository )->applyForMembership( $this->newValidRequest() );
 
-		$expectedApplication = ValidMembershipApplication::newDomainEntity();
+		$expectedApplication = ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID );
 		$expectedApplication->confirm();
-		$expectedApplication->assignId( self::FIRST_APPLICATION_ID );
-
-		$application = $repository->getApplicationById( $expectedApplication->getId() );
+		$application = $repository->getUnexportedMembershipApplicationById( $expectedApplication->getId() );
 		$this->assertNotNull( $application );
-
 		$this->assertEquals( $expectedApplication, $application );
 	}
 
@@ -264,7 +267,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 			repository: $repository,
 			policyValidator: $this->newAutoDeletingPolicyValidator()
 		)->applyForMembership( $this->newValidRequest() );
-		$this->assertTrue( $repository->getApplicationById( 1 )->isCancelled() );
+		$this->assertTrue( $repository->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )->isCancelled() );
 	}
 
 	public function testGivenDonationReceiptOptOutRequest_applicationHoldsThisValue(): void {
@@ -273,7 +276,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$request->setOptsIntoDonationReceipt( false );
 		$this->makeUseCase( repository: $repository )->applyForMembership( $request );
 
-		$application = $repository->getApplicationById( self::FIRST_APPLICATION_ID );
+		$application = $repository->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID );
 		$this->assertFalse( $application->getDonationReceipt() );
 	}
 
@@ -314,6 +317,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 	private function makeUseCase(
 		?ApplicationRepository $repository = null,
+		?MembershipIdGenerator $membershipIdGenerator = null,
 		?ApplicationTokenFetcher $tokenFetcher = null,
 		?MembershipNotifier $mailNotifier = null,
 		?MembershipApplicationValidator $validator = null,
@@ -326,6 +330,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	): ApplyForMembershipUseCase {
 		return new ApplyForMembershipUseCase(
 			$repository ?? $this->makeMembershipRepositoryStub(),
+			$membershipIdGenerator ?? new InMemoryMembershipIdGenerator( self::MEMBERSHIP_APPLICATION_ID ),
 			$tokenFetcher ?? $this->newTokenFetcher(),
 			$mailNotifier ?? $this->makeMailNotifier(),
 			$validator ?? $this->newSucceedingValidator(),

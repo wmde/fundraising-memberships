@@ -15,15 +15,14 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
 
 class MembershipApplicationBuilder {
 
-	private IncentiveFinder $incentiveFinder;
-
-	public function __construct( IncentiveFinder $incentiveFinder ) {
-		$this->incentiveFinder = $incentiveFinder;
+	public function __construct(
+		private readonly IncentiveFinder $incentiveFinder,
+	) {
 	}
 
-	public function newApplicationFromRequest( ApplyForMembershipRequest $request, int $paymentId ): MembershipApplication {
+	public function newApplicationFromRequest( ApplyForMembershipRequest $request, int $membershipId, int $paymentId ): MembershipApplication {
 		$application = new MembershipApplication(
-			null,
+			$membershipId,
 			$request->getMembershipType(),
 			$this->newApplicant( $request ),
 			$paymentId,

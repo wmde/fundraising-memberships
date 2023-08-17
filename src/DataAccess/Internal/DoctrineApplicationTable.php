@@ -5,13 +5,20 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\DataAccess\Internal;
 
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 
+/**
+ * This class acts as a "poor man's repository". We us it in the DoctrineMembershipApplicationRepository, but
+ * its main purpose is for persisting values that are stored in the "requests" (i.e. "membership applications") table,
+ * but that are not part of the MembershipApplication domain entity.
+ *
+ * The more we move values out of the MembershipApplication Doctrine entity, the less we need this class.
+ */
 class DoctrineApplicationTable {
 
 	public function __construct(

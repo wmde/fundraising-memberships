@@ -6,7 +6,6 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ShowAppl
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
-use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FailingAuthorizer;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeApplicationRepository;
@@ -18,9 +17,6 @@ use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationUseCase
- *
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class ShowApplicationConfirmationUseCaseTest extends TestCase {
 
@@ -30,25 +26,13 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		'go' => 'here',
 	];
 
-	/**
-	 * @var FakeShowApplicationConfirmationPresenter
-	 */
-	private $presenter;
+	private FakeShowApplicationConfirmationPresenter $presenter;
 
-	/**
-	 * @var ApplicationAuthorizer
-	 */
-	private $authorizer;
+	private ApplicationAuthorizer|SucceedingAuthorizer $authorizer;
 
-	/**
-	 * @var FakeApplicationRepository
-	 */
-	private $repository;
+	private FakeApplicationRepository $repository;
 
-	/**
-	 * @var FixedApplicationTokenFetcher
-	 */
-	private $tokenFetcher;
+	private FixedApplicationTokenFetcher $tokenFetcher;
 
 	public function setUp(): void {
 		$this->presenter = new FakeShowApplicationConfirmationPresenter();
@@ -56,15 +40,7 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		$this->repository = new FakeApplicationRepository();
 		$this->tokenFetcher = FixedApplicationTokenFetcher::newWithDefaultTokens();
 
-		$this->repository->storeApplication( $this->newApplication() );
-	}
-
-	private function newApplication(): MembershipApplication {
-		$application = ValidMembershipApplication::newDomainEntity();
-
-		$application->assignId( self::APPLICATION_ID );
-
-		return $application;
+		$this->repository->storeApplication( ValidMembershipApplication::newDomainEntity( self::APPLICATION_ID ) );
 	}
 
 	private function invokeUseCaseWithCorrectRequestModel(): void {
