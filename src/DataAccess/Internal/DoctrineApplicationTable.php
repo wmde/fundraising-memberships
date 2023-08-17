@@ -6,8 +6,6 @@ namespace WMDE\Fundraising\MembershipContext\DataAccess\Internal;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
-use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
@@ -23,7 +21,6 @@ class DoctrineApplicationTable {
 
 	public function __construct(
 		private readonly EntityManager $entityManager,
-		private readonly LoggerInterface $logger
 	) {
 	}
 
@@ -31,15 +28,10 @@ class DoctrineApplicationTable {
 		try {
 			$application = $this->entityManager->find( MembershipApplication::class, $applicationId );
 		} catch ( ORMException $ex ) {
-			$this->logPersistenceError( $ex, 'Membership application could not be accessed' );
 			throw new GetMembershipApplicationException( 'Membership application could not be accessed' );
 		}
 
 		return $application;
-	}
-
-	private function logPersistenceError( ORMException $previous, string $message ): void {
-		$this->logger->log( LogLevel::CRITICAL, $message, [ 'exception' => $previous ] );
 	}
 
 	public function getApplicationById( int $applicationId ): MembershipApplication {
@@ -57,7 +49,6 @@ class DoctrineApplicationTable {
 			$this->entityManager->persist( $application );
 			$this->entityManager->flush();
 		} catch ( ORMException $ex ) {
-			$this->logPersistenceError( $ex, 'Failed to persist membership application' );
 			throw new StoreMembershipApplicationException( 'Failed to persist membership application', $ex );
 		}
 	}

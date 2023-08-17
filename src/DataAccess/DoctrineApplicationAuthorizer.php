@@ -5,7 +5,6 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
 use Doctrine\ORM\EntityManager;
-use Psr\Log\NullLogger;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
@@ -21,8 +20,7 @@ class DoctrineApplicationAuthorizer implements ApplicationAuthorizer {
 	private string $accessToken;
 
 	public function __construct( EntityManager $entityManager, string $updateToken = '', string $accessToken = '' ) {
-		// TODO: Add non-null logger
-		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
+		$this->table = new DoctrineApplicationTable( $entityManager );
 		$this->updateToken = $updateToken;
 		$this->accessToken = $accessToken;
 	}

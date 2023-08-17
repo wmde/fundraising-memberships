@@ -14,7 +14,6 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplic
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManager;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
-use WMDE\PsrLogTestDoubles\LoggerSpy;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable
@@ -28,11 +27,8 @@ class DoctrineApplicationTableTest extends TestCase {
 
 	private EntityManager $entityManager;
 
-	private LoggerSpy $logger;
-
 	public function setUp(): void {
 		$this->entityManager = TestEnvironment::newInstance()->getEntityManager();
-		$this->logger = new LoggerSpy();
 	}
 
 	public function testGivenUnknownId_getApplicationOrNullByIdReturnsNull(): void {
@@ -40,10 +36,7 @@ class DoctrineApplicationTableTest extends TestCase {
 	}
 
 	private function getTable(): DoctrineApplicationTable {
-		return new DoctrineApplicationTable(
-			$this->entityManager,
-			$this->logger
-		);
+		return new DoctrineApplicationTable( $this->entityManager );
 	}
 
 	public function testGivenKnownId_getApplicationOrNullByIdReturnsTheApplication(): void {
@@ -153,40 +146,6 @@ class DoctrineApplicationTableTest extends TestCase {
 			'Such a comment',
 			$table->getApplicationById( self::KNOWN_ID )->getComment()
 		);
-	}
-
-	public function testWhenDoctrineThrowsException_getApplicationOrNullLogsIt(): void {
-		$this->entityManager = ThrowingEntityManager::newInstance( $this );
-
-		try {
-			$this->getTable()->getApplicationOrNullById( self::IRRELEVANT_ID );
-		} catch ( \Exception $ex ) {
-		}
-
-		$this->assertNotEmpty( $this->logger->getLogCalls() );
-	}
-
-	public function testWhenDoctrineThrowsException_persistApplicationLogsIt(): void {
-		$this->entityManager = ThrowingEntityManager::newInstance( $this );
-
-		try {
-			$this->getTable()->persistApplication( ValidMembershipApplication::newDoctrineEntity() );
-		} catch ( \Exception $ex ) {
-		}
-
-		$this->assertNotEmpty( $this->logger->getLogCalls() );
-	}
-
-	public function testWhenDoctrineThrowsException_modifyApplicationLogsIt(): void {
-		$this->entityManager = ThrowingEntityManager::newInstance( $this );
-
-		try {
-			$this->getTable()->modifyApplication( self::IRRELEVANT_ID, static function () {
-			} );
-		} catch ( \Exception $ex ) {
-		}
-
-		$this->assertNotEmpty( $this->logger->getLogCalls() );
 	}
 
 }

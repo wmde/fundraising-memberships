@@ -5,7 +5,6 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
 use Doctrine\ORM\EntityManager;
-use Psr\Log\NullLogger;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\DomainToLegacyConverter;
@@ -26,7 +25,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 	private ModerationReasonRepository $moderationReasonRepository;
 
 	public function __construct( EntityManager $entityManager, GetPaymentUseCase $getPaymentUseCase, ModerationReasonRepository $moderationReasonRepository ) {
-		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
+		$this->table = new DoctrineApplicationTable( $entityManager );
 		$this->getPaymentUseCase = $getPaymentUseCase;
 		$this->moderationReasonRepository = $moderationReasonRepository;
 	}
