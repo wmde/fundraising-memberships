@@ -5,8 +5,9 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Authorization;
 
 /**
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
+ * @deprecated The calling code should be able to rely on other methods of the
+ *      {@see \WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizer} implementation to get the tokens
+ *
  */
 class ApplicationTokenFetchingException extends \RuntimeException {
 

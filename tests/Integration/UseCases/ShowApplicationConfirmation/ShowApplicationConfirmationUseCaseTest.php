@@ -9,7 +9,6 @@ use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChec
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FailingAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeApplicationRepository;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FixedApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowAppConfirmationRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationUseCase;
@@ -32,13 +31,10 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 
 	private FakeApplicationRepository $repository;
 
-	private FixedApplicationTokenFetcher $tokenFetcher;
-
 	public function setUp(): void {
 		$this->presenter = new FakeShowApplicationConfirmationPresenter();
 		$this->authorizer = new SucceedingAuthorizationChecker();
 		$this->repository = new FakeApplicationRepository();
-		$this->tokenFetcher = FixedApplicationTokenFetcher::newWithDefaultTokens();
 
 		$this->repository->storeApplication( ValidMembershipApplication::newDomainEntity( self::APPLICATION_ID ) );
 	}
@@ -56,7 +52,6 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 			$this->presenter,
 			$this->authorizer,
 			$this->repository,
-			$this->tokenFetcher,
 			$getPaymentUseCase
 		);
 	}
@@ -72,11 +67,6 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		$this->assertSame(
 			self::PAYMENT_DATA,
 			$this->presenter->getShownPaymentData()
-		);
-
-		$this->assertSame(
-			FixedApplicationTokenFetcher::UPDATE_TOKEN,
-			$this->presenter->getShownUpdateToken()
 		);
 	}
 
