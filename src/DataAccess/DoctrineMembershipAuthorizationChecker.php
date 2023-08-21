@@ -5,15 +5,12 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
 use Doctrine\ORM\EntityManager;
-use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
+use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 
-/**
- * @license GPL-2.0-or-later
- */
-class DoctrineApplicationAuthorizer implements ApplicationAuthorizer {
+class DoctrineMembershipAuthorizationChecker implements MembershipAuthorizationChecker {
 
 	private DoctrineApplicationTable $table;
 	private string $updateToken;
@@ -25,9 +22,9 @@ class DoctrineApplicationAuthorizer implements ApplicationAuthorizer {
 		$this->accessToken = $accessToken;
 	}
 
-	public function canModifyApplication( int $applicationId ): bool {
+	public function canModifyMembership( int $membershipId ): bool {
 		try {
-			$application = $this->table->getApplicationById( $applicationId );
+			$application = $this->table->getApplicationById( $membershipId );
 		} catch ( GetMembershipApplicationException $ex ) {
 			return false;
 		}
@@ -42,9 +39,9 @@ class DoctrineApplicationAuthorizer implements ApplicationAuthorizer {
 		return hash_equals( (string)$application->getDataObject()->getUpdateToken(), $this->updateToken );
 	}
 
-	public function canAccessApplication( int $applicationId ): bool {
+	public function canAccessMembership( int $membershipId ): bool {
 		try {
-			$application = $this->table->getApplicationById( $applicationId );
+			$application = $this->table->getApplicationById( $membershipId );
 		} catch ( GetMembershipApplicationException $ex ) {
 			return false;
 		}

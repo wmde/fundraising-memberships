@@ -5,16 +5,16 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\CancelMembershipApplication;
 
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
+use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogger;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FailingAuthorizer;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FailingAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\MembershipApplicationEventLoggerSpy;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingAuthorizer;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateBasedMailerSpy;
 use WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancellationRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancellationResponse;
@@ -63,7 +63,7 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 
 	public function testWhenAuthorizationFails_cancellationFails(): void {
 		[ $repository, $application ] = $this->givenStoredCancelableApplication();
-		$useCase = $this->givenUseCase( authorizer: new FailingAuthorizer(), repository: $repository );
+		$useCase = $this->givenUseCase( authorizer: new FailingAuthorizationChecker(), repository: $repository );
 
 		$response = $this->whenCancelApplicationRequestIsSent( $useCase, $application->getId() );
 
@@ -168,14 +168,14 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 	}
 
 	private function givenUseCase(
-		?ApplicationAuthorizer $authorizer = null,
+		?MembershipAuthorizationChecker $authorizer = null,
 		?ApplicationRepository $repository = null,
 		?TemplateMailerInterface $mailer = null,
 		?MembershipApplicationEventLogger $logger = null,
 		?CancelPaymentUseCase $cancelPaymentUseCase = null
 	): CancelMembershipApplicationUseCase {
 		return new CancelMembershipApplicationUseCase(
-			$authorizer ?? new SucceedingAuthorizer(),
+			$authorizer ?? new SucceedingAuthorizationChecker(),
 			$repository ?? new FakeApplicationRepository(),
 			$mailer ?? $this->createStub( TemplateMailerInterface::class ),
 			$logger ?? $this->createStub( MembershipApplicationEventLogger::class ),

@@ -7,14 +7,14 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
-use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationAuthorizer;
+use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
 /**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationAuthorizer
+ * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipAuthorizationChecker
  */
 class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 
@@ -33,8 +33,8 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		$this->entityManager = TestEnvironment::newInstance()->getEntityManager();
 	}
 
-	private function newAuthorizer( string $updateToken = '', string $accessToken = '' ): ApplicationAuthorizer {
-		return new DoctrineApplicationAuthorizer( $this->entityManager, $updateToken, $accessToken );
+	private function newAuthorizer( string $updateToken = '', string $accessToken = '' ): MembershipAuthorizationChecker {
+		return new DoctrineMembershipAuthorizationChecker( $this->entityManager, $updateToken, $accessToken );
 	}
 
 	private function storeApplication( MembershipApplication $application ): void {
@@ -44,8 +44,8 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 
 	public function testGivenNoMembershipApplication_authorizationFails(): void {
 		$authorizer = $this->newAuthorizer( self::CORRECT_UPDATE_TOKEN, self::CORRECT_ACCESS_TOKEN );
-		$this->assertFalse( $authorizer->canModifyApplication( self::MEANINGLESS_APPLICATION_ID ) );
-		$this->assertFalse( $authorizer->canAccessApplication( self::MEANINGLESS_APPLICATION_ID ) );
+		$this->assertFalse( $authorizer->canModifyMembership( self::MEANINGLESS_APPLICATION_ID ) );
+		$this->assertFalse( $authorizer->canAccessMembership( self::MEANINGLESS_APPLICATION_ID ) );
 	}
 
 	/**
@@ -54,7 +54,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	public function testGivenMembershipApplication_authorizerChecksUpdateToken( string $updateToken, bool $expectedResult ): void {
 		$application = $this->givenMembershipApplication();
 		$authorizer = $this->newAuthorizer( $updateToken );
-		$this->assertSame( $expectedResult, $authorizer->canModifyApplication( $application->getId() ) );
+		$this->assertSame( $expectedResult, $authorizer->canModifyMembership( $application->getId() ) );
 	}
 
 	/**
@@ -71,7 +71,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	public function testGivenMembershipApplication_authorizerChecksAccessToken( string $accessToken, bool $expectedResult ): void {
 		$application = $this->givenMembershipApplication();
 		$authorizer = $this->newAuthorizer( '', $accessToken );
-		$this->assertSame( $expectedResult, $authorizer->canAccessApplication( $application->getId() ) );
+		$this->assertSame( $expectedResult, $authorizer->canAccessMembership( $application->getId() ) );
 	}
 
 	/**
@@ -86,38 +86,38 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		$application = $this->storeMembershipApplication();
 		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
 
-		$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
+		$this->assertFalse( $authorizer->canModifyMembership( $application->getId() ) );
 	}
 
 	public function testGivenMembershipWithoutTokenAndEmptyAccessToken_accessAuthorizationFails(): void {
 		$application = $this->storeMembershipApplication();
 		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
 
-		$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
+		$this->assertFalse( $authorizer->canAccessMembership( $application->getId() ) );
 	}
 
 	public function testGivenMembershipWithoutTokenAndEmptyUpdateToken_updateAuthorizationFails(): void {
 		$application = $this->storeMembershipApplication();
 		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
 
-		$this->assertFalse( $authorizer->canModifyApplication( $application->getId() ) );
+		$this->assertFalse( $authorizer->canModifyMembership( $application->getId() ) );
 	}
 
 	public function testGivenMembershipWithoutToken_accessAuthorizationFails(): void {
 		$application = $this->storeMembershipApplication();
 		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
 
-		$this->assertFalse( $authorizer->canAccessApplication( $application->getId() ) );
+		$this->assertFalse( $authorizer->canAccessMembership( $application->getId() ) );
 	}
 
 	public function testWhenDoctrineThrowsException_modificationCheckFails(): void {
 		$authorizer = $this->newAuthorizerWithFailingDoctrine();
-		$this->assertFalse( $authorizer->canModifyApplication( self::MEANINGLESS_APPLICATION_ID ) );
+		$this->assertFalse( $authorizer->canModifyMembership( self::MEANINGLESS_APPLICATION_ID ) );
 	}
 
 	public function testWhenDoctrineThrowsException_accessCheckFails(): void {
 		$authorizer = $this->newAuthorizerWithFailingDoctrine();
-		$this->assertFalse( $authorizer->canAccessApplication( self::MEANINGLESS_APPLICATION_ID ) );
+		$this->assertFalse( $authorizer->canAccessMembership( self::MEANINGLESS_APPLICATION_ID ) );
 	}
 
 	private function getThrowingEntityManager(): EntityManager {
@@ -142,8 +142,8 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		return $application;
 	}
 
-	private function newAuthorizerWithFailingDoctrine(): DoctrineApplicationAuthorizer {
-		return new DoctrineApplicationAuthorizer(
+	private function newAuthorizerWithFailingDoctrine(): DoctrineMembershipAuthorizationChecker {
+		return new DoctrineMembershipAuthorizationChecker(
 			$this->getThrowingEntityManager(),
 			self::CORRECT_UPDATE_TOKEN,
 			self::CORRECT_ACCESS_TOKEN

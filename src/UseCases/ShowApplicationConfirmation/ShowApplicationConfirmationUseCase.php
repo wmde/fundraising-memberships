@@ -4,8 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation;
 
-use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
+use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
@@ -15,7 +15,7 @@ class ShowApplicationConfirmationUseCase {
 
 	public function __construct(
 		private readonly ShowApplicationConfirmationPresenter $presenter,
-		private readonly ApplicationAuthorizer $authorizer,
+		private readonly MembershipAuthorizationChecker $authorizer,
 		private readonly ApplicationRepository $repository,
 		private readonly ApplicationTokenFetcher $tokenFetcher,
 		private readonly GetPaymentUseCase $getPaymentUseCase
@@ -23,7 +23,7 @@ class ShowApplicationConfirmationUseCase {
 	}
 
 	public function showConfirmation( ShowAppConfirmationRequest $request ): void {
-		if ( !$this->authorizer->canAccessApplication( $request->getApplicationId() ) ) {
+		if ( !$this->authorizer->canAccessMembership( $request->getApplicationId() ) ) {
 			$this->presenter->presentAccessViolation();
 			return;
 		}
@@ -40,9 +40,10 @@ class ShowApplicationConfirmationUseCase {
 		}
 
 		$this->presenter->presentConfirmation(
-		// TODO: use DTO instead of Entity (currently violates the architecture)
+			// TODO: use DTO instead of Entity (currently violates the architecture)
 			$application,
 			$paymentData,
+			// TODO: Remove the token, the presenter should not care about those
 			$this->tokenFetcher->getTokens( $request->getApplicationId() )->getUpdateToken()
 		);
 	}
