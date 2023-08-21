@@ -29,7 +29,7 @@ class ShowApplicationConfirmationUseCase {
 		}
 
 		try {
-			$application = $this->repository->getApplicationById( $request->getApplicationId() );
+			$application = $this->repository->getUnexportedMembershipApplicationById( $request->getApplicationId() );
 			$paymentData = $this->getPaymentUseCase->getPaymentDataArray( $application->getPaymentId() );
 		} catch ( ApplicationAnonymizedException $ex ) {
 			$this->presenter->presentApplicationWasAnonymized();

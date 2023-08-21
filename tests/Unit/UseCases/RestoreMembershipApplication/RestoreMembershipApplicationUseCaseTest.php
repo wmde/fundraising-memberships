@@ -54,7 +54,7 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 
 		$useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
 
-		$this->assertFalse( $this->applicationRepository->getApplicationById( 1 )->isCancelled() );
+		$this->assertFalse( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 )->isCancelled() );
 	}
 
 	public function testOnRestoreMembershipApplication_returnsMembershipApplicationId() {
@@ -95,7 +95,7 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 		$useCase = $this->newUseCase( $application, $this->givenSucceedingCancelPaymentUseCase( paymentIsCompleted: false ) );
 		$useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
 
-		$this->assertFalse( $this->applicationRepository->getApplicationById( 1 )->isConfirmed() );
+		$this->assertFalse( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 )->isConfirmed() );
 	}
 
 	public function testOnRestoreMembershipApplication_andPaymentIsCompleted_confirmsMembership(): void {
@@ -104,7 +104,7 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 		$useCase = $this->newUseCase( $application, $this->givenSucceedingCancelPaymentUseCase( paymentIsCompleted: true ) );
 		$useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
 
-		$this->assertTrue( $this->applicationRepository->getApplicationById( 1 )->isConfirmed() );
+		$this->assertTrue( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 )->isConfirmed() );
 	}
 
 	public function testWhenPaymentRestorationFails_restorationFails(): void {

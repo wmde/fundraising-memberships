@@ -10,6 +10,7 @@ use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipIdGenerator;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Infrastructure\PaymentServiceFactory;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
@@ -24,6 +25,7 @@ class ApplyForMembershipUseCase {
 
 	public function __construct(
 		private ApplicationRepository $repository,
+		private MembershipIdGenerator $idGenerator,
 		private ApplicationTokenFetcher $tokenFetcher,
 		private MembershipNotifier $notifier,
 		private MembershipApplicationValidator $validator,
@@ -36,7 +38,8 @@ class ApplyForMembershipUseCase {
 		private ApplicationPiwikTracker $piwikTracker,
 		private EventEmitter $eventEmitter,
 		private IncentiveFinder $incentiveFinder,
-		private PaymentServiceFactory $paymentServiceFactory ) {
+		private PaymentServiceFactory $paymentServiceFactory
+	) {
 	}
 
 	public function applyForMembership( ApplyForMembershipRequest $request ): ApplyForMembershipResponse {
@@ -127,6 +130,7 @@ class ApplyForMembershipUseCase {
 	private function newApplicationFromRequest( ApplyForMembershipRequest $request, int $paymentId ): MembershipApplication {
 		return ( new MembershipApplicationBuilder( $this->incentiveFinder ) )->newApplicationFromRequest(
 			$request,
+			$this->idGenerator->generateNewMembershipId(),
 			$paymentId
 		);
 	}

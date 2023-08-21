@@ -5,18 +5,22 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\DataAccess\Internal;
 
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\ORMException;
-use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
+use Doctrine\ORM\Exception\ORMException;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 
+/**
+ * This class acts as a "poor man's repository". We us it in the DoctrineMembershipApplicationRepository, but
+ * its main purpose is for persisting values that are stored in the "requests" (i.e. "membership applications") table,
+ * but that are not part of the MembershipApplication domain entity.
+ *
+ * The more we move values out of the MembershipApplication Doctrine entity, the less we need this class.
+ */
 class DoctrineApplicationTable {
 
 	public function __construct(
 		private readonly EntityManager $entityManager,
-		private readonly LoggerInterface $logger
 	) {
 	}
 
@@ -24,15 +28,10 @@ class DoctrineApplicationTable {
 		try {
 			$application = $this->entityManager->find( MembershipApplication::class, $applicationId );
 		} catch ( ORMException $ex ) {
-			$this->logPersistenceError( $ex, 'Membership application could not be accessed' );
 			throw new GetMembershipApplicationException( 'Membership application could not be accessed' );
 		}
 
 		return $application;
-	}
-
-	private function logPersistenceError( ORMException $previous, string $message ): void {
-		$this->logger->log( LogLevel::CRITICAL, $message, [ 'exception' => $previous ] );
 	}
 
 	public function getApplicationById( int $applicationId ): MembershipApplication {
@@ -50,7 +49,6 @@ class DoctrineApplicationTable {
 			$this->entityManager->persist( $application );
 			$this->entityManager->flush();
 		} catch ( ORMException $ex ) {
-			$this->logPersistenceError( $ex, 'Failed to persist membership application' );
 			throw new StoreMembershipApplicationException( 'Failed to persist membership application', $ex );
 		}
 	}

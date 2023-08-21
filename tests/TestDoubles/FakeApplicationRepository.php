@@ -41,13 +41,11 @@ class FakeApplicationRepository implements ApplicationRepository {
 			throw new StoreMembershipApplicationException();
 		}
 
-		if ( $application->getId() === null ) {
-			$application->assignId( ++$this->calls );
-		}
+		$this->calls++;
 		$this->applications[$application->getId()] = unserialize( serialize( $application ) );
 	}
 
-	public function getApplicationById( int $id ): ?MembershipApplication {
+	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication {
 		if ( $this->throwAnonymizedOnRead ) {
 			throw new ApplicationAnonymizedException();
 		}

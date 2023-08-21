@@ -17,6 +17,8 @@ use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
  */
 class MailMembershipApplicationNotifierTest extends TestCase {
 
+	private const MEMBERSHIP_APPLICATION_ID = 23;
+
 	public function testBuildValuesForMembership(): void {
 		$confirmationSpy = new TemplateBasedMailerSpy( $this );
 		$notifier = new MailMembershipApplicationNotifier(
@@ -25,10 +27,9 @@ class MailMembershipApplicationNotifierTest extends TestCase {
 			$this->makePaymentRetriever(),
 			'admin@blabla.de'
 		);
-		$notifier->sendConfirmationFor( ValidMembershipApplication::newDomainEntity() );
+		$notifier->sendConfirmationFor( ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID ) );
 		$arguments = [
-			// ID is null because it's unsaved
-			'id' => null,
+			'id' => self::MEMBERSHIP_APPLICATION_ID,
 			'membershipType' => 'sustaining',
 			'membershipFee' => '10.00',
 			'membershipFeeInCents' => 1000,

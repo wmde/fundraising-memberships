@@ -5,7 +5,6 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
 use Doctrine\ORM\EntityManager;
-use Psr\Log\NullLogger;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\DomainToLegacyConverter;
@@ -14,7 +13,6 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 /**
@@ -27,44 +25,21 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 	private ModerationReasonRepository $moderationReasonRepository;
 
 	public function __construct( EntityManager $entityManager, GetPaymentUseCase $getPaymentUseCase, ModerationReasonRepository $moderationReasonRepository ) {
-		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
+		$this->table = new DoctrineApplicationTable( $entityManager );
 		$this->getPaymentUseCase = $getPaymentUseCase;
 		$this->moderationReasonRepository = $moderationReasonRepository;
 	}
 
 	public function storeApplication( MembershipApplication $application ): void {
-		// doctrine will persist the moderation reasons that are not yet found in the database
-		// and create relation entries to membership application automatically
+		// Doctrine will persist the moderation reasons that are not yet found in the database
+		// and create relation entries to the membership application automatically
 		$existingModerationReasons = $this->moderationReasonRepository->getModerationReasonsThatAreAlreadyPersisted(
 			...$application->getModerationReasons()
 		);
 
-		if ( $application->hasId() ) {
-			$this->updateApplication( $application, $existingModerationReasons );
-		} else {
-			$this->insertApplication( $application, $existingModerationReasons );
-		}
-	}
-
-	private function insertApplication( MembershipApplication $application, array $existingModerationReasons ): void {
-		$doctrineApplication = new DoctrineApplication();
+		$doctrineApplication = $this->table->getApplicationOrNullById( $application->getId() ) ?? new DoctrineApplication();
 		$this->updateDoctrineApplication( $doctrineApplication, $application, $existingModerationReasons );
 		$this->table->persistApplication( $doctrineApplication );
-
-		$application->assignId( $doctrineApplication->getId() );
-	}
-
-	private function updateApplication( MembershipApplication $application, array $existingModerationReasons ): void {
-		try {
-			$this->table->modifyApplication(
-				$application->getId(),
-				function ( DoctrineApplication $doctrineApplication ) use ( $application, $existingModerationReasons ) {
-					$this->updateDoctrineApplication( $doctrineApplication, $application, $existingModerationReasons );
-				}
-			);
-		} catch ( GetMembershipApplicationException | StoreMembershipApplicationException $ex ) {
-			throw new StoreMembershipApplicationException( null, $ex );
-		}
 	}
 
 	private function updateDoctrineApplication( DoctrineApplication $doctrineApplication, MembershipApplication $application, array $existingModerationReasons ): void {
@@ -83,7 +58,7 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 	 * @return MembershipApplication|null
 	 * @throws GetMembershipApplicationException
 	 */
-	public function getApplicationById( int $id ): ?MembershipApplication {
+	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication {
 		$application = $this->table->getApplicationOrNullById( $id );
 
 		if ( $application === null ) {

@@ -122,7 +122,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 		$useCase->approveMembershipApplication( 1, self::AUTH_USER_NAME );
 
-		$this->assertFalse( $this->applicationRepository->getApplicationById( 1 )->isMarkedForModeration() );
+		$this->assertFalse( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 )->isMarkedForModeration() );
 	}
 
 	public function testApproveOnApprovedMembershipApplication_actionFails() {
@@ -155,7 +155,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 		$useCase->approveMembershipApplication( 1, self::AUTH_USER_NAME );
 
-		$storedApplication = $this->applicationRepository->getApplicationById( $application->getId() );
+		$storedApplication = $this->applicationRepository->getUnexportedMembershipApplicationById( $application->getId() );
 		$this->assertTrue( $storedApplication->isConfirmed() );
 	}
 
@@ -171,7 +171,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 
 		$useCase->approveMembershipApplication( 1, self::AUTH_USER_NAME );
 
-		$storedApplication = $this->applicationRepository->getApplicationById( $application->getId() );
+		$storedApplication = $this->applicationRepository->getUnexportedMembershipApplicationById( $application->getId() );
 		$this->assertFalse( $storedApplication->isConfirmed() );
 	}
 

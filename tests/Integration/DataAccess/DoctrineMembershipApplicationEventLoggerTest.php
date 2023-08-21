@@ -3,7 +3,7 @@
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipApplicationEventLogger;
@@ -16,6 +16,8 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
  * @covers \WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogException
  */
 class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
+
+	private const MEMBERSHIP_APPLICATION_ID = 12345;
 
 	public const DEFAULT_MESSAGE = 'Itchy, Tasty';
 	private const DUMMY_PAYMENT_ID = 42;
@@ -56,6 +58,7 @@ class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 
 	public function testGivenMessageAndNoLogExists_createsLog(): void {
 		$application = new MembershipApplication();
+		$application->setId( self::MEMBERSHIP_APPLICATION_ID );
 		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$this->entityManager->persist( $application );
 		$this->entityManager->flush();
@@ -73,6 +76,7 @@ class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 
 	public function testGivenMessageAndLogExists_addsRow(): void {
 		$application = new MembershipApplication();
+		$application->setId( self::MEMBERSHIP_APPLICATION_ID );
 		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$application->encodeAndSetData( [ 'log' => [ '2021-01-01 0:00:00' => 'We call her the log lady' ] ] );
 		$this->entityManager->persist( $application );

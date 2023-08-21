@@ -22,6 +22,8 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationReques
  */
 class ValidMembershipApplication {
 
+	public const DEFAULT_ID = 1;
+
 	public const APPLICANT_FIRST_NAME = 'Potato';
 	public const APPLICANT_LAST_NAME = 'The Great';
 	public const APPLICANT_SALUTATION = 'Herr';
@@ -65,10 +67,10 @@ class ValidMembershipApplication {
 	public const OPTS_INTO_DONATION_RECEIPT = true;
 	public const INCENTIVE_NAME = 'eternal_thankfulness';
 
-	public static function newDomainEntity(): MembershipApplication {
+	public static function newDomainEntity( int $id = self::DEFAULT_ID ): MembershipApplication {
 		$self = ( new self() );
 		return new MembershipApplication(
-			null,
+			$id,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			self::PAYMENT_ID,
@@ -76,10 +78,10 @@ class ValidMembershipApplication {
 		);
 	}
 
-	public static function newCompanyApplication(): MembershipApplication {
+	public static function newCompanyApplication( int $id = self::DEFAULT_ID ): MembershipApplication {
 		$self = ( new self() );
 		return new MembershipApplication(
-			null,
+			$id,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newCompanyApplicantName() ),
 			self::PAYMENT_ID,
@@ -87,10 +89,10 @@ class ValidMembershipApplication {
 		);
 	}
 
-	public static function newApplication(): MembershipApplication {
+	public static function newApplication( int $id = self::DEFAULT_ID ): MembershipApplication {
 		$self = ( new self() );
 		return new MembershipApplication(
-			null,
+			$id,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			self::PAYMENT_ID,
@@ -111,7 +113,7 @@ class ValidMembershipApplication {
 	public static function newDomainEntityWithEmailAddress( string $emailAddress ): MembershipApplication {
 		$self = ( new self() );
 		return new MembershipApplication(
-			null,
+			self::DEFAULT_ID,
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicantWithEmailAddress( $self->newPersonApplicantName(), $emailAddress ),
 			self::PAYMENT_ID,
@@ -158,8 +160,8 @@ class ValidMembershipApplication {
 		return $address->freeze()->assertNoNullFields();
 	}
 
-	public static function newDoctrineEntity(): DoctrineMembershipApplication {
-		$application = self::createDoctrineApplicationWithoutApplicantName();
+	public static function newDoctrineEntity( int $id = self::DEFAULT_ID ): DoctrineMembershipApplication {
+		$application = self::createDoctrineApplicationWithoutApplicantName( $id );
 
 		$application->setApplicantFirstName( self::APPLICANT_FIRST_NAME );
 		$application->setApplicantLastName( self::APPLICANT_LAST_NAME );
@@ -171,9 +173,10 @@ class ValidMembershipApplication {
 		return $application;
 	}
 
-	private static function createDoctrineApplicationWithoutApplicantName(): DoctrineMembershipApplication {
+	private static function createDoctrineApplicationWithoutApplicantName( int $id = self::DEFAULT_ID ): DoctrineMembershipApplication {
 		$application = new DoctrineMembershipApplication();
 
+		$application->setId( $id );
 		$application->setStatus( DoctrineMembershipApplication::STATUS_NEUTRAL );
 
 		$application->setCity( self::APPLICANT_CITY );

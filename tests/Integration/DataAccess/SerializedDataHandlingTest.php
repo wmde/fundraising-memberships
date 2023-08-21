@@ -18,6 +18,8 @@ use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
  */
 class SerializedDataHandlingTest extends TestCase {
 
+	private const MEMBERSHIP_APPLICATION_ID = 715;
+
 	/** @dataProvider encodedMembershipDataProvider */
 	public function testDataFieldOfMembershipApplicationIsInteractedWithCorrectly( array $data ): void {
 		$entityManager = TestEnvironment::newInstance()->getEntityManager();
@@ -33,11 +35,11 @@ class SerializedDataHandlingTest extends TestCase {
 		);
 		$this->storeMembershipApplication( $entityManager, $data );
 
-		$membershipApplication = $repository->getApplicationById( 1 );
+		$membershipApplication = $repository->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID );
 		$repository->storeApplication( $membershipApplication );
 
 		/** @var MembershipApplication $doctrineMembershipApplication */
-		$doctrineMembershipApplication = $entityManager->find( MembershipApplication::class, 1 );
+		$doctrineMembershipApplication = $entityManager->find( MembershipApplication::class, self::MEMBERSHIP_APPLICATION_ID );
 		$this->assertEquals( $data, $doctrineMembershipApplication->getDecodedData() );
 	}
 
@@ -80,6 +82,8 @@ class SerializedDataHandlingTest extends TestCase {
 
 	private function storeMembershipApplication( EntityManager $entityManager, array $data ): void {
 		$membershipAppl = new MembershipApplication();
+
+		$membershipAppl->setId( self::MEMBERSHIP_APPLICATION_ID );
 		$membershipAppl->setPaymentId( 1 );
 		$membershipAppl->setStatus( MembershipApplication::STATUS_CONFIRMED );
 

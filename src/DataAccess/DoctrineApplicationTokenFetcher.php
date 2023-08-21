@@ -5,7 +5,6 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
 use Doctrine\ORM\EntityManager;
-use Psr\Log\NullLogger;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetchingException;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
@@ -21,8 +20,7 @@ class DoctrineApplicationTokenFetcher implements ApplicationTokenFetcher {
 	private DoctrineApplicationTable $table;
 
 	public function __construct( EntityManager $entityManager ) {
-		// TODO: Add non-null logger
-		$this->table = new DoctrineApplicationTable( $entityManager, new NullLogger() );
+		$this->table = new DoctrineApplicationTable( $entityManager );
 	}
 
 	/**

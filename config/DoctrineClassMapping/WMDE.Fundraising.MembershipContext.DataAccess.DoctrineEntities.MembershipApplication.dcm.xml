@@ -8,7 +8,7 @@
       <index name="m_payment" columns="payment_id"/>
     </indexes>
     <id name="id" type="integer" column="id">
-      <generator strategy="IDENTITY"/>
+      <generator strategy="NONE"/>
     </id>
     <field name="status" type="smallint" column="status" nullable="true">
       <options>

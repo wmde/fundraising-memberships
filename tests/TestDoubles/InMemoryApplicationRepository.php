@@ -9,10 +9,6 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class InMemoryApplicationRepository implements ApplicationRepository {
 
 	/**
@@ -20,18 +16,12 @@ class InMemoryApplicationRepository implements ApplicationRepository {
 	 */
 	private array $applications = [];
 
-	private int $nextNewId = 1;
-
 	/**
 	 * @param MembershipApplication $application
 	 *
 	 * @throws StoreMembershipApplicationException
 	 */
 	public function storeApplication( MembershipApplication $application ): void {
-		if ( !$application->hasId() ) {
-			$application->assignId( $this->nextNewId++ );
-		}
-
 		$this->applications[$application->getId()] = $application;
 	}
 
@@ -41,7 +31,7 @@ class InMemoryApplicationRepository implements ApplicationRepository {
 	 * @return MembershipApplication|null
 	 * @throws GetMembershipApplicationException
 	 */
-	public function getApplicationById( int $id ): ?MembershipApplication {
+	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication {
 		return array_key_exists( $id, $this->applications ) ? $this->applications[$id] : null;
 	}
 
