@@ -11,19 +11,17 @@ class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirm
 
 	private ?MembershipApplication $application = null;
 	private array $paymentData;
-	private string $updateToken;
 	private bool $anonymizedResponseWasShown = false;
 	private bool $accessViolationWasShown = false;
 	private string $shownTechnicalError;
 
-	public function presentConfirmation( MembershipApplication $application, array $paymentData, string $updateToken ): void {
+	public function presentConfirmation( MembershipApplication $application, array $paymentData ): void {
 		if ( $this->application !== null ) {
 			throw new \RuntimeException( 'Presenter should only be invoked once' );
 		}
 
 		$this->application = $application;
 		$this->paymentData = $paymentData;
-		$this->updateToken = $updateToken;
 	}
 
 	public function getShownApplication(): MembershipApplication {
@@ -32,10 +30,6 @@ class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirm
 
 	public function getShownPaymentData(): array {
 		return $this->paymentData;
-	}
-
-	public function getShownUpdateToken(): string {
-		return $this->updateToken;
 	}
 
 	public function presentApplicationWasAnonymized(): void {

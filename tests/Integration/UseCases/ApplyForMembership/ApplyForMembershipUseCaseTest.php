@@ -5,8 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ApplyForMembership;
 
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
-use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
+use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
@@ -18,7 +17,6 @@ use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Infrastructure\PaymentServiceFactory;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\EventEmitterSpy;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FixedApplicationTokenFetcher;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\InMemoryApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\InMemoryMembershipIdGenerator;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateBasedMailerSpy;
@@ -36,7 +34,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\Mo
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MailMembershipApplicationNotifier;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MembershipNotifier;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
+use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse;
@@ -53,8 +51,6 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	 * We prepare the id generator to always return the same id, so we can find the application in the database
 	 */
 	private const MEMBERSHIP_APPLICATION_ID = 55;
-	private const ACCESS_TOKEN = 'Gimmeh all the access';
-	private const UPDATE_TOKEN = 'Lemme change all the stuff';
 	private const PAYMENT_PROVIDER_URL = 'https://paypal.example.com/';
 
 	private function newSucceedingValidator(): MembershipApplicationValidator {
@@ -73,7 +69,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 		$successResponse = new SuccessResponse(
 			ValidMembershipApplication::PAYMENT_ID,
-			$this->createStub( PaymentProviderURLGenerator::class ),
+			'',
 			true
 		);
 
@@ -86,7 +82,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 		$successResponse = new SuccessResponse(
 			ValidMembershipApplication::PAYMENT_ID,
-			$this->createStub( PaymentProviderURLGenerator::class ),
+			'',
 			false
 		);
 
@@ -110,13 +106,6 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$useCase = $this->makeUseCase( createPaymentUseCase: $this->newFailingCreatePaymentUseCase() );
 		$response = $useCase->applyForMembership( $this->newValidRequest() );
 		$this->assertFalse( $response->isSuccessful() );
-	}
-
-	private function newTokenFetcher(): ApplicationTokenFetcher {
-		return new FixedApplicationTokenFetcher( new MembershipApplicationTokens(
-			self::ACCESS_TOKEN,
-			self::UPDATE_TOKEN
-		) );
 	}
 
 	private function newValidRequest(): ApplyForMembershipRequest {
@@ -157,7 +146,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	public function testGivenValidRequest_applicationGetsPersisted(): void {
 		$repository = $this->makeMembershipRepositoryStub();
 
-		$this->makeUseCase( repository: $repository )->applyForMembership( $this->newValidRequest() );
+		$result = $this->makeUseCase( repository: $repository )->applyForMembership( $this->newValidRequest() );
 
 		$expectedApplication = ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID );
 		$expectedApplication->confirm();
@@ -172,13 +161,6 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 		$this->makeUseCase( mailNotifier: $notifier )
 			->applyForMembership( $this->newValidRequest() );
-	}
-
-	public function testGivenValidRequest_tokenIsGeneratedAndReturned(): void {
-		$response = $this->makeUseCase()->applyForMembership( $this->newValidRequest() );
-
-		$this->assertSame( self::ACCESS_TOKEN, $response->getAccessToken() );
-		$this->assertSame( self::UPDATE_TOKEN, $response->getUpdateToken() );
 	}
 
 	public function testWhenValidationFails_failureResultIsReturned(): void {
@@ -285,11 +267,9 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$this->assertGreaterThan( 0, $events[0]->getMembershipId() );
 	}
 
-	public function testSuccessResponseContainsGeneratedUrl(): void {
-		$urlGeneratorStub = $this->createStub( PaymentProviderURLGenerator::class );
-		$urlGeneratorStub->method( 'generateURL' )->willReturn( self::PAYMENT_PROVIDER_URL );
+	public function testSuccessResponseContainsGeneratedUrlFromPaymentUseCase(): void {
 		$useCase = $this->makeUseCase(
-			createPaymentUseCase: $this->makeSuccessfulPaymentServiceWithUrlGenerator( $urlGeneratorStub )
+			createPaymentUseCase: $this->makeSuccessfulPaymentServiceWithUrl()
 		);
 
 		$response = $useCase->applyForMembership( $this->newValidRequest() );
@@ -297,11 +277,11 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$this->assertSame( self::PAYMENT_PROVIDER_URL, $response->getPaymentProviderRedirectUrl() );
 	}
 
-	private function makeSuccessfulPaymentServiceWithUrlGenerator( PaymentProviderURLGenerator $urlGeneratorStub ): CreatePaymentUseCase {
+	private function makeSuccessfulPaymentServiceWithUrl(): CreatePaymentUseCase {
 		$paymentService = $this->createStub( CreatePaymentUseCase::class );
 		$paymentService->method( 'createPayment' )->willReturn( new SuccessResponse(
 			1,
-			$urlGeneratorStub,
+			self::PAYMENT_PROVIDER_URL,
 			true
 		) );
 		return $paymentService;
@@ -310,7 +290,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	private function makeUseCase(
 		?ApplicationRepository $repository = null,
 		?MembershipIdGenerator $membershipIdGenerator = null,
-		?ApplicationTokenFetcher $tokenFetcher = null,
+		?MembershipAuthorizer $membershipAuthorizer = null,
 		?MembershipNotifier $mailNotifier = null,
 		?MembershipApplicationValidator $validator = null,
 		?ModerationService $policyValidator = null,
@@ -323,7 +303,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		return new ApplyForMembershipUseCase(
 			$repository ?? $this->makeMembershipRepositoryStub(),
 			$membershipIdGenerator ?? new InMemoryMembershipIdGenerator( self::MEMBERSHIP_APPLICATION_ID ),
-			$tokenFetcher ?? $this->newTokenFetcher(),
+			$membershipAuthorizer ?? $this->makeMembershipAuthorizer(),
 			$mailNotifier ?? $this->makeMailNotifier(),
 			$validator ?? $this->newSucceedingValidator(),
 			$policyValidator ?? $this->getSucceedingPolicyValidatorMock(),
@@ -355,5 +335,18 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 				'paymentType' => ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT
 			] );
 		return $mock;
+	}
+
+	private function makeMembershipAuthorizer( ?URLAuthenticator $authenticator = null ): MembershipAuthorizer {
+		$authorizer = $this->createStub( MembershipAuthorizer::class );
+		$authorizer->method( 'authorizeMembershipAccess' )->willReturn( $authenticator ?? $this->makeUrlAuthenticator() );
+		return $authorizer;
+	}
+
+	private function makeUrlAuthenticator(): URLAuthenticator {
+		$authenticator = $this->createStub( URLAuthenticator::class );
+		$authenticator->method( 'addAuthenticationTokensToApplicationUrl' )->willReturnArgument( 0 );
+		$authenticator->method( 'getAuthenticationTokensForPaymentProviderUrl' )->willReturn( [] );
+		return $authenticator;
 	}
 }

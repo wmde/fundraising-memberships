@@ -4,6 +4,11 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Authorization;
 
+/**
+ * @deprecated The calling code should be able to rely on other methods of the
+ *      {@see \WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizer} implementation to get the tokens
+ *
+ */
 class MembershipApplicationTokens {
 
 	public function __construct( private readonly string $accessToken, private readonly string $updateToken ) {

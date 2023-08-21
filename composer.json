@@ -10,7 +10,7 @@
 
 		"psr/log": "~3.0",
 
-		"wmde/fundraising-payments": "~6.0",
+		"wmde/fundraising-payments": "dev-url-generation-refactor",
 		"wmde/euro": "~1.0",
 		"wmde/email-address": "~1.0",
 		"wmde/fun-validators": "~4.0.0",

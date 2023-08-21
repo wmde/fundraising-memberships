@@ -4,8 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
-use WMDE\Fundraising\MembershipContext\Authorization\ApplicationTokenFetcher;
-use WMDE\Fundraising\MembershipContext\Authorization\MembershipApplicationTokens;
+use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
@@ -17,8 +16,8 @@ use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MembershipNotifier;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DomainSpecificPaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 
 class ApplyForMembershipUseCase {
@@ -26,7 +25,7 @@ class ApplyForMembershipUseCase {
 	public function __construct(
 		private ApplicationRepository $repository,
 		private MembershipIdGenerator $idGenerator,
-		private ApplicationTokenFetcher $tokenFetcher,
+		private MembershipAuthorizer $authorizer,
 		private MembershipNotifier $notifier,
 		private MembershipApplicationValidator $validator,
 		private ModerationService $policyValidator,
@@ -49,11 +48,10 @@ class ApplyForMembershipUseCase {
 			return ApplyForMembershipResponse::newFailureResponse( $validationResult );
 		}
 
-		$paymentCreationRequest = $request->getPaymentCreationRequest();
-		$applicantType = $request->isCompanyApplication() ? ApplicantType::COMPANY_APPLICANT : ApplicantType::PERSON_APPLICANT;
-		$paymentCreationRequest->setDomainSpecificPaymentValidator( $this->paymentServiceFactory->newPaymentValidator( $applicantType ) );
+		$membershipId = $this->idGenerator->generateNewMembershipId();
 
-		$paymentCreationResponse = $this->paymentServiceFactory->getCreatePaymentUseCase()->createPayment( $request->getPaymentCreationRequest() );
+		$paymentCreationRequest = $this->newPaymentCreationRequest( $request, $membershipId );
+		$paymentCreationResponse = $this->paymentServiceFactory->getCreatePaymentUseCase()->createPayment( $paymentCreationRequest );
 		if ( $paymentCreationResponse instanceof FailureResponse ) {
 			$paymentViolations = new ApplicationValidationResult(
 				[ ApplicationValidationResult::SOURCE_PAYMENT => $paymentCreationResponse->errorMessage ]
@@ -61,7 +59,7 @@ class ApplyForMembershipUseCase {
 			return ApplyForMembershipResponse::newFailureResponse( $paymentViolations );
 		}
 
-		$application = $this->newApplicationFromRequest( $request, $paymentCreationResponse->paymentId );
+		$application = $this->newApplicationFromRequest( $request, $membershipId, $paymentCreationResponse->paymentId );
 
 		if ( $paymentCreationResponse->paymentComplete ) {
 			$application->confirm();
@@ -98,55 +96,48 @@ class ApplyForMembershipUseCase {
 		// The notifier checks if a notification is really needed (e.g. fee too high)
 		$this->notifier->sendModerationNotificationToAdmin( $application );
 
-		// TODO: handle exceptions
-		$tokens = $this->tokenFetcher->getTokens( $application->getId() );
-
 		return ApplyForMembershipResponse::newSuccessResponse(
-			$tokens->getAccessToken(),
-			$tokens->getUpdateToken(),
 			$application,
-			$this->generatePaymentProviderUrl(
-				$paymentCreationResponse->paymentProviderURLGenerator,
-				$application,
-				$tokens
-			)
+			$paymentCreationResponse->externalPaymentCompletionUrl
 		);
 	}
 
-	private function generatePaymentProviderUrl( PaymentProviderURLGenerator $paymentProviderURLGenerator, MembershipApplication $application, MembershipApplicationTokens $tokens ): string {
-		$name = $application->getApplicant()->getName();
-		return $paymentProviderURLGenerator->generateURL(
-			new RequestContext(
-				$application->getId(),
-				$this->generatePayPalInvoiceId( $application ),
-				$tokens->getUpdateToken(),
-				$tokens->getAccessToken(),
-				$name->getFirstName(),
-				$name->getLastName(),
-			)
-		);
-	}
-
-	private function newApplicationFromRequest( ApplyForMembershipRequest $request, int $paymentId ): MembershipApplication {
+	private function newApplicationFromRequest( ApplyForMembershipRequest $request, int $membershipId, int $paymentId, ): MembershipApplication {
 		return ( new MembershipApplicationBuilder( $this->incentiveFinder ) )->newApplicationFromRequest(
 			$request,
-			$this->idGenerator->generateNewMembershipId(),
+			$membershipId,
 			$paymentId
 		);
 	}
-
-	// TODO remove prepending the M in the FunFunFactory
 
 	/**
 	 * We use the membership primary key as the InvoiceId because they're unique
 	 * But we prepend a letter to make sure they don't clash with donations
 	 *
-	 * @param MembershipApplication $application
+	 * @param int $membershipId
 	 *
 	 * @return string
 	 */
-	private function generatePayPalInvoiceId( MembershipApplication $application ): string {
-		return 'M' . $application->getId();
+	private function generateInvoiceId( int $membershipId ): string {
+		return 'M' . $membershipId;
+	}
+
+	private function newPaymentCreationRequest( ApplyForMembershipRequest $request, int $id ): DomainSpecificPaymentCreationRequest {
+		$urlAuthenticator = $this->authorizer->authorizeMembershipAccess( $id );
+		$applicantType = $request->isCompanyApplication() ? ApplicantType::COMPANY_APPLICANT : ApplicantType::PERSON_APPLICANT;
+		$domainSpecificContext = new DomainSpecificContext(
+			$id,
+			null,
+			$this->generateInvoiceId( $id ),
+			$request->getApplicantFirstName(),
+			$request->getApplicantLastName()
+		);
+		return DomainSpecificPaymentCreationRequest::newFromBaseRequest(
+			$request->getPaymentCreationRequest(),
+			$this->paymentServiceFactory->newPaymentValidator( $applicantType ),
+			$domainSpecificContext,
+			$urlAuthenticator
+		);
 	}
 
 }
