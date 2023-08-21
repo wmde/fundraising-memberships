@@ -11,7 +11,7 @@ interface ShowApplicationConfirmationPresenter {
 	/**
 	 * @param MembershipApplication $application
 	 * @param array<string,mixed> $paymentData
-	 * @param string $updateToken
+	 * @param string $updateToken (deprecated)
 	 *
 	 * @return void
 	 */
