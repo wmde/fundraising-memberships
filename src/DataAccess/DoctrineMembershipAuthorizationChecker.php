@@ -10,6 +10,9 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApp
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 
+/**
+ * @deprecated The checker should rely on tokens outside the bounded context and not ones stored in the "request" (membership) table
+ */
 class DoctrineMembershipAuthorizationChecker implements MembershipAuthorizationChecker {
 
 	private DoctrineApplicationTable $table;
