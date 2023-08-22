@@ -10,6 +10,10 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApp
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 
+/**
+ * This is only for checking legacy donation authorizations.
+ *  New donations should use an implementation of MembershipAuthorizationChecker that uses tokens stored outside the bounded context.
+ */
 class DoctrineMembershipAuthorizationChecker implements MembershipAuthorizationChecker {
 
 	private DoctrineApplicationTable $table;

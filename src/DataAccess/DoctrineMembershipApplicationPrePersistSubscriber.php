@@ -10,6 +10,10 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 
+/**
+ * @deprecated We don't want to use Doctrine event subscribers any more.
+ *  The implementation of {@see MembershipAuthorizer} should store the tokens in a separate DB when generating them.
+ */
 class DoctrineMembershipApplicationPrePersistSubscriber implements EventSubscriber {
 
 	public function __construct(

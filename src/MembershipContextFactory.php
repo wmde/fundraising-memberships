@@ -35,6 +35,10 @@ class MembershipContextFactory {
 
 	private array $config;
 
+	/**
+	 * @var MembershipTokenGenerator|null
+	 * @deprecated
+	 */
 	private ?MembershipTokenGenerator $tokenGenerator;
 
 	public function __construct( array $config ) {
@@ -80,6 +84,8 @@ class MembershipContextFactory {
 
 	/**
 	 * @return EventSubscriber[]
+	 * @deprecated We don't want to use Doctrine event subscribers any more.
+	 * The implementation of {@see MembershipAuthorizer} should store the tokens in a separate DB when generating them.
 	 */
 	public function newEventSubscribers(): array {
 		return [
@@ -87,6 +93,11 @@ class MembershipContextFactory {
 		];
 	}
 
+	/**
+	 * @return DoctrineMembershipApplicationPrePersistSubscriber
+	 * @deprecated We don't want to use Doctrine event subscribers any more.
+	 *  The implementation of {@see MembershipAuthorizer} should store the tokens in a separate DB when generating them.
+	 */
 	private function newDoctrineMembershipPrePersistSubscriber(): DoctrineMembershipApplicationPrePersistSubscriber {
 		$tokenGenerator = $this->getTokenGenerator();
 		return new DoctrineMembershipApplicationPrePersistSubscriber(
@@ -95,6 +106,11 @@ class MembershipContextFactory {
 		);
 	}
 
+	/**
+	 * @return MembershipTokenGenerator
+	 * @throws \Exception
+	 * @deprecated
+	 */
 	private function getTokenGenerator(): MembershipTokenGenerator {
 		if ( $this->tokenGenerator === null ) {
 			$this->tokenGenerator = new RandomMembershipTokenGenerator(
@@ -110,6 +126,7 @@ class MembershipContextFactory {
 	 * This setter should only be used in tests, to replace the default implementation.
 	 *
 	 * @param MembershipTokenGenerator|null $tokenGenerator
+	 * @deprecated
 	 */
 	public function setTokenGenerator( ?MembershipTokenGenerator $tokenGenerator ): void {
 		$this->tokenGenerator = $tokenGenerator;
