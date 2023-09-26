@@ -71,15 +71,15 @@ class MembershipToPaymentConverter {
 		return $this->result;
 	}
 
-	 private function getRows( int $minMembershipId, int $maxMembershipId ): iterable {
+	private function getRows( int $minMembershipId, int $maxMembershipId ): iterable {
 		$qb = $this->db->createQueryBuilder();
 		$qb->select( 'id', 'membership_fee AS amount', 'membership_fee_interval AS intervalInMonths', 'payment_type as paymentType',
-			 'data', 'iban', 'bic', 'status', 'timestamp AS membershipDate',
+			'data', 'iban', 'bic', 'status', 'timestamp AS membershipDate',
 		)
-			 ->from( 'request', 'm' );
+			->from( 'request', 'm' );
 
 		return new ChunkedQueryResultIterator( $qb, 'id', self::CHUNK_SIZE, $maxMembershipId, $minMembershipId );
-	 }
+	}
 
 	private function getMaxId(): int {
 		$maxId = $this->db->executeQuery( "SELECT MAX(id) FROM request" )->fetchOne();

@@ -147,7 +147,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 		];
 		$incentiveFinder = new TestIncentiveFinder( $incentives );
 		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS, array_map(
-			fn( $incentive ) => $incentive->getName(),
+			fn ( $incentive ) => $incentive->getName(),
 			$incentives
 		) );
 		$builder = new MembershipApplicationBuilder( $incentiveFinder );

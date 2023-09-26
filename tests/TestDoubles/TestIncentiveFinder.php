@@ -22,7 +22,7 @@ class TestIncentiveFinder implements IncentiveFinder {
 	}
 
 	public function findIncentiveByName( string $name ): ?Incentive {
-		$incentives = array_filter( $this->incentives, fn( $incentive ) => $incentive->getName() === $name );
+		$incentives = array_filter( $this->incentives, fn ( $incentive ) => $incentive->getName() === $name );
 
 		if ( count( $incentives ) === 0 ) {
 			return null;

@@ -87,7 +87,7 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 	}
 
 	private function getYearlyPaymentRequirement(): float {
-		return match( $this->applicantType ) {
+		return match ( $this->applicantType ) {
 			ApplicantType::COMPANY_APPLICANT => self::MIN_COMPANY_YEARLY_PAYMENT_IN_EURO,
 			ApplicantType::PERSON_APPLICANT => self::MIN_PERSON_YEARLY_PAYMENT_IN_EURO,
 		};
