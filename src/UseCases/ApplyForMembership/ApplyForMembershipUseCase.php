@@ -17,8 +17,8 @@ use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MembershipNotifier;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
-use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DomainSpecificPaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 
 class ApplyForMembershipUseCase {
 
@@ -122,18 +122,23 @@ class ApplyForMembershipUseCase {
 		return 'M' . $membershipId;
 	}
 
-	private function newPaymentCreationRequest( ApplyForMembershipRequest $request, int $id ): DomainSpecificPaymentCreationRequest {
+	private function newPaymentCreationRequest( ApplyForMembershipRequest $request, int $id ): PaymentCreationRequest {
 		$urlAuthenticator = $this->authorizer->authorizeMembershipAccess( $id );
 		$applicantType = $request->isCompanyApplication() ? ApplicantType::COMPANY_APPLICANT : ApplicantType::PERSON_APPLICANT;
+
+		// When we implement PayPal for Memberships, we need a specification from SpuMi to know how to calculate the start time
+		// Could be a fixed date (1st of last month of next quarter) or a relative date (1 month from now)
+		$startTimeForRecurringPayment = null;
+
 		$domainSpecificContext = new DomainSpecificContext(
 			$id,
-			null,
+			$startTimeForRecurringPayment,
 			$this->generateInvoiceId( $id ),
 			$request->getApplicantFirstName(),
 			$request->getApplicantLastName()
 		);
-		return DomainSpecificPaymentCreationRequest::newFromBaseRequest(
-			$request->getPaymentCreationRequest(),
+		return PaymentCreationRequest::newFromParameters(
+			$request->getPaymentParameters(),
 			$this->paymentServiceFactory->newPaymentValidator( $applicantType ),
 			$domainSpecificContext,
 			$urlAuthenticator

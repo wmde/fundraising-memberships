@@ -131,7 +131,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 		$request->setOptsIntoDonationReceipt( true );
 
-		$request->setPaymentCreationRequest( ValidMembershipApplication::newPaymentCreationRequest() );
+		$request->setPaymentParameters( ValidMembershipApplication::newPaymentParameters() );
 
 		return $request->assertNoNullFields();
 	}

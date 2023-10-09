@@ -12,7 +12,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationVa
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
-use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentParameters;
 use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResult;
 use WMDE\FunValidators\Validators\EmailValidator;
@@ -273,13 +273,13 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	private function newValidRequestUsingPayPal(): ApplyForMembershipRequest {
-		$paymentRequest = new PaymentCreationRequest(
+		$paymentRequest = new PaymentParameters(
 			ValidMembershipApplication::PAYMENT_AMOUNT_IN_EURO,
 			ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS->value,
 			PaymentType::Paypal->value
 		);
 		$membershipRequest = $this->newValidRequest();
-		$membershipRequest->setPaymentCreationRequest( $paymentRequest );
+		$membershipRequest->setPaymentParameters( $paymentRequest );
 		return $membershipRequest;
 	}
 

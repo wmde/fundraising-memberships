@@ -15,7 +15,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
-use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentParameters;
 
 /**
  * newDomainEntity and newDoctrineEntity return equivalent objects.
@@ -225,8 +225,8 @@ class ValidMembershipApplication {
 		return new Incentive( self::INCENTIVE_NAME );
 	}
 
-	public static function newPaymentCreationRequest(): PaymentCreationRequest {
-		return new PaymentCreationRequest(
+	public static function newPaymentParameters(): PaymentParameters {
+		return new PaymentParameters(
 			self::PAYMENT_AMOUNT_IN_EURO,
 			self::PAYMENT_PERIOD_IN_MONTHS->value,
 			self::PAYMENT_TYPE_DIRECT_DEBIT->value
