@@ -18,7 +18,6 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidPayments;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FixedMembershipTokenGenerator;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManager;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
@@ -30,14 +29,11 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 	private const MEMBERSHIP_APPLICATION_ID = 1;
 	private const ID_OF_APPLICATION_NOT_IN_DB = 35505;
-	private const VALID_TOKEN = 'access_token';
-	private const FUTURE_EXPIRY = '3000-01-01 0:00:00';
 
 	private EntityManager $entityManager;
 
 	public function setUp(): void {
 		$testEnvironment = TestEnvironment::newInstance();
-		$testEnvironment->setTokenGenerator( new FixedMembershipTokenGenerator( self::VALID_TOKEN, new \DateTime( self::FUTURE_EXPIRY ) ) );
 		$this->entityManager = $testEnvironment->getEntityManager();
 		parent::setUp();
 	}
