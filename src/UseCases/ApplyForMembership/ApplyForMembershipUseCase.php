@@ -17,6 +17,7 @@ use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MembershipNotifier;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
+use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 
@@ -50,7 +51,8 @@ class ApplyForMembershipUseCase {
 
 		$membershipId = $this->idGenerator->generateNewMembershipId();
 
-		$paymentCreationRequest = $this->newPaymentCreationRequest( $request, $membershipId );
+		$urlAuthenticator = $this->authorizer->authorizeMembershipAccess( $membershipId );
+		$paymentCreationRequest = $this->newPaymentCreationRequest( $request, $membershipId, $urlAuthenticator );
 		$paymentCreationResponse = $this->paymentServiceFactory->getCreatePaymentUseCase()->createPayment( $paymentCreationRequest );
 		if ( $paymentCreationResponse instanceof FailureResponse ) {
 			$paymentViolations = new ApplicationValidationResult(
@@ -122,8 +124,7 @@ class ApplyForMembershipUseCase {
 		return 'M' . $membershipId;
 	}
 
-	private function newPaymentCreationRequest( ApplyForMembershipRequest $request, int $id ): PaymentCreationRequest {
-		$urlAuthenticator = $this->authorizer->authorizeMembershipAccess( $id );
+	private function newPaymentCreationRequest( ApplyForMembershipRequest $request, int $id, URLAuthenticator $urlAuthenticator ): PaymentCreationRequest {
 		$applicantType = $request->isCompanyApplication() ? ApplicantType::COMPANY_APPLICANT : ApplicantType::PERSON_APPLICANT;
 
 		// When we implement PayPal for Memberships, we need a specification from SpuMi to know how to calculate the start time
