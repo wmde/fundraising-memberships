@@ -46,7 +46,6 @@ use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipUseCase
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipResponse
- * @covers \WMDE\Fundraising\MembershipContext\Infrastructure\MembershipConfirmationMailer
  */
 class ApplyForMembershipUseCaseTest extends TestCase {
 
@@ -168,18 +167,11 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	}
 
 	public function testGivenValidRequest_confirmationEmailIsSent(): void {
-		$mailerSpy = new TemplateBasedMailerSpy( $this );
-		$notifier = new MailMembershipApplicationNotifier(
-			$mailerSpy,
-			new TemplateMailerStub(),
-			$this->makePaymentRetriever(),
-			'mitglieder@wikimedia.de'
-		);
+		$notifier = $this->createMock( MembershipNotifier::class );
+		$notifier->expects( $this->once() )->method( 'sendConfirmationFor' );
 
 		$this->makeUseCase( mailNotifier: $notifier )
 			->applyForMembership( $this->newValidRequest() );
-
-		$mailerSpy->expectToBeCalledOnce();
 	}
 
 	public function testGivenValidRequest_tokenIsGeneratedAndReturned(): void {
