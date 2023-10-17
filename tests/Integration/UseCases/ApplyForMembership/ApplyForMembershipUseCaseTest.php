@@ -219,8 +219,8 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$mailerSpy = new TemplateBasedMailerSpy( $this );
 		$notifier = new MailMembershipApplicationNotifier( $mailerSpy, new TemplateMailerStub(), $this->makePaymentRetriever(), 'mitglieder@wikimedia.de' );
 		$useCase = $this->makeUseCase(
+			mailNotifier: $notifier,
 			createPaymentUseCase: $this->newSucceedingUnconfirmedCreatePaymentUseCase(),
-			mailNotifier: $notifier
 		);
 
 		$useCase->applyForMembership( $this->newValidRequest() );
@@ -274,7 +274,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 		$response = $useCase->applyForMembership( $this->newValidRequest() );
 
-		$this->assertSame( self::PAYMENT_PROVIDER_URL, $response->getPaymentProviderRedirectUrl() );
+		$this->assertSame( self::PAYMENT_PROVIDER_URL, $response->getPaymentCompletionUrl() );
 	}
 
 	private function makeSuccessfulPaymentServiceWithUrl(): CreatePaymentUseCase {

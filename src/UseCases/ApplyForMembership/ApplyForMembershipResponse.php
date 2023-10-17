@@ -11,15 +11,15 @@ class ApplyForMembershipResponse {
 	private ApplicationValidationResult $validationResult;
 
 	private ?MembershipApplication $application;
-	private ?string $paymentProviderRedirectUrl = null;
+	private ?string $paymentCompletionUrl = null;
 
 	public static function newSuccessResponse(
 			MembershipApplication $application,
-			string $paymentProviderRedirectUrl
+			string $paymentCompletionUrl
 	): self {
 		$response = new self( new ApplicationValidationResult() );
 		$response->application = $application;
-		$response->paymentProviderRedirectUrl = $paymentProviderRedirectUrl;
+		$response->paymentCompletionUrl = $paymentCompletionUrl;
 		return $response;
 	}
 
@@ -44,7 +44,7 @@ class ApplyForMembershipResponse {
 	 */
 	public function getMembershipApplication(): MembershipApplication {
 		if ( !$this->isSuccessful() ) {
-			throw new \RuntimeException( 'The result only has a membership application object when successful' );
+			throw new \LogicException( 'The result only has a membership application object when successful' );
 		}
 
 		return $this->application;
@@ -54,7 +54,11 @@ class ApplyForMembershipResponse {
 		return $this->validationResult;
 	}
 
-	public function getPaymentProviderRedirectUrl(): string {
-		return $this->paymentProviderRedirectUrl;
+	public function getPaymentCompletionUrl(): string {
+		if ( !$this->isSuccessful() ) {
+			throw new \LogicException( 'The result only has a payment completion URL when successful' );
+		}
+
+		return $this->paymentCompletionUrl;
 	}
 }

@@ -100,7 +100,7 @@ class ApplyForMembershipUseCase {
 
 		return ApplyForMembershipResponse::newSuccessResponse(
 			$application,
-			$paymentCreationResponse->externalPaymentCompletionUrl
+			$paymentCreationResponse->paymentCompletionUrl
 		);
 	}
 
