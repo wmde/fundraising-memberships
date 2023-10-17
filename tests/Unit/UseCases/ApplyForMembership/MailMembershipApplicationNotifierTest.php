@@ -13,7 +13,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 /**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MailTemplateValueBuilder
+ * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MailMembershipApplicationNotifier
  */
 class MailMembershipApplicationNotifierTest extends TestCase {
 
