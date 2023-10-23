@@ -6,7 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
 use WMDE\FreezableValueObject\FreezableValueObject;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
-use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentParameters;
 
 class ApplyForMembershipRequest {
 	use FreezableValueObject;
@@ -29,7 +29,7 @@ class ApplyForMembershipRequest {
 	private string $applicantPhoneNumber;
 	private string $applicantDateOfBirth;
 
-	private PaymentCreationRequest $paymentCreationRequest;
+	private PaymentParameters $paymentParameters;
 
 	private MembershipApplicationTrackingInfo $trackingInfo;
 	private string $piwikTrackingString;
@@ -167,12 +167,12 @@ class ApplyForMembershipRequest {
 		$this->applicantDateOfBirth = trim( $applicantDateOfBirth );
 	}
 
-	public function getPaymentCreationRequest(): PaymentCreationRequest {
-		return $this->paymentCreationRequest;
+	public function getPaymentParameters(): PaymentParameters {
+		return $this->paymentParameters;
 	}
 
-	public function setPaymentCreationRequest( PaymentCreationRequest $paymentCreationRequest ): void {
-		$this->paymentCreationRequest = $paymentCreationRequest;
+	public function setPaymentParameters( PaymentParameters $paymentParameters ): void {
+		$this->paymentParameters = $paymentParameters;
 	}
 
 	public function getTrackingInfo(): MembershipApplicationTrackingInfo {

@@ -3,7 +3,7 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\TestDoubles;
 
-use WMDE\Fundraising\PaymentContext\DataAccess\PaymentNotFoundException;
+use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentNotFoundException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 

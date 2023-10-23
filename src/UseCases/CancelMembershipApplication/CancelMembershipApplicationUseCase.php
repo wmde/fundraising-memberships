@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication;
 
-use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
+use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
@@ -19,7 +19,7 @@ class CancelMembershipApplicationUseCase {
 	public const LOG_MESSAGE_ADMIN_STATUS_CHANGE = 'cancelled by user: %s';
 
 	public function __construct(
-		private readonly ApplicationAuthorizer $authorizer,
+		private readonly MembershipAuthorizationChecker $authorizer,
 		private readonly ApplicationRepository $repository,
 		private readonly TemplateMailerInterface $mailer,
 		private readonly MembershipApplicationEventLogger $membershipApplicationEventLogger,
@@ -29,7 +29,7 @@ class CancelMembershipApplicationUseCase {
 
 	public function cancelApplication( CancellationRequest $request ): CancellationResponse {
 		$membershipApplicationId = $request->getApplicationId();
-		if ( !$this->authorizer->canModifyApplication( $membershipApplicationId ) ) {
+		if ( !$this->authorizer->canModifyMembership( $membershipApplicationId ) ) {
 			return CancellationResponse::newFailureResponse( $membershipApplicationId );
 		}
 

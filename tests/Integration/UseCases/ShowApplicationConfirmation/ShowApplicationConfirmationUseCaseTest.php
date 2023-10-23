@@ -5,12 +5,11 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ShowApplicationConfirmation;
 
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\MembershipContext\Authorization\ApplicationAuthorizer;
+use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FailingAuthorizer;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FailingAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeApplicationRepository;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FixedApplicationTokenFetcher;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingAuthorizer;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowAppConfirmationRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
@@ -28,17 +27,14 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 
 	private FakeShowApplicationConfirmationPresenter $presenter;
 
-	private ApplicationAuthorizer|SucceedingAuthorizer $authorizer;
+	private MembershipAuthorizationChecker|SucceedingAuthorizationChecker $authorizer;
 
 	private FakeApplicationRepository $repository;
 
-	private FixedApplicationTokenFetcher $tokenFetcher;
-
 	public function setUp(): void {
 		$this->presenter = new FakeShowApplicationConfirmationPresenter();
-		$this->authorizer = new SucceedingAuthorizer();
+		$this->authorizer = new SucceedingAuthorizationChecker();
 		$this->repository = new FakeApplicationRepository();
-		$this->tokenFetcher = FixedApplicationTokenFetcher::newWithDefaultTokens();
 
 		$this->repository->storeApplication( ValidMembershipApplication::newDomainEntity( self::APPLICATION_ID ) );
 	}
@@ -56,7 +52,6 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 			$this->presenter,
 			$this->authorizer,
 			$this->repository,
-			$this->tokenFetcher,
 			$getPaymentUseCase
 		);
 	}
@@ -73,11 +68,6 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 			self::PAYMENT_DATA,
 			$this->presenter->getShownPaymentData()
 		);
-
-		$this->assertSame(
-			FixedApplicationTokenFetcher::UPDATE_TOKEN,
-			$this->presenter->getShownUpdateToken()
-		);
 	}
 
 	public function testWhenRepositoryThrowsAnonymizedException_anonymizedMessageIsPresented(): void {
@@ -89,7 +79,7 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 	}
 
 	public function testWhenAuthorizerReturnsFalse_accessViolationIsPresented(): void {
-		$this->authorizer = new FailingAuthorizer();
+		$this->authorizer = new FailingAuthorizationChecker();
 
 		$this->invokeUseCaseWithCorrectRequestModel();
 

@@ -46,7 +46,7 @@ class ValidMembershipApplicationRequest {
 		$request->setTrackingInfo( $this->newTrackingInfo() );
 		$request->setPiwikTrackingString( 'foo/bar' );
 
-		$request->setPaymentCreationRequest( ValidMembershipApplication::newPaymentCreationRequest() );
+		$request->setPaymentParameters( ValidMembershipApplication::newPaymentParameters() );
 
 		return $request->assertNoNullFields();
 	}
