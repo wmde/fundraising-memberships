@@ -50,6 +50,21 @@ class MembershipPaymentValidatorTest extends TestCase {
 		$this->assertEquals( $isValid, $response->isSuccessful() );
 	}
 
+	public function testGivenTooHighFeeAmount_validatorReturnsViolation(): void {
+		$validator = new MembershipPaymentValidator( ApplicantType::PERSON_APPLICANT, self::ALLOWED_PAYMENT_TYPES );
+		$hugeAmount = 100_001;
+
+		$response = $validator->validatePaymentData(
+			Euro::newFromInt( $hugeAmount ),
+			PaymentInterval::Yearly,
+			ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT
+		);
+		$violations = $response->getValidationErrors();
+		$this->assertCount( 1, $violations );
+		$feeViolation = $violations[0];
+		$this->assertEquals( MembershipPaymentValidator::FEE_TOO_HIGH, $feeViolation->getMessageIdentifier() );
+	}
+
 	public static function companyAmountProvider(): iterable {
 		yield [ true, self::VALID_MIN_AMOUNT_FOR_COMPANY ];
 		yield [ false, self::VALID_MIN_AMOUNT_FOR_COMPANY - 1 ];
