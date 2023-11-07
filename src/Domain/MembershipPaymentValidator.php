@@ -26,6 +26,11 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 	/**
 	 * Violation identifier for {@see ConstraintViolation}
 	 */
+	public const FEE_TOO_HIGH = 'error_too_high';
+
+	/**
+	 * Violation identifier for {@see ConstraintViolation}
+	 */
 	public const INVALID_PAYMENT_TYPE = 'invalid_payment_type';
 
 	/**
@@ -45,6 +50,8 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 
 	private const MIN_PERSON_YEARLY_PAYMENT_IN_EURO = 24;
 	private const MIN_COMPANY_YEARLY_PAYMENT_IN_EURO = 100;
+
+	private const MAX_YEARLY_PAYMENT_IN_EURO = 100_000;
 	private const MONTHS_PER_YEAR = 12;
 
 	private Euro $membershipFee;
@@ -70,6 +77,8 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 			$errors[] = new ConstraintViolation( $interval, self::INVALID_INTERVAL, self::SOURCE_INTERVAL );
 		} elseif ( $this->getYearlyPaymentAmount() < $this->getYearlyPaymentRequirement() ) {
 			$errors[] = new ConstraintViolation( $interval, self::FEE_TOO_LOW, self::SOURCE_MEMBERSHIP_FEE );
+		} elseif ( $this->getYearlyPaymentAmount() > self::MAX_YEARLY_PAYMENT_IN_EURO ) {
+			$errors[] = new ConstraintViolation( $interval, self::FEE_TOO_HIGH, self::SOURCE_MEMBERSHIP_FEE );
 		}
 
 		if ( $this->isInvalidPaymentTypeForMemberships( $paymentType ) ) {
