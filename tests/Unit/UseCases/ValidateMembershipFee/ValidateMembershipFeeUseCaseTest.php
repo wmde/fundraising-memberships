@@ -93,6 +93,32 @@ class ValidateMembershipFeeUseCaseTest extends TestCase {
 		);
 	}
 
+	public function testGivenLargeInteger_validationFailsWhenConstructingEuroClass(): void {
+		$fakePaymentValidator = $this->createMock( MembershipPaymentValidator::class );
+		$fakePaymentValidator->expects( $this->never() )->method( $this->anything() );
+		$stubbedFactory = $this->createStub( PaymentServiceFactory::class );
+		$stubbedFactory->method( 'newPaymentValidator' )->willReturn( $fakePaymentValidator );
+		$useCase = new ValidateMembershipFeeUseCase( $stubbedFactory );
+
+		$result = $useCase->validate( PHP_INT_MAX, 12, ApplicantType::PERSON_APPLICANT->value, "BEZ" );
+
+		$this->assertFalse( $result->isSuccessful() );
+		$this->assertSame( MembershipPaymentValidator::FEE_TOO_HIGH, $result->getValidationErrors()[0]->getMessageIdentifier() );
+	}
+
+	public function testGivenNegativeInteger_validationFailsWhenConstructingEuroClass(): void {
+		$fakePaymentValidator = $this->createMock( MembershipPaymentValidator::class );
+		$fakePaymentValidator->expects( $this->never() )->method( $this->anything() );
+		$stubbedFactory = $this->createStub( PaymentServiceFactory::class );
+		$stubbedFactory->method( 'newPaymentValidator' )->willReturn( $fakePaymentValidator );
+		$useCase = new ValidateMembershipFeeUseCase( $stubbedFactory );
+
+		$result = $useCase->validate( -5, 12, ApplicantType::PERSON_APPLICANT->value, "BEZ" );
+
+		$this->assertFalse( $result->isSuccessful() );
+		$this->assertNotSame( MembershipPaymentValidator::FEE_TOO_HIGH, $result->getValidationErrors()[0]->getMessageIdentifier() );
+	}
+
 	public function testGivenInvalidInterval_zero_validationFails() {
 		$useCase = $this->newUseCase();
 
