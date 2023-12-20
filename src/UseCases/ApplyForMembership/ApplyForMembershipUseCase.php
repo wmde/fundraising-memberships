@@ -91,7 +91,7 @@ class ApplyForMembershipUseCase {
 		// TODO: handle exceptions
 		$this->piwikTracker->trackApplication( $application->getId(), $request->getPiwikTrackingString() );
 
-		if ( $application->isConfirmed() ) {
+		if ( $application->shouldSendConfirmationMail() ) {
 			$this->notifier->sendConfirmationFor( $application );
 		}
 

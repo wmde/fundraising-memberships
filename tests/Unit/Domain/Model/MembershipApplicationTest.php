@@ -89,9 +89,31 @@ class MembershipApplicationTest extends TestCase {
 	}
 
 	public function testMarkForModerationNeedsAtLeastOneModerationReason(): void {
-		$donation = ValidMembershipApplication::newCompanyApplication();
+		$application = ValidMembershipApplication::newCompanyApplication();
 		$this->expectException( \LogicException::class );
-		$donation->markForModeration();
+		$application->markForModeration();
+	}
+
+	public function testGivenUnconfirmedApplication_shouldSendConfirmationMailReturnsFalse(): void {
+		$application = ValidMembershipApplication::newApplication();
+
+		$this->assertFalse( $application->shouldSendConfirmationMail() );
+	}
+
+	public function testGivenConfirmedApplicationWithEmailModeration_shouldSendConfirmationMailReturnsFalse(): void {
+		$application = ValidMembershipApplication::newApplication();
+		$application->confirm();
+		$application->markForModeration( new ModerationReason( ModerationIdentifier::EMAIL_BLOCKED ) );
+
+		$this->assertFalse( $application->shouldSendConfirmationMail() );
+	}
+
+	public function testGivenConfirmedApplicationWithOtherModeration_shouldSendConfirmationMailReturnsTrue(): void {
+		$application = ValidMembershipApplication::newApplication();
+		$application->confirm();
+		$application->markForModeration( new ModerationReason( ModerationIdentifier::MANUALLY_FLAGGED_BY_ADMIN ) );
+
+		$this->assertTrue( $application->shouldSendConfirmationMail() );
 	}
 
 	private function makeGenericModerationReason(): ModerationReason {
