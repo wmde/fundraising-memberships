@@ -228,20 +228,20 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$this->assertCount( 0, $mailerSpy->getSendMailCalls() );
 	}
 
-	private function newAutoDeletingPolicyValidator(): ModerationService {
-		$policyValidator = $this->createStub( ModerationService::class );
-		$policyValidator->method( 'moderateMembershipApplicationRequest' )->willReturn( new ModerationResult() );
-		$policyValidator->method( 'isAutoDeleted' )->willReturn( true );
-		return $policyValidator;
-	}
-
-	public function testWhenUsingForbiddenEmailAddress_applicationIsCancelledAutomatically(): void {
+	public function testWhenUsingForbiddenEmailAddress_confirmationEmailIsNotSent(): void {
+		$mailerSpy = new TemplateBasedMailerSpy( $this );
 		$repository = $this->makeMembershipRepositoryStub();
-		$this->makeUseCase(
+		$notifier = new MailMembershipApplicationNotifier( $mailerSpy, new TemplateMailerStub(), $this->makePaymentRetriever(), 'mitglieder@wikimedia.de' );
+		$useCase = $this->makeUseCase(
 			repository: $repository,
-			policyValidator: $this->newAutoDeletingPolicyValidator()
-		)->applyForMembership( $this->newValidRequest() );
-		$this->assertTrue( $repository->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )->isCancelled() );
+			mailNotifier: $notifier,
+			policyValidator: $this->newPolicyValidatorWithEmailModeration(),
+			createPaymentUseCase: $this->newSucceedingUnconfirmedCreatePaymentUseCase(),
+		);
+
+		$useCase->applyForMembership( $this->newValidRequest() );
+
+		$this->assertCount( 0, $mailerSpy->getSendMailCalls() );
 	}
 
 	public function testGivenDonationReceiptOptOutRequest_applicationHoldsThisValue(): void {
@@ -320,6 +320,14 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 	private function makeMembershipRepositoryStub(): ApplicationRepository {
 		return new InMemoryApplicationRepository();
+	}
+
+	private function newPolicyValidatorWithEmailModeration(): ModerationService {
+		$policyValidator = $this->createStub( ModerationService::class );
+		$moderationResult = new ModerationResult();
+		$moderationResult->addModerationReason( new ModerationReason( ModerationIdentifier::EMAIL_BLOCKED ) );
+		$policyValidator->method( 'moderateMembershipApplicationRequest' )->willReturn( $moderationResult );
+		return $policyValidator;
 	}
 
 	private function makeMailNotifier(): MembershipNotifier {

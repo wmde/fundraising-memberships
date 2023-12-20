@@ -61,16 +61,6 @@ class ModerationService {
 		return $yearlyAmount > self::YEARLY_PAYMENT_MODERATION_THRESHOLD_IN_EURO;
 	}
 
-	public function isAutoDeleted( MembershipApplication $application ): bool {
-		foreach ( $this->emailAddressBlocklist as $blocklistEntry ) {
-			if ( preg_match( $blocklistEntry, $application->getApplicant()->getEmailAddress()->getFullAddress() ) ) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	private function moderateBadWordViolations( MembershipApplication $application ): void {
 		$applicant = $application->getApplicant();
 		$this->moderatePolicyViolationsForField( $applicant->getName()->getFirstName(), ApplicationValidationResult::SOURCE_APPLICANT_FIRST_NAME );

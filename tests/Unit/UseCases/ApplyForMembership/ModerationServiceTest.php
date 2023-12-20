@@ -62,7 +62,7 @@ class ModerationServiceTest extends TestCase {
 		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( ValidMembershipApplication::newDomainEntity(), 2500, PaymentInterval::Yearly->value );
 		$violations = $moderationResult->getViolations();
 
-		// Validator checks first name, last name, street and city
+		// Validator checks 4 fields: first name, last name, street and city
 		$this->assertCount( 4, $violations );
 		$this->assertEquals(
 			new ModerationReason( ModerationIdentifier::ADDRESS_CONTENT_VIOLATION, ApplicationValidationResult::SOURCE_APPLICANT_FIRST_NAME ),
@@ -82,49 +82,4 @@ class ModerationServiceTest extends TestCase {
 			$moderationResult->getViolations()[0]
 		);
 	}
-
-	/** @dataProvider blocklistedEmailAddressProvider */
-	public function testWhenEmailAddressIsBlocklisted_isAutoDeletedReturnsTrue( string $emailAddress ): void {
-		$policyValidator = $this->newPolicyValidatorWithEmailBlocklist();
-		$this->assertTrue(
-			$policyValidator->isAutoDeleted(
-				ValidMembershipApplication::newDomainEntityWithEmailAddress( $emailAddress )
-			)
-		);
-	}
-
-	public static function blocklistedEmailAddressProvider(): array {
-		return [
-			[ 'foo@bar.baz' ],
-			[ 'test@example.com' ],
-			[ 'Test@EXAMPLE.com' ]
-		];
-	}
-
-	/** @dataProvider allowedEmailAddressProvider */
-	public function testWhenEmailAddressIsNotBlocklisted_isAutoDeletedReturnsFalse( string $emailAddress ): void {
-		$policyValidator = $this->newPolicyValidatorWithEmailBlocklist();
-		$this->assertFalse(
-			$policyValidator->isAutoDeleted(
-				ValidMembershipApplication::newDomainEntityWithEmailAddress( $emailAddress )
-			)
-		);
-	}
-
-	public static function allowedEmailAddressProvider(): array {
-		return [
-			[ 'other.person@bar.baz' ],
-			[ 'test@example.computer.says.no' ],
-			[ 'some.person@gmail.com' ]
-		];
-	}
-
-	private function newPolicyValidatorWithEmailBlocklist(): ModerationService {
-		$textPolicyValidator = $this->newSucceedingTextPolicyValidator();
-		return new ModerationService(
-			$textPolicyValidator,
-			[ '/^foo@bar\.baz$/', '/@example.com$/i' ]
-		);
-	}
-
 }

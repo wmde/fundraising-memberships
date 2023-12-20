@@ -76,10 +76,6 @@ class ApplyForMembershipUseCase {
 			$application->markForModeration( ...$moderationResult->getViolations() );
 		}
 
-		if ( $this->policyValidator->isAutoDeleted( $application ) ) {
-			$application->cancel();
-		}
-
 		// TODO: handle exceptions
 		$this->repository->storeApplication( $application );
 
