@@ -132,4 +132,16 @@ class MembershipApplication {
 		return new \ArrayObject( $this->incentives );
 	}
 
+	public function shouldSendConfirmationMail(): bool {
+		if ( !$this->confirmed ) {
+			return false;
+		}
+		foreach ( $this->moderationReasons as $moderationReason ) {
+			if ( $moderationReason->getModerationIdentifier() === ModerationIdentifier::EMAIL_BLOCKED ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 }

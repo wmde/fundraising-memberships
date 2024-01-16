@@ -39,12 +39,13 @@ class ModerationService {
 	public function moderateMembershipApplicationRequest( MembershipApplication $application, int $amountInCents, int $interval ): ModerationResult {
 		$this->result = new ModerationResult();
 
-		$this->getAmountViolations( $amountInCents, $interval );
-		$this->getBadWordViolations( $application );
+		$this->moderateAmountViolations( $amountInCents, $interval );
+		$this->moderateBadWordViolations( $application );
+		$this->moderateEmailBlockListViolations( $application );
 		return $this->result;
 	}
 
-	private function getAmountViolations( int $amountInCents, int $interval ): void {
+	private function moderateAmountViolations( int $amountInCents, int $interval ): void {
 		if ( $this->yearlyAmountExceedsLimit( $amountInCents, $interval ) ) {
 			$this->result->addModerationReason(
 				new ModerationReason(
@@ -60,26 +61,16 @@ class ModerationService {
 		return $yearlyAmount > self::YEARLY_PAYMENT_MODERATION_THRESHOLD_IN_EURO;
 	}
 
-	public function isAutoDeleted( MembershipApplication $application ): bool {
-		foreach ( $this->emailAddressBlocklist as $blocklistEntry ) {
-			if ( preg_match( $blocklistEntry, $application->getApplicant()->getEmailAddress()->getFullAddress() ) ) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private function getBadWordViolations( MembershipApplication $application ): void {
+	private function moderateBadWordViolations( MembershipApplication $application ): void {
 		$applicant = $application->getApplicant();
-		$this->getPolicyViolationsForField( $applicant->getName()->getFirstName(), ApplicationValidationResult::SOURCE_APPLICANT_FIRST_NAME );
-		$this->getPolicyViolationsForField( $applicant->getName()->getLastName(), ApplicationValidationResult::SOURCE_APPLICANT_LAST_NAME );
-		$this->getPolicyViolationsForField( $applicant->getName()->getCompanyName(), ApplicationValidationResult::SOURCE_APPLICANT_COMPANY );
-		$this->getPolicyViolationsForField( $applicant->getPhysicalAddress()->getCity(), ApplicationValidationResult::SOURCE_APPLICANT_CITY );
-		$this->getPolicyViolationsForField( $applicant->getPhysicalAddress()->getStreetAddress(), ApplicationValidationResult::SOURCE_APPLICANT_STREET_ADDRESS );
+		$this->moderatePolicyViolationsForField( $applicant->getName()->getFirstName(), ApplicationValidationResult::SOURCE_APPLICANT_FIRST_NAME );
+		$this->moderatePolicyViolationsForField( $applicant->getName()->getLastName(), ApplicationValidationResult::SOURCE_APPLICANT_LAST_NAME );
+		$this->moderatePolicyViolationsForField( $applicant->getName()->getCompanyName(), ApplicationValidationResult::SOURCE_APPLICANT_COMPANY );
+		$this->moderatePolicyViolationsForField( $applicant->getPhysicalAddress()->getCity(), ApplicationValidationResult::SOURCE_APPLICANT_CITY );
+		$this->moderatePolicyViolationsForField( $applicant->getPhysicalAddress()->getStreetAddress(), ApplicationValidationResult::SOURCE_APPLICANT_STREET_ADDRESS );
 	}
 
-	private function getPolicyViolationsForField( string $fieldContent, string $fieldName ): void {
+	private function moderatePolicyViolationsForField( string $fieldContent, string $fieldName ): void {
 		if ( $fieldContent === '' ) {
 			return;
 		}
@@ -87,5 +78,14 @@ class ModerationService {
 			return;
 		}
 		$this->result->addModerationReason( new ModerationReason( ModerationIdentifier::ADDRESS_CONTENT_VIOLATION, $fieldName ) );
+	}
+
+	private function moderateEmailBlockListViolations( MembershipApplication $application ): void {
+		if ( in_array( $application->getApplicant()->getEmailAddress()->getFullAddress(), $this->emailAddressBlocklist ) ) {
+			$this->result->addModerationReason( new ModerationReason(
+				ModerationIdentifier::EMAIL_BLOCKED,
+				ApplicationValidationResult::SOURCE_APPLICANT_EMAIL
+			) );
+		}
 	}
 }

@@ -76,10 +76,6 @@ class ApplyForMembershipUseCase {
 			$application->markForModeration( ...$moderationResult->getViolations() );
 		}
 
-		if ( $this->policyValidator->isAutoDeleted( $application ) ) {
-			$application->cancel();
-		}
-
 		// TODO: handle exceptions
 		$this->repository->storeApplication( $application );
 
@@ -91,7 +87,7 @@ class ApplyForMembershipUseCase {
 		// TODO: handle exceptions
 		$this->piwikTracker->trackApplication( $application->getId(), $request->getPiwikTrackingString() );
 
-		if ( $application->isConfirmed() ) {
+		if ( $application->shouldSendConfirmationMail() ) {
 			$this->notifier->sendConfirmationFor( $application );
 		}
 

@@ -24,10 +24,12 @@ class ModerationServiceTest extends TestCase {
 		$policyValidator = new ModerationService( $textPolicyValidator );
 
 		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( $application, 25001, PaymentInterval::Quarterly->value );
+		$violations = $moderationResult->getViolations();
 
+		$this->assertCount( 1, $violations );
 		$this->assertEquals(
 			new ModerationReason( ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH, ApplicationValidationResult::SOURCE_PAYMENT_AMOUNT ),
-			$moderationResult->getViolations()[0]
+			$violations[0]
 		);
 	}
 
@@ -43,10 +45,12 @@ class ModerationServiceTest extends TestCase {
 		$policyValidator = new ModerationService( $textPolicyValidator );
 
 		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( $application, 100010, PaymentInterval::Yearly->value );
+		$violations = $moderationResult->getViolations();
 
+		$this->assertCount( 1, $violations );
 		$this->assertEquals(
 			new ModerationReason( ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH, ApplicationValidationResult::SOURCE_PAYMENT_AMOUNT ),
-			$moderationResult->getViolations()[0]
+			$violations[0]
 		);
 	}
 
@@ -56,57 +60,26 @@ class ModerationServiceTest extends TestCase {
 		$policyValidator = new ModerationService( $textPolicyValidator );
 
 		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( ValidMembershipApplication::newDomainEntity(), 2500, PaymentInterval::Yearly->value );
+		$violations = $moderationResult->getViolations();
 
+		// Validator checks 4 fields: first name, last name, street and city
+		$this->assertCount( 4, $violations );
 		$this->assertEquals(
 			new ModerationReason( ModerationIdentifier::ADDRESS_CONTENT_VIOLATION, ApplicationValidationResult::SOURCE_APPLICANT_FIRST_NAME ),
+			$violations[0]
+		);
+	}
+
+	public function testGivenEmailAddressOnBlockList_MembershipApplicationNeedsModeration(): void {
+		$application = ValidMembershipApplication::newApplication();
+		$textPolicyValidator = $this->newSucceedingTextPolicyValidator();
+		$policyValidator = new ModerationService( $textPolicyValidator, [ ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS, 'test@example.com' ] );
+
+		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( $application, 2500, PaymentInterval::Yearly->value );
+
+		$this->assertEquals(
+			new ModerationReason( ModerationIdentifier::EMAIL_BLOCKED, ApplicationValidationResult::SOURCE_APPLICANT_EMAIL ),
 			$moderationResult->getViolations()[0]
 		);
 	}
-
-	/** @dataProvider blocklistedEmailAddressProvider */
-	public function testWhenEmailAddressIsBlocklisted_isAutoDeletedReturnsTrue( string $emailAddress ): void {
-		$policyValidator = $this->newPolicyValidatorWithEmailBlocklist();
-		$this->assertTrue(
-			$policyValidator->isAutoDeleted(
-				ValidMembershipApplication::newDomainEntityWithEmailAddress( $emailAddress )
-			)
-		);
-	}
-
-	public static function blocklistedEmailAddressProvider(): array {
-		return [
-			[ 'foo@bar.baz' ],
-			[ 'test@example.com' ],
-			[ 'Test@EXAMPLE.com' ]
-		];
-	}
-
-	/** @dataProvider allowedEmailAddressProvider */
-	public function testWhenEmailAddressIsNotBlocklisted_isAutoDeletedReturnsFalse( string $emailAddress ): void {
-		$policyValidator = $this->newPolicyValidatorWithEmailBlocklist();
-		$this->assertFalse(
-			$policyValidator->isAutoDeleted(
-				ValidMembershipApplication::newDomainEntityWithEmailAddress( $emailAddress )
-			)
-		);
-	}
-
-	public static function allowedEmailAddressProvider(): array {
-		return [
-			[ 'other.person@bar.baz' ],
-			[ 'test@example.computer.says.no' ],
-			[ 'some.person@gmail.com' ]
-		];
-	}
-
-	private function newPolicyValidatorWithEmailBlocklist(): ModerationService {
-		$textPolicyValidator = $this->newSucceedingTextPolicyValidator();
-		$policyValidator = new ModerationService(
-			$textPolicyValidator,
-			[ '/^foo@bar\.baz$/', '/@example.com$/i' ]
-		);
-
-		return $policyValidator;
-	}
-
 }
