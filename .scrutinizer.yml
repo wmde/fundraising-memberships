@@ -16,7 +16,7 @@ filter:
 build:
     environment:
         php:
-            version: '8.1'
+            version: '8.2'
     nodes:
         analysis:
             tests:
