@@ -5,7 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogException;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogger;

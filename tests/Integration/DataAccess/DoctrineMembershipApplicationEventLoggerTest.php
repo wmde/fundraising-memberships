@@ -5,6 +5,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipApplicationEventLogger;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogException;
@@ -47,7 +48,8 @@ class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 			->disableOriginalConstructor()->getMock();
 		$entityManager->expects( $this->any() )->method( 'find' )->willReturn( new MembershipApplication() );
 		$entityManager->expects( $this->any() )->method( 'persist' )->willThrowException(
-			new ORMException( 'This is a test exception' )
+			new class( 'This is a test exception' ) extends RuntimeException implements ORMException {
+			}
 		);
 
 		$logger = new DoctrineMembershipApplicationEventLogger( $entityManager );

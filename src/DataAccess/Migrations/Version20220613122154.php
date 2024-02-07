@@ -19,13 +19,13 @@ final class Version20220613122154 extends AbstractMigration {
 
 	public function up( Schema $schema ): void {
 		$membershipTable = $schema->getTable( 'request' );
-		$membershipTable->changeColumn( 'payment_id', [ 'notnull' => true, 'unsigned' => true ] );
+		$membershipTable->modifyColumn( 'payment_id', [ 'notnull' => true, 'unsigned' => true ] );
 		$membershipTable->addIndex( [ 'payment_id' ], 'm_payment_id' );
 	}
 
 	public function down( Schema $schema ): void {
 		$membershipTable = $schema->getTable( 'request' );
 		$membershipTable->dropIndex( 'm_payment_id' );
-		$membershipTable->changeColumn( 'payment_id', [ 'notnull' => false, 'unsigned' => true ] );
+		$membershipTable->modifyColumn( 'payment_id', [ 'notnull' => false, 'unsigned' => true ] );
 	}
 }

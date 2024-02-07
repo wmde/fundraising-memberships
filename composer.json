@@ -5,7 +5,7 @@
 	"require": {
 		"php": ">=8.1",
 
-		"doctrine/orm": "~2.7",
+		"doctrine/orm": "~2.18 | ~3.0",
 		"doctrine/migrations": "^3.5",
 
 		"psr/log": "~3.0",
