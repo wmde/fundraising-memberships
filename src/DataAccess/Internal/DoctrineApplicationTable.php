@@ -19,9 +19,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplic
  */
 class DoctrineApplicationTable {
 
-	public function __construct(
-		private readonly EntityManager $entityManager,
-	) {
+	public function __construct( private readonly EntityManager $entityManager ) {
 	}
 
 	public function getApplicationOrNullById( int $applicationId ): ?MembershipApplication {

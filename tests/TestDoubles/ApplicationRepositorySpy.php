@@ -7,9 +7,6 @@ namespace WMDE\Fundraising\MembershipContext\Tests\TestDoubles;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 
-/**
- * @license GPL-2.0-or-later
- */
 class ApplicationRepositorySpy extends FakeApplicationRepository {
 
 	/**

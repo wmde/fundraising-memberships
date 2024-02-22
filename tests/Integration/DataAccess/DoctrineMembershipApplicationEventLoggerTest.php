@@ -4,6 +4,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
@@ -19,10 +20,8 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 
 	private const MEMBERSHIP_APPLICATION_ID = 12345;
-
 	public const DEFAULT_MESSAGE = 'Itchy, Tasty';
 	private const DUMMY_PAYMENT_ID = 42;
-
 	private EntityManager $entityManager;
 
 	public function setUp(): void {
@@ -64,14 +63,14 @@ class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$this->entityManager->persist( $application );
 		$this->entityManager->flush();
-		$applicationId = $application->getId();
 
 		$logger = new DoctrineMembershipApplicationEventLogger( $this->entityManager );
-		$logger->log( $applicationId, self::DEFAULT_MESSAGE );
+		$logger->log( self::MEMBERSHIP_APPLICATION_ID, self::DEFAULT_MESSAGE );
 
-		$data = $this->getMembershipApplicationDataById( $applicationId );
+		$data = $this->getMembershipApplicationDataById( self::MEMBERSHIP_APPLICATION_ID );
 
 		$this->assertArrayHasKey( 'log', $data );
+		$this->assertIsIterable( $data['log'] );
 		$this->assertCount( 1, $data['log'] );
 		$this->assertContains( self::DEFAULT_MESSAGE, $data['log'] );
 	}
@@ -83,21 +82,29 @@ class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 		$application->encodeAndSetData( [ 'log' => [ '2021-01-01 0:00:00' => 'We call her the log lady' ] ] );
 		$this->entityManager->persist( $application );
 		$this->entityManager->flush();
-		$applicationId = $application->getId();
 
 		$logger = new DoctrineMembershipApplicationEventLogger( $this->entityManager );
-		$logger->log( $applicationId, self::DEFAULT_MESSAGE );
+		$logger->log( self::MEMBERSHIP_APPLICATION_ID, self::DEFAULT_MESSAGE );
 
-		$data = $this->getMembershipApplicationDataById( $applicationId );
+		$data = $this->getMembershipApplicationDataById( self::MEMBERSHIP_APPLICATION_ID );
 
 		$this->assertArrayHasKey( 'log', $data );
+		$this->assertIsIterable( $data['log'] );
 		$this->assertCount( 2, $data['log'] );
 		$this->assertContains( 'We call her the log lady', $data['log'] );
 		$this->assertContains( self::DEFAULT_MESSAGE, $data['log'] );
 	}
 
+	/**
+	 * @param int $membershipApplicationId
+	 *
+	 * @return array<string, mixed>
+	 */
 	private function getMembershipApplicationDataById( int $membershipApplicationId ): array {
 		$application = $this->entityManager->find( MembershipApplication::class, $membershipApplicationId );
+		if ( $application === null ) {
+			throw new LogicException( 'Membership application not found' );
+		}
 		return $application->getDecodedData();
 	}
 }

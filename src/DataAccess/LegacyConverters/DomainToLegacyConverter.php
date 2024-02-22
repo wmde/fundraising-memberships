@@ -6,15 +6,24 @@ namespace WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Traversable;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
+use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 
 class DomainToLegacyConverter {
+
+	/**
+	 * @param DoctrineApplication $doctrineApplication
+	 * @param MembershipApplication $application
+	 * @param LegacyPaymentData $paymentData
+	 * @param ModerationReason[] $existingModerationReasons
+	 */
 	public function convert( DoctrineApplication $doctrineApplication, MembershipApplication $application, LegacyPaymentData $paymentData, array $existingModerationReasons ): void {
 		$doctrineApplication->setId( $application->getId() );
 		$doctrineApplication->setMembershipType( $application->getType() );
@@ -53,7 +62,12 @@ class DomainToLegacyConverter {
 		return array_values( $resultArray );
 	}
 
-	private function convertIncentives( \Traversable $incentives ): Collection {
+	/**
+	 * @param Traversable<int, Incentive> $incentives
+	 *
+	 * @return Collection<int, Incentive>
+	 */
+	private function convertIncentives( Traversable $incentives ): Collection {
 		$incentiveCollection = new ArrayCollection();
 		foreach ( $incentives as $incentive ) {
 			$incentiveCollection->add( $incentive );
@@ -96,12 +110,30 @@ class DomainToLegacyConverter {
 		}
 	}
 
+	/**
+	 * @param DoctrineApplication $application
+	 * @param array<string, mixed> $paymentSpecificValues
+	 * @todo Change to array<string,scalar> and replace "getStringFromValueArray" with null-coalescing `strval` calls,
+	 * 		e.g. strval( $paymentSpecificValues['konto'] ?? '' )
+	 * 		We can only do this when `LegacyPaymentData::paymentSpecificValues` contains only scalars.
+	 */
 	private function setBankDataFields( DoctrineApplication $application, array $paymentSpecificValues ): void {
-		$application->setPaymentBankAccount( $paymentSpecificValues['konto'] ?? '' );
-		$application->setPaymentBankCode( $paymentSpecificValues['blz'] ?? '' );
-		$application->setPaymentBankName( $paymentSpecificValues['bankname'] ?? '' );
-		$application->setPaymentBic( $paymentSpecificValues['bic'] ?? '' );
-		$application->setPaymentIban( $paymentSpecificValues['iban'] ?? '' );
+		$application->setPaymentBankAccount( $this->getStringValueFromArray( $paymentSpecificValues, 'konto' ) );
+		$application->setPaymentBankCode( $this->getStringValueFromArray( $paymentSpecificValues, 'blz' ) );
+		$application->setPaymentBankName( $this->getStringValueFromArray( $paymentSpecificValues, 'bankname' ) );
+		$application->setPaymentBic( $this->getStringValueFromArray( $paymentSpecificValues, 'bic' ) );
+		$application->setPaymentIban( $this->getStringValueFromArray( $paymentSpecificValues, 'iban' ) );
+	}
+
+	/**
+	 * @param array<string, mixed> $source
+	 * @param string $key
+	 *
+	 * @return string
+	 */
+	private function getStringValueFromArray( array $source, string $key ): string {
+		$value = $source[$key] ?? '';
+		return is_string( $value ) ? $value : '';
 	}
 
 	private function getDoctrineStatus( MembershipApplication $application ): int {

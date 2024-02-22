@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
+use ArrayObject;
+use LogicException;
 use Traversable;
 
 class MembershipApplication {
@@ -11,26 +13,32 @@ class MembershipApplication {
 	public const ACTIVE_MEMBERSHIP = 'active';
 	public const SUSTAINING_MEMBERSHIP = 'sustaining';
 
-	private int $id;
-
-	private string $type;
-	private Applicant $applicant;
-	private int $paymentId;
+	/**
+	 * @var ModerationReason[]
+	 */
 	private array $moderationReasons;
 	private bool $cancelled = false;
 	private bool $confirmed = false;
 	private bool $exported = false;
-	private ?bool $donationReceipt;
+
 	/** @var Incentive[] */
 	private array $incentives = [];
 
-	public function __construct( int $id, string $type, Applicant $applicant, int $paymentId, ?bool $donationReceipt ) {
-		$this->id = $id;
-		$this->type = $type;
-		$this->applicant = $applicant;
-		$this->paymentId = $paymentId;
-		$this->donationReceipt = $donationReceipt;
+	public function __construct(
+		private readonly int $id,
+		private readonly string $type,
+		private Applicant $applicant,
+		private readonly int $paymentId,
+		private readonly ?bool $donationReceipt
+	) {
 		$this->moderationReasons = [];
+	}
+
+	public function __clone(): void {
+		$this->applicant = clone $this->applicant;
+		for ( $i = 0; $i < count( $this->moderationReasons ); $i++ ) {
+			$this->moderationReasons[$i] = clone $this->moderationReasons[$i];
+		}
 	}
 
 	public function getId(): int {
@@ -58,7 +66,7 @@ class MembershipApplication {
 	 */
 	public function markForModeration( ModerationReason ...$moderationReasons ): void {
 		if ( empty( $moderationReasons ) ) {
-			throw new \LogicException( "you must provide at least one ModerationReason to mark a donation for moderation" );
+			throw new LogicException( "you must provide at least one ModerationReason to mark a donation for moderation" );
 		}
 		$this->moderationReasons = array_merge( $this->moderationReasons, $moderationReasons );
 	}
@@ -80,12 +88,12 @@ class MembershipApplication {
 
 	public function cancel(): void {
 		if ( !$this->isCancellable() ) {
-			throw new \LogicException( 'Can only cancel new donations' );
+			throw new LogicException( 'Can only cancel new donations' );
 		}
 		$this->cancelled = true;
 	}
 
-	public function restore() {
+	public function restore(): void {
 		$this->cancelled = false;
 	}
 
@@ -126,10 +134,10 @@ class MembershipApplication {
 	}
 
 	/**
-	 * @return Traversable<Incentive>
+	 * @return Traversable<int, Incentive>
 	 */
 	public function getIncentives(): Traversable {
-		return new \ArrayObject( $this->incentives );
+		return new ArrayObject( $this->incentives );
 	}
 
 	public function shouldSendConfirmationMail(): bool {

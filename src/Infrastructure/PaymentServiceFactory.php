@@ -18,8 +18,8 @@ class PaymentServiceFactory {
 	 * @param PaymentType[] $allowedPaymentTypes
 	 */
 	public function __construct(
-		private CreatePaymentUseCase $useCase,
-		private array $allowedPaymentTypes ) {
+		private readonly CreatePaymentUseCase $useCase,
+		private readonly array $allowedPaymentTypes ) {
 	}
 
 	public function getCreatePaymentUseCase(): CreatePaymentUseCase {

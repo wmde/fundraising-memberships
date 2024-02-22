@@ -9,10 +9,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 
 class DoctrineIncentiveFinder implements IncentiveFinder {
 
-	private EntityManager $entityManager;
-
-	public function __construct( EntityManager $entityManager ) {
-		$this->entityManager = $entityManager;
+	public function __construct( private readonly EntityManager $entityManager ) {
 	}
 
 	public function findIncentiveByName( string $name ): ?Incentive {

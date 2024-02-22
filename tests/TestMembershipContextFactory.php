@@ -11,15 +11,19 @@ use Doctrine\ORM\ORMSetup;
 use WMDE\Fundraising\MembershipContext\MembershipContextFactory;
 use WMDE\Fundraising\PaymentContext\PaymentContextFactory;
 
+/**
+ * @phpstan-import-type Params from DriverManager
+ */
 class TestMembershipContextFactory {
 
-	private array $config;
 	private ?Connection $connection;
 	private MembershipContextFactory $factory;
 	private ?EntityManager $entityManager;
 
-	public function __construct( array $config ) {
-		$this->config = $config;
+	/**
+	 * @param Params $config
+	 */
+	public function __construct( private readonly array $config ) {
 		$this->factory = new MembershipContextFactory();
 		$this->entityManager = null;
 		$this->connection = null;
@@ -27,7 +31,7 @@ class TestMembershipContextFactory {
 
 	public function getConnection(): Connection {
 		if ( $this->connection === null ) {
-			$this->connection = DriverManager::getConnection( $this->config['db'] );
+			$this->connection = DriverManager::getConnection( $this->config );
 			$this->factory->registerCustomTypes( $this->connection );
 		}
 		return $this->connection;

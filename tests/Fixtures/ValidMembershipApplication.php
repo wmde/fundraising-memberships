@@ -106,7 +106,7 @@ class ValidMembershipApplication {
 			$this->newAddress(),
 			new EmailAddress( self::APPLICANT_EMAIL_ADDRESS ),
 			new PhoneNumber( self::APPLICANT_PHONE_NUMBER ),
-			new \DateTime( self::APPLICANT_DATE_OF_BIRTH )
+			new DateTime( self::APPLICANT_DATE_OF_BIRTH )
 		);
 	}
 
@@ -127,7 +127,7 @@ class ValidMembershipApplication {
 			$this->newAddress(),
 			new EmailAddress( $emailAddress ),
 			new PhoneNumber( self::APPLICANT_PHONE_NUMBER ),
-			new \DateTime( self::APPLICANT_DATE_OF_BIRTH )
+			new DateTime( self::APPLICANT_DATE_OF_BIRTH )
 		);
 	}
 
@@ -186,7 +186,7 @@ class ValidMembershipApplication {
 
 		$application->setApplicantEmailAddress( self::APPLICANT_EMAIL_ADDRESS );
 		$application->setApplicantPhoneNumber( self::APPLICANT_PHONE_NUMBER );
-		$application->setApplicantDateOfBirth( new \DateTime( self::APPLICANT_DATE_OF_BIRTH ) );
+		$application->setApplicantDateOfBirth( new DateTime( self::APPLICANT_DATE_OF_BIRTH ) );
 
 		$application->setMembershipType( self::MEMBERSHIP_TYPE );
 		$application->setPaymentType( self::PAYMENT_TYPE_DIRECT_DEBIT->value );

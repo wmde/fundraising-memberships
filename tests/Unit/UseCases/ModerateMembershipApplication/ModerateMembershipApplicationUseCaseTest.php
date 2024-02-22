@@ -48,7 +48,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 		] );
 	}
 
-	public function testModerateNonExistentMembershipApplication_actionFails() {
+	public function testModerateNonExistentMembershipApplication_actionFails(): void {
 		$useCase = $this->newUseCase();
 
 		$response = $useCase->markMembershipApplicationAsModerated( 1, self::AUTH_USER_NAME );
@@ -56,7 +56,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertFalse( $response->isSuccess() );
 	}
 
-	public function testApproveNonExistentMembershipApplication_actionFails() {
+	public function testApproveNonExistentMembershipApplication_actionFails(): void {
 		$useCase = $this->newUseCase();
 
 		$response = $useCase->approveMembershipApplication( 1, self::AUTH_USER_NAME );
@@ -64,7 +64,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertFalse( $response->isSuccess() );
 	}
 
-	public function testSetModerateOnMembershipApplication_actionSucceeds() {
+	public function testSetModerateOnMembershipApplication_actionSucceeds(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$useCase = $this->newUseCase( $application );
 
@@ -73,7 +73,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertTrue( $response->isSuccess() );
 	}
 
-	public function testSetModerateOnMembershipApplication_setsModerated() {
+	public function testSetModerateOnMembershipApplication_setsModerated(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$useCase = $this->newUseCase( $application );
 
@@ -82,7 +82,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertTrue( $response->isSuccess() );
 	}
 
-	public function testSetModerateOnMembershipApplication_returnsMembershipApplicationId() {
+	public function testSetModerateOnMembershipApplication_returnsMembershipApplicationId(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$useCase = $this->newUseCase( $application );
 
@@ -91,7 +91,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertSame( 1, $response->getMembershipApplicationId() );
 	}
 
-	public function testSetModerateOnMembershipApplicationThatIsMarkedForModeration_actionFails() {
+	public function testSetModerateOnMembershipApplicationThatIsMarkedForModeration_actionFails(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->markForModeration( $this->makeGenericModerationReason() );
 		$useCase = $this->newUseCase( $application );
@@ -105,7 +105,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 		return new ModerationReason( ModerationIdentifier::MANUALLY_FLAGGED_BY_ADMIN );
 	}
 
-	public function testSetModerateOnCancelledMembershipApplication_actionFails() {
+	public function testSetModerateOnCancelledMembershipApplication_actionFails(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->cancel();
 		$useCase = $this->newUseCase( $application );
@@ -115,17 +115,18 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertFalse( $response->isSuccess() );
 	}
 
-	public function testApproveMembershipApplication_removesModeratedStatus() {
+	public function testApproveMembershipApplication_removesModeratedStatus(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->markForModeration( $this->makeGenericModerationReason() );
 		$useCase = $this->newUseCase( $application );
 
 		$useCase->approveMembershipApplication( 1, self::AUTH_USER_NAME );
 
+		$this->assertNotNull( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 ) );
 		$this->assertFalse( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 )->isMarkedForModeration() );
 	}
 
-	public function testApproveOnApprovedMembershipApplication_actionFails() {
+	public function testApproveOnApprovedMembershipApplication_actionFails(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->approve();
 		$useCase = $this->newUseCase( $application );
@@ -156,6 +157,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 		$useCase->approveMembershipApplication( 1, self::AUTH_USER_NAME );
 
 		$storedApplication = $this->applicationRepository->getUnexportedMembershipApplicationById( $application->getId() );
+		$this->assertNotNull( $storedApplication );
 		$this->assertTrue( $storedApplication->isConfirmed() );
 	}
 
@@ -172,6 +174,7 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 		$useCase->approveMembershipApplication( 1, self::AUTH_USER_NAME );
 
 		$storedApplication = $this->applicationRepository->getUnexportedMembershipApplicationById( $application->getId() );
+		$this->assertNotNull( $storedApplication );
 		$this->assertFalse( $storedApplication->isConfirmed() );
 	}
 

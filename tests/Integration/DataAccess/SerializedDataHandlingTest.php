@@ -20,7 +20,10 @@ class SerializedDataHandlingTest extends TestCase {
 
 	private const MEMBERSHIP_APPLICATION_ID = 715;
 
-	/** @dataProvider encodedMembershipDataProvider */
+	/**
+	 * @dataProvider encodedMembershipDataProvider
+	 * @param array<string, mixed> $data
+	 */
 	public function testDataFieldOfMembershipApplicationIsInteractedWithCorrectly( array $data ): void {
 		$entityManager = TestEnvironment::newInstance()->getEntityManager();
 		$getPaymentUseCase = $this->createStub( GetPaymentUseCase::class );
@@ -36,6 +39,7 @@ class SerializedDataHandlingTest extends TestCase {
 		$this->storeMembershipApplication( $entityManager, $data );
 
 		$membershipApplication = $repository->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID );
+		$this->assertNotNull( $membershipApplication );
 		$repository->storeApplication( $membershipApplication );
 
 		/** @var MembershipApplication $doctrineMembershipApplication */
@@ -43,6 +47,9 @@ class SerializedDataHandlingTest extends TestCase {
 		$this->assertEquals( $data, $doctrineMembershipApplication->getDecodedData() );
 	}
 
+	/**
+	 * @return array<int, array<int, array<string, string>>>
+	 */
 	public static function encodedMembershipDataProvider(): array {
 		return [
 			[
@@ -80,6 +87,12 @@ class SerializedDataHandlingTest extends TestCase {
 		];
 	}
 
+	/**
+	 * @param EntityManager $entityManager
+	 * @param array<string, mixed> $data
+	 *
+	 * @return void
+	 */
 	private function storeMembershipApplication( EntityManager $entityManager, array $data ): void {
 		$membershipAppl = new MembershipApplication();
 

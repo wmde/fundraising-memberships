@@ -9,12 +9,10 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 
 class MembershipCreatedEvent implements Event {
 
-	private int $membershipId;
-	private Applicant $applicant;
-
-	public function __construct( int $membershipId, Applicant $applicant ) {
-		$this->membershipId = $membershipId;
-		$this->applicant = $applicant;
+	public function __construct(
+		private readonly int $membershipId,
+		private readonly Applicant $applicant
+	) {
 	}
 
 	public function getMembershipId(): int {

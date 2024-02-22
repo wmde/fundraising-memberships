@@ -10,24 +10,21 @@ use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTa
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\DomainToLegacyConverter;
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\LegacyToDomainConverter;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
-/**
- * @license GPL-2.0-or-later
- */
 class DoctrineApplicationRepository implements ApplicationRepository {
 
 	private DoctrineApplicationTable $table;
-	private GetPaymentUseCase $getPaymentUseCase;
-	private ModerationReasonRepository $moderationReasonRepository;
 
-	public function __construct( EntityManager $entityManager, GetPaymentUseCase $getPaymentUseCase, ModerationReasonRepository $moderationReasonRepository ) {
+	public function __construct(
+		EntityManager $entityManager,
+		private readonly GetPaymentUseCase $getPaymentUseCase,
+		private readonly ModerationReasonRepository $moderationReasonRepository
+	) {
 		$this->table = new DoctrineApplicationTable( $entityManager );
-		$this->getPaymentUseCase = $getPaymentUseCase;
-		$this->moderationReasonRepository = $moderationReasonRepository;
 	}
 
 	public function storeApplication( MembershipApplication $application ): void {
@@ -42,6 +39,11 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		$this->table->persistApplication( $doctrineApplication );
 	}
 
+	/**
+	 * @param DoctrineApplication $doctrineApplication
+	 * @param MembershipApplication $application
+	 * @param ModerationReason[] $existingModerationReasons
+	 */
 	private function updateDoctrineApplication( DoctrineApplication $doctrineApplication, MembershipApplication $application, array $existingModerationReasons ): void {
 		$converter = new DomainToLegacyConverter();
 		$converter->convert(
@@ -52,12 +54,6 @@ class DoctrineApplicationRepository implements ApplicationRepository {
 		);
 	}
 
-	/**
-	 * @param int $id
-	 *
-	 * @return MembershipApplication|null
-	 * @throws GetMembershipApplicationException
-	 */
 	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication {
 		$application = $this->table->getApplicationOrNullById( $id );
 

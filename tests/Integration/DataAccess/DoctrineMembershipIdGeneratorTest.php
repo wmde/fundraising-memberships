@@ -5,6 +5,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipIdGenerator;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipId;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipIdGenerator;
@@ -23,7 +24,7 @@ class DoctrineMembershipIdGeneratorTest extends TestCase {
 	}
 
 	public function testWhenMembershipIdTableIsEmpty_throwsException(): void {
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( RuntimeException::class );
 
 		$this->makeIdGenerator()->generateNewMembershipId();
 	}

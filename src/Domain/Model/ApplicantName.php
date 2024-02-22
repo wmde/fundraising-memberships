@@ -14,8 +14,6 @@ class ApplicantName {
 	public const PERSON_PRIVATE = 'person';
 	public const PERSON_COMPANY = 'firma';
 
-	private string $personType = '';
-
 	private string $salutation = '';
 	private string $title = '';
 	private string $firstName = '';
@@ -23,8 +21,7 @@ class ApplicantName {
 
 	private string $companyName = '';
 
-	private function __construct( string $personType ) {
-		$this->personType = $personType;
+	private function __construct( private readonly string $personType ) {
 	}
 
 	public static function newPrivatePersonName(): self {

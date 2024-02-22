@@ -13,6 +13,9 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplic
 class FakeApplicationRepository implements ApplicationRepository {
 
 	private int $calls = 0;
+	/**
+	 * @var array<int, MembershipApplication>
+	 */
 	private array $applications = [];
 	private bool $throwOnRead = false;
 	private bool $throwOnWrite = false;
@@ -42,9 +45,14 @@ class FakeApplicationRepository implements ApplicationRepository {
 		}
 
 		$this->calls++;
-		$this->applications[$application->getId()] = unserialize( serialize( $application ) );
+		$this->applications[$application->getId()] = clone $application;
 	}
 
+	/**
+	 * @param int $id
+	 *
+	 * @return MembershipApplication|null
+	 */
 	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication {
 		if ( $this->throwAnonymizedOnRead ) {
 			throw new ApplicationAnonymizedException();
@@ -55,7 +63,7 @@ class FakeApplicationRepository implements ApplicationRepository {
 		}
 
 		if ( array_key_exists( $id, $this->applications ) ) {
-			return unserialize( serialize( $this->applications[$id] ) );
+			return clone $this->applications[$id];
 		}
 
 		return null;

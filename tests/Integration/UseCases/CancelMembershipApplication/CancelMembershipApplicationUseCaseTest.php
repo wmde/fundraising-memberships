@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\CancelMe
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogger;
@@ -80,7 +81,7 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertFalse( $response->isSuccess() );
 	}
 
-	public function testWhenSaveFails_cancellationFails() {
+	public function testWhenSaveFails_cancellationFails(): void {
 		[ $repository, $application ] = $this->givenStoredCancelableApplication();
 		$repository->throwOnWrite();
 		$useCase = $this->givenUseCase( repository: $repository );
@@ -96,7 +97,7 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 
 		$this->whenCancelApplicationRequestIsSent( $useCase, self::ID_OF_NON_EXISTING_APPLICATION );
 
-		$mailer->expectToBeNotCalled();
+		$mailer->assertWasNeverCalled();
 	}
 
 	public function testWhenApplicationIsAlreadyCancelled_onlySuccessResponseIsReturned(): void {
@@ -106,11 +107,11 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 
 		$response = $this->whenCancelApplicationRequestIsSent( $useCase, $application->getId() );
 
-		$mailer->expectToBeNotCalled();
+		$mailer->assertWasNeverCalled();
 		$this->assertTrue( $response->isSuccess() );
 	}
 
-	public function testWhenGivenAuthorizedUser_logsUserName() {
+	public function testWhenGivenAuthorizedUser_logsUserName(): void {
 		[ $repository, $application ] = $this->givenStoredCancelableApplication();
 		$logger = $this->givenEventLoggerSpy();
 		$useCase = $this->givenUseCase( repository: $repository, logger: $logger );
@@ -123,7 +124,7 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 		);
 	}
 
-	public function testWhenGivenUnauthorizedUser_logsFrontEnd() {
+	public function testWhenGivenUnauthorizedUser_logsFrontEnd(): void {
 		[ $repository, $application ] = $this->givenStoredCancelableApplication();
 		$logger = $this->givenEventLoggerSpy();
 
@@ -157,14 +158,14 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 		);
 	}
 
-	public function testWhenAuthorizedUserCancels_doesNotSendConfirmationEmail() {
+	public function testWhenAuthorizedUserCancels_doesNotSendConfirmationEmail(): void {
 		[ $repository, $application ] = $this->givenStoredCancelableApplication();
 		$mailer = $this->givenTemplateBasedMailerSpy();
 		$useCase = $this->givenUseCase( repository: $repository, mailer: $mailer );
 
 		$this->whenCancelApplicationRequestIsSentByAdmin( $useCase, $application->getId() );
 
-		$mailer->expectToBeNotCalled();
+		$mailer->assertWasNeverCalled();
 	}
 
 	private function givenUseCase(
@@ -191,6 +192,9 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 		$useCase->cancelApplication( new CancellationRequest( $applicationId, self::AUTH_USER_NAME ) );
 	}
 
+	/**
+	 * @return array{FakeApplicationRepository,MembershipApplication}
+	 */
 	private function givenStoredCancelableApplication(): array {
 		$repository = new FakeApplicationRepository();
 		$application = ValidMembershipApplication::newDomainEntity();
@@ -198,6 +202,9 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 		return [ $repository, $application ];
 	}
 
+	/**
+	 * @return array{FakeApplicationRepository,MembershipApplication}
+	 */
 	private function givenStoredCancelledApplication(): array {
 		[ $repository, $application ] = $this->givenStoredCancelableApplication();
 		$application->cancel();

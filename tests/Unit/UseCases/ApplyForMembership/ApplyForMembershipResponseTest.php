@@ -3,6 +3,7 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
+use LogicException;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult;
@@ -34,7 +35,7 @@ class ApplyForMembershipResponseTest extends TestCase {
 	public function testGivenFailureResponse_getMembershipApplicationWillThrowException(): void {
 		$response = ApplyForMembershipResponse::newFailureResponse( $this->givenValidationResultWithErrors() );
 
-		$this->expectException( \LogicException::class );
+		$this->expectException( LogicException::class );
 
 		$response->getMembershipApplication();
 	}
@@ -42,7 +43,7 @@ class ApplyForMembershipResponseTest extends TestCase {
 	public function testGivenFailureResponse_getPaymentCompletionUrlWillThrowException(): void {
 		$response = ApplyForMembershipResponse::newFailureResponse( $this->givenValidationResultWithErrors() );
 
-		$this->expectException( \LogicException::class );
+		$this->expectException( LogicException::class );
 
 		$response->getPaymentCompletionUrl();
 	}

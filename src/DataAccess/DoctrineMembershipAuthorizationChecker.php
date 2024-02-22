@@ -17,13 +17,13 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicat
 class DoctrineMembershipAuthorizationChecker implements MembershipAuthorizationChecker {
 
 	private DoctrineApplicationTable $table;
-	private string $updateToken;
-	private string $accessToken;
 
-	public function __construct( EntityManager $entityManager, string $updateToken = '', string $accessToken = '' ) {
+	public function __construct(
+		EntityManager $entityManager,
+		private readonly string $updateToken = '',
+		private readonly string $accessToken = ''
+	) {
 		$this->table = new DoctrineApplicationTable( $entityManager );
-		$this->updateToken = $updateToken;
-		$this->accessToken = $accessToken;
 	}
 
 	public function canModifyMembership( int $membershipId ): bool {

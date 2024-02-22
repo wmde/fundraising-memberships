@@ -6,14 +6,12 @@ namespace WMDE\Fundraising\MembershipContext\DataAccess;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use Doctrine\ORM\EntityManager;
+use RuntimeException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipIdGenerator;
 
 class DoctrineMembershipIdGenerator implements MembershipIdGenerator {
 
-	private EntityManager $entityManager;
-
-	public function __construct( EntityManager $entityManager ) {
-		$this->entityManager = $entityManager;
+	public function __construct( private readonly EntityManager $entityManager ) {
 	}
 
 	public function generateNewMembershipId(): int {
@@ -25,7 +23,7 @@ class DoctrineMembershipIdGenerator implements MembershipIdGenerator {
 			$id = $result->fetchOne();
 
 			if ( $id === false ) {
-				throw new \RuntimeException( 'The ID generator needs a row with initial membership_id set to 0.' );
+				throw new RuntimeException( 'The ID generator needs a row with initial membership_id set to 0.' );
 			}
 
 			return $id;

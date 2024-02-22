@@ -2,6 +2,7 @@
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\CancelMembershipApplication;
 
+use LogicException;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancellationRequest;
 
@@ -28,7 +29,7 @@ class CancellationRequestTest extends TestCase {
 	public function testOnGetUnauthorizedRequestUserName_throwsException(): void {
 		$request = new CancellationRequest( 42 );
 
-		$this->expectException( \LogicException::class );
+		$this->expectException( LogicException::class );
 		$request->getUserName();
 	}
 }

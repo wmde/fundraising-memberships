@@ -30,6 +30,11 @@ class MailMembershipApplicationNotifier implements MembershipNotifier {
 		);
 	}
 
+	/**
+	 * @param MembershipApplication $application
+	 *
+	 * @return array<string, mixed>
+	 */
 	private function getTemplateArguments( MembershipApplication $application ): array {
 		$paymentValues = $this->paymentRetriever->getPaymentDataArray( $application->getPaymentId() );
 
@@ -41,7 +46,7 @@ class MailMembershipApplicationNotifier implements MembershipNotifier {
 		return [
 			'id' => $application->getId(),
 			'membershipType' => $application->getType(),
-			'membershipFee' => Euro::newFromCents( $paymentValues['amount'] )->getEuroString(),
+			'membershipFee' => Euro::newFromCents( intval( $paymentValues['amount'] ) )->getEuroString(),
 			'membershipFeeInCents' => $paymentValues['amount'],
 			'paymentIntervalInMonths' => $paymentValues['interval'],
 			'paymentType' => $paymentValues['paymentType'],
@@ -74,7 +79,7 @@ class MailMembershipApplicationNotifier implements MembershipNotifier {
 			$application->getModerationReasons(),
 			fn ( $moderationReason ) => $moderationReason->getModerationIdentifier() === ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH
 		);
-		if ( \count( $importantReasons ) === 0 ) {
+		if ( count( $importantReasons ) === 0 ) {
 			return;
 		}
 		$this->adminMailer->sendMail(

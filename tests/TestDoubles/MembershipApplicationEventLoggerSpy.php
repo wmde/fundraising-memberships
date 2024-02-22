@@ -8,12 +8,18 @@ use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEvent
 
 class MembershipApplicationEventLoggerSpy implements MembershipApplicationEventLogger {
 
+	/**
+	 * @var array<int, string>
+	 */
 	private array $logs = [];
 
 	public function log( int $membershipApplicationId, string $message ): void {
 		$this->logs[$membershipApplicationId] = $message;
 	}
 
+	/**
+	 * @return array<int, string>
+	 */
 	public function getLogs(): array {
 		return $this->logs;
 	}

@@ -29,7 +29,7 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 		$this->applicationRepository = new FakeApplicationRepository();
 	}
 
-	public function testOnRestoreNonExistentMembershipApplication_actionFails() {
+	public function testOnRestoreNonExistentMembershipApplication_actionFails(): void {
 		$useCase = $this->newUseCase();
 
 		$response = $useCase->restoreApplication( 999, self::AUTH_USER_NAME );
@@ -37,7 +37,7 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertFalse( $response->isSuccess() );
 	}
 
-	public function testOnRestoreMembershipApplication_actionSucceeds() {
+	public function testOnRestoreMembershipApplication_actionSucceeds(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->cancel();
 		$useCase = $this->newUseCase( $application );
@@ -47,17 +47,18 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertTrue( $response->isSuccess() );
 	}
 
-	public function testOnRestoreMembershipApplication_removesCancelledStatus() {
+	public function testOnRestoreMembershipApplication_removesCancelledStatus(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->cancel();
 		$useCase = $this->newUseCase( $application );
 
 		$useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
 
+		$this->assertNotNull( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 ) );
 		$this->assertFalse( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 )->isCancelled() );
 	}
 
-	public function testOnRestoreMembershipApplication_returnsMembershipApplicationId() {
+	public function testOnRestoreMembershipApplication_returnsMembershipApplicationId(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->cancel();
 		$useCase = $this->newUseCase( $application );
@@ -67,7 +68,7 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertSame( 1, $response->getMembershipApplicationId() );
 	}
 
-	public function testOnRestoreOnNonCancelledMembershipApplication_actionFails() {
+	public function testOnRestoreOnNonCancelledMembershipApplication_actionFails(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$useCase = $this->newUseCase( $application );
 
@@ -95,6 +96,7 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 		$useCase = $this->newUseCase( $application, $this->givenSucceedingCancelPaymentUseCase( paymentIsCompleted: false ) );
 		$useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
 
+		$this->assertNotNull( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 ) );
 		$this->assertFalse( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 )->isConfirmed() );
 	}
 
@@ -104,6 +106,7 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 		$useCase = $this->newUseCase( $application, $this->givenSucceedingCancelPaymentUseCase( paymentIsCompleted: true ) );
 		$useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
 
+		$this->assertNotNull( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 ) );
 		$this->assertTrue( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 )->isConfirmed() );
 	}
 

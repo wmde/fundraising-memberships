@@ -80,6 +80,11 @@ class CancelMembershipApplicationUseCase {
 		);
 	}
 
+	/**
+	 * @param MembershipApplication $application
+	 *
+	 * @return array<string, mixed>
+	 */
 	private function getConfirmationMailTemplateArguments( MembershipApplication $application ): array {
 		return [
 			'applicationId' => $application->getId(),

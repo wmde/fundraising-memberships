@@ -51,7 +51,7 @@ class DoctrineIncentiveFinderTest extends TestCase {
 		$this->assertSame( self::EXPECTED_INCENTIVE, $incentive->getName() );
 	}
 
-	private function insertExpectedIncentive() {
+	private function insertExpectedIncentive(): void {
 		$this->entityManager->persist( new Incentive( self::EXPECTED_INCENTIVE ) );
 		$this->entityManager->flush();
 	}

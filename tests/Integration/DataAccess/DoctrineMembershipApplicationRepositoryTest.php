@@ -160,7 +160,8 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$this->entityManager->clear();
 
 		$actual = $repo->getUnexportedMembershipApplicationById( $application->getId() );
-		$incentives = $actual->getIncentives();
+		$this->assertNotNull( $actual );
+		$incentives = iterator_to_array( $actual->getIncentives() );
 
 		$this->assertCount( 1, $incentives );
 		$this->assertEquals( $incentive, $incentives[0] );
@@ -203,11 +204,10 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$repository->storeApplication( $application );
 		// find() will retrieve a cached value, so we should clear the entity cache here
 		$this->entityManager->clear();
+		$membershipApplication = $repository->getUnexportedMembershipApplicationById( $application->getId() );
 
-		$this->assertEquals(
-			$application->getModerationReasons(),
-			$repository->getUnexportedMembershipApplicationById( $application->getId() )->getModerationReasons()
-		);
+		$this->assertNotNull( $membershipApplication );
+		$this->assertEquals( $application->getModerationReasons(), $membershipApplication->getModerationReasons() );
 	}
 
 }

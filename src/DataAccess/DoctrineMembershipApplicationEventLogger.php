@@ -12,10 +12,7 @@ use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEvent
 
 class DoctrineMembershipApplicationEventLogger implements MembershipApplicationEventLogger {
 
-	private EntityManager $entityManager;
-
-	public function __construct( EntityManager $entityManager ) {
-		$this->entityManager = $entityManager;
+	public function __construct( private readonly EntityManager $entityManager ) {
 	}
 
 	public function log( int $membershipApplicationId, string $message ): void {
@@ -36,7 +33,7 @@ class DoctrineMembershipApplicationEventLogger implements MembershipApplicationE
 		}
 
 		$data = $membershipApplication->getDecodedData();
-		if ( empty( $data['log'] ) ) {
+		if ( empty( $data['log'] ) || !is_array( $data['log'] ) ) {
 			$data['log'] = [];
 		}
 

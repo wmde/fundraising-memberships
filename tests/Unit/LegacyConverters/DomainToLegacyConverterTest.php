@@ -119,7 +119,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$this->assertTrue( $doctrineApplication->isCancelled() );
 	}
 
-	public function testWhenGivenPayment_setsInMembershipApplication() {
+	public function testWhenGivenPayment_setsInMembershipApplication(): void {
 		$doctrineApplication = new DoctrineApplication();
 		$application = ValidMembershipApplication::newDomainEntity();
 
@@ -143,7 +143,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$this->assertEquals( $bankData['iban'], $doctrineApplication->getPaymentIban() );
 	}
 
-	public function testGivenApplicationWithIncentives_addsThemToDomainApplication() {
+	public function testGivenApplicationWithIncentives_addsThemToDomainApplication(): void {
 		$incentive = new Incentive( 'PS5 and 3080 GPU and Blue Hearts album on vinyl and Analogue Pocket' );
 		$doctrineApplication = new DoctrineApplication();
 		$application = ValidMembershipApplication::newDomainEntity();

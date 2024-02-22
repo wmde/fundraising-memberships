@@ -17,6 +17,9 @@ class MembershipApplicationValidator {
 	 */
 	private array $violations;
 
+	/**
+	 * @var array<string, int>
+	 */
 	private array $maximumFieldLengths = [
 		Result::SOURCE_APPLICANT_PHONE_NUMBER => 30,
 		Result::SOURCE_APPLICANT_EMAIL => 250,
@@ -30,7 +33,7 @@ class MembershipApplicationValidator {
 		Result::SOURCE_APPLICANT_COUNTRY => 8,
 	];
 
-	public function __construct( private EmailValidator $emailValidator ) {
+	public function __construct( private readonly EmailValidator $emailValidator ) {
 	}
 
 	public function validate( ApplyForMembershipRequest $applicationRequest ): Result {

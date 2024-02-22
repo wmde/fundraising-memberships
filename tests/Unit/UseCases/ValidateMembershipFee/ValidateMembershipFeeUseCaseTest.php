@@ -14,7 +14,6 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase
- *
  */
 class ValidateMembershipFeeUseCaseTest extends TestCase {
 
@@ -48,6 +47,9 @@ class ValidateMembershipFeeUseCaseTest extends TestCase {
 		$this->assertEquals( $expectedError, $constraintViolation->getMessageIdentifier() );
 	}
 
+	/**
+	 * @return iterable<array{ int, int, string }>
+	 */
 	public static function invalidAmountProvider(): iterable {
 		yield 'too low single payment' => [ 1, 12, MembershipPaymentValidator::FEE_TOO_LOW ];
 		yield 'just too low single payment' => [ 23, 12, MembershipPaymentValidator::FEE_TOO_LOW ];
@@ -67,6 +69,9 @@ class ValidateMembershipFeeUseCaseTest extends TestCase {
 		);
 	}
 
+	/**
+	 * @return iterable<string, array<int, int>>
+	 */
 	public static function validAmountProvider(): iterable {
 		yield 'single payment' => [ 50, 12 ];
 		yield 'just enough single payment' => [ 24, 12 ];
@@ -119,7 +124,7 @@ class ValidateMembershipFeeUseCaseTest extends TestCase {
 		$this->assertNotSame( MembershipPaymentValidator::FEE_TOO_HIGH, $result->getValidationErrors()[0]->getMessageIdentifier() );
 	}
 
-	public function testGivenInvalidInterval_zero_validationFails() {
+	public function testGivenInvalidInterval_zero_validationFails(): void {
 		$useCase = $this->newUseCase();
 
 		$response = $useCase->validate( 12, 0, ApplicantType::PERSON_APPLICANT->value, "BEZ" );
@@ -128,7 +133,7 @@ class ValidateMembershipFeeUseCaseTest extends TestCase {
 		$this->assertSame( MembershipPaymentValidator::INVALID_INTERVAL, $constraintViolation->getMessageIdentifier() );
 	}
 
-	public function testGivenInvalidInterval_negative_validationFails() {
+	public function testGivenInvalidInterval_negative_validationFails(): void {
 		$useCase = $this->newUseCase();
 
 		$response = $useCase->validate( 12, -1, ApplicantType::PERSON_APPLICANT->value, "BEZ" );
