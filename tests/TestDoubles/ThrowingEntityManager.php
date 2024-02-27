@@ -7,10 +7,10 @@ namespace WMDE\Fundraising\MembershipContext\Tests\TestDoubles;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 /**
  * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class ThrowingEntityManager {
 
@@ -20,7 +20,9 @@ class ThrowingEntityManager {
 
 		$entityManager->expects( $testCase->any() )
 			->method( $testCase->anything() )
-			->willThrowException( new ORMException( 'This is a test exception from ' . self::class ) );
+			->willThrowException( new class( 'This is a test exception from ' . self::class )
+				extends RuntimeException implements ORMException {
+			} );
 
 		return $entityManager;
 	}

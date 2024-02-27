@@ -16,7 +16,6 @@ use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInf
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationTracker
  *
  * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class DoctrineMembershipApplicationTrackerTest extends \PHPUnit\Framework\TestCase {
 

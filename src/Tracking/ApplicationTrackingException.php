@@ -6,7 +6,6 @@ namespace WMDE\Fundraising\MembershipContext\Tracking;
 
 /**
  * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class ApplicationTrackingException extends \RuntimeException {
 

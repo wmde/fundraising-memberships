@@ -9,7 +9,6 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicat
 
 /**
  * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class ApplicationRepositorySpy extends FakeApplicationRepository {
 

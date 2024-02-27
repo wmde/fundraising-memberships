@@ -10,7 +10,6 @@ use WMDE\FunValidators\Validators\EmailValidator;
 
 /**
  * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class SucceedingEmailValidator extends EmailValidator {
 

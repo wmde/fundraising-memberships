@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipAuthorizationChecker;
@@ -125,7 +126,8 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 			->disableOriginalConstructor()->getMock();
 
 		$entityManager->method( $this->anything() )
-			->willThrowException( new ORMException() );
+			->willThrowException( new class() extends RuntimeException  implements ORMException {
+			} );
 
 		return $entityManager;
 	}

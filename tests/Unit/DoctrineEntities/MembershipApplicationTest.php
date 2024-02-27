@@ -13,7 +13,6 @@ use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData
  *
  * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 class MembershipApplicationTest extends TestCase {
 

@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess\Intern
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
@@ -124,7 +125,8 @@ class DoctrineApplicationTableTest extends TestCase {
 			\Doctrine\ORM\Events::onFlush,
 			new class() {
 				public function onFlush() {
-					throw new ORMException();
+					throw new class() extends RuntimeException implements ORMException {
+					};
 				}
 			}
 		);

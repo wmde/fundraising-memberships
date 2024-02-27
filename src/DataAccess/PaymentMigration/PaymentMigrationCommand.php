@@ -60,6 +60,6 @@ class PaymentMigrationCommand {
 		$paymentContextFactory = new PaymentContextFactory();
 		$paymentContextFactory->registerCustomTypes( $db );
 		$ormConfig = ORMSetup::createXMLMetadataConfiguration( $paymentContextFactory->getDoctrineMappingPaths() );
-		return EntityManager::create( $db, $ormConfig );
+		return new EntityManager( $db, $ormConfig );
 	}
 }
