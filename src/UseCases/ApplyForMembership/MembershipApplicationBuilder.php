@@ -52,18 +52,16 @@ class MembershipApplicationBuilder {
 	}
 
 	private function newPrivatePersonName( ApplyForMembershipRequest $request ): ApplicantName {
-		$personName = ApplicantName::newPrivatePersonName();
-		$personName->setFirstName( $request->getApplicantFirstName() );
-		$personName->setLastName( $request->getApplicantLastName() );
-		$personName->setSalutation( $request->getApplicantSalutation() );
-		$personName->setTitle( $request->getApplicantTitle() );
-		return $personName->freeze()->assertNoNullFields();
+		return ApplicantName::newPrivatePersonName(
+			$request->getApplicantSalutation(),
+			$request->getApplicantTitle(),
+			$request->getApplicantFirstName(),
+			$request->getApplicantLastName()
+		);
 	}
 
 	private function newCompanyPersonName( ApplyForMembershipRequest $request ): ApplicantName {
-		$personName = ApplicantName::newCompanyName();
-		$personName->setCompanyName( $request->getApplicantCompanyName() );
-		return $personName->freeze()->assertNoNullFields();
+		return ApplicantName::newCompanyName( $request->getApplicantCompanyName() );
 	}
 
 	private function newAddress( ApplyForMembershipRequest $request ): ApplicantAddress {

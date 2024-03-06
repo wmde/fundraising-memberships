@@ -52,18 +52,17 @@ class LegacyToDomainConverter {
 
 	private function newPersonName( DoctrineApplication $application ): ApplicantName {
 		if ( empty( $application->getCompany() ) ) {
-			$personName = ApplicantName::newPrivatePersonName();
-			$personName->setFirstName( $application->getApplicantFirstName() );
-			$personName->setLastName( $application->getApplicantLastName() );
-			$personName->setSalutation( is_string( $application->getApplicantSalutation() ) ? $application->getApplicantSalutation() : '' );
-			$personName->setTitle( is_string( $application->getApplicantTitle() ) ? $application->getApplicantTitle() : '' );
+			return ApplicantName::newPrivatePersonName(
+				$application->getApplicantSalutation() ?? '',
+				$application->getApplicantTitle() ?? '',
+				$application->getApplicantFirstName(),
+				$application->getApplicantLastName()
+			);
 		} else {
-			$personName = ApplicantName::newCompanyName();
-			$personName->setCompanyName( $application->getCompany() );
-			$personName->setSalutation( is_string( $application->getApplicantSalutation() ) ? $application->getApplicantSalutation() : '' );
+			return ApplicantName::newCompanyName(
+				$application->getCompany()
+			);
 		}
-
-		return $personName->freeze()->assertNoNullFields();
 	}
 
 	private function newAddress( DoctrineApplication $application ): ApplicantAddress {

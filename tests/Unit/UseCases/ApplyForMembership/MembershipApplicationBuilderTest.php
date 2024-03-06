@@ -90,15 +90,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 	}
 
 	private function getCompanyPersonName(): ApplicantName {
-		$name = ApplicantName::newCompanyName();
-
-		$name->setCompanyName( self::COMPANY_NAME );
-		$name->setSalutation( ApplicantName::COMPANY_SALUTATION );
-		$name->setTitle( '' );
-		$name->setFirstName( '' );
-		$name->setLastName( '' );
-
-		return $name->assertNoNullFields()->freeze();
+		return ApplicantName::newCompanyName( self::COMPANY_NAME );
 	}
 
 	private function assertIsExpectedAddress( ApplicantAddress $address ): void {
@@ -135,7 +127,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 
 		$application = $builder->newApplicationFromRequest( $request, self::MEMBERSHIP_ID, self::PAYMENT_ID );
 
-		$this->assertSame( ApplicantName::COMPANY_SALUTATION, $application->getApplicant()->getName()->getSalutation() );
+		$this->assertSame( ApplicantName::COMPANY_SALUTATION, $application->getApplicant()->getName()->salutation );
 	}
 
 	public function testWhenBuildingApplicationIncentivesAreSet(): void {

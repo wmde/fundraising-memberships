@@ -132,21 +132,16 @@ class ValidMembershipApplication {
 	}
 
 	private function newPersonApplicantName(): ApplicantName {
-		$personName = ApplicantName::newPrivatePersonName();
-
-		$personName->setFirstName( self::APPLICANT_FIRST_NAME );
-		$personName->setLastName( self::APPLICANT_LAST_NAME );
-		$personName->setSalutation( self::APPLICANT_SALUTATION );
-		$personName->setTitle( self::APPLICANT_TITLE );
-
-		return $personName->freeze()->assertNoNullFields();
+		return ApplicantName::newPrivatePersonName(
+			self::APPLICANT_SALUTATION,
+			self::APPLICANT_TITLE,
+			self::APPLICANT_FIRST_NAME,
+			self::APPLICANT_LAST_NAME
+		);
 	}
 
 	private function newCompanyApplicantName(): ApplicantName {
-		$companyName = ApplicantName::newCompanyName();
-		$companyName->setCompanyName( self::APPLICANT_COMPANY_NAME );
-
-		return $companyName->freeze()->assertNoNullFields();
+		return ApplicantName::newCompanyName( self::APPLICANT_COMPANY_NAME );
 	}
 
 	private function newAddress(): ApplicantAddress {

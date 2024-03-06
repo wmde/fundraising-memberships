@@ -76,11 +76,11 @@ class DomainToLegacyConverter {
 	}
 
 	private function setApplicantFields( DoctrineApplication $application, Applicant $applicant ): void {
-		$application->setApplicantFirstName( $applicant->getName()->getFirstName() );
-		$application->setApplicantLastName( $applicant->getName()->getLastName() );
-		$application->setApplicantSalutation( $applicant->getName()->getSalutation() );
-		$application->setApplicantTitle( $applicant->getName()->getTitle() );
-		$application->setCompany( $applicant->getName()->getCompanyName() );
+		$application->setApplicantFirstName( $applicant->getName()->firstName );
+		$application->setApplicantLastName( $applicant->getName()->lastName );
+		$application->setApplicantSalutation( $applicant->getName()->salutation );
+		$application->setApplicantTitle( $applicant->getName()->title );
+		$application->setCompany( $applicant->getName()->companyName );
 
 		$application->setApplicantDateOfBirth( $applicant->getDateOfBirth() );
 

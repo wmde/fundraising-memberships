@@ -63,9 +63,9 @@ class ModerationService {
 
 	private function moderateBadWordViolations( MembershipApplication $application ): void {
 		$applicant = $application->getApplicant();
-		$this->moderatePolicyViolationsForField( $applicant->getName()->getFirstName(), ApplicationValidationResult::SOURCE_APPLICANT_FIRST_NAME );
-		$this->moderatePolicyViolationsForField( $applicant->getName()->getLastName(), ApplicationValidationResult::SOURCE_APPLICANT_LAST_NAME );
-		$this->moderatePolicyViolationsForField( $applicant->getName()->getCompanyName(), ApplicationValidationResult::SOURCE_APPLICANT_COMPANY );
+		$this->moderatePolicyViolationsForField( $applicant->getName()->firstName, ApplicationValidationResult::SOURCE_APPLICANT_FIRST_NAME );
+		$this->moderatePolicyViolationsForField( $applicant->getName()->lastName, ApplicationValidationResult::SOURCE_APPLICANT_LAST_NAME );
+		$this->moderatePolicyViolationsForField( $applicant->getName()->companyName, ApplicationValidationResult::SOURCE_APPLICANT_COMPANY );
 		$this->moderatePolicyViolationsForField( $applicant->getPhysicalAddress()->city, ApplicationValidationResult::SOURCE_APPLICANT_CITY );
 		$this->moderatePolicyViolationsForField( $applicant->getPhysicalAddress()->streetAddress, ApplicationValidationResult::SOURCE_APPLICANT_STREET_ADDRESS );
 	}
