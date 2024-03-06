@@ -67,14 +67,12 @@ class MembershipApplicationBuilder {
 	}
 
 	private function newAddress( ApplyForMembershipRequest $request ): ApplicantAddress {
-		$address = new ApplicantAddress();
-
-		$address->setCity( $request->getApplicantCity() );
-		$address->setCountryCode( $request->getApplicantCountryCode() );
-		$address->setPostalCode( $request->getApplicantPostalCode() );
-		$address->setStreetAddress( $request->getApplicantStreetAddress() );
-
-		return $address->freeze()->assertNoNullFields();
+		return new ApplicantAddress(
+			streetAddress: $request->getApplicantStreetAddress(),
+			postalCode: $request->getApplicantPostalCode(),
+			city: $request->getApplicantCity(),
+			countryCode: $request->getApplicantCountryCode()
+		);
 	}
 
 	private function addIncentives( MembershipApplication $application, ApplyForMembershipRequest $request ): void {

@@ -67,13 +67,11 @@ class LegacyToDomainConverter {
 	}
 
 	private function newAddress( DoctrineApplication $application ): ApplicantAddress {
-		$address = new ApplicantAddress();
-
-		$address->setCity( is_string( $application->getCity() ) ? $application->getCity() : '' );
-		$address->setCountryCode( $application->getCountry() );
-		$address->setPostalCode( is_string( $application->getPostcode() ) ? $application->getPostcode() : '' );
-		$address->setStreetAddress( is_string( $application->getAddress() ) ? $application->getAddress() : '' );
-
-		return $address->freeze()->assertNoNullFields();
+		return new ApplicantAddress(
+			streetAddress: $application->getAddress() ?? '',
+			postalCode: $application->getPostcode() ?? '',
+			city: $application->getCity() ?? '',
+			countryCode: $application->getCountry()
+		);
 	}
 }

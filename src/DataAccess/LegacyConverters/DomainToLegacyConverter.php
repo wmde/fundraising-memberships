@@ -89,10 +89,10 @@ class DomainToLegacyConverter {
 
 		$address = $applicant->getPhysicalAddress();
 
-		$application->setCity( $address->getCity() );
-		$application->setCountry( $address->getCountryCode() );
-		$application->setPostcode( $address->getPostalCode() );
-		$application->setAddress( $address->getStreetAddress() );
+		$application->setCity( $address->city );
+		$application->setCountry( $address->countryCode );
+		$application->setPostcode( $address->postalCode );
+		$application->setAddress( $address->streetAddress );
 	}
 
 	private function setPaymentFields( DoctrineApplication $application, LegacyPaymentData $paymentdata ): void {

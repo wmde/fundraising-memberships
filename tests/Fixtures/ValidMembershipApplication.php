@@ -150,14 +150,12 @@ class ValidMembershipApplication {
 	}
 
 	private function newAddress(): ApplicantAddress {
-		$address = new ApplicantAddress();
-
-		$address->setCity( self::APPLICANT_CITY );
-		$address->setCountryCode( self::APPLICANT_COUNTRY_CODE );
-		$address->setPostalCode( self::APPLICANT_POSTAL_CODE );
-		$address->setStreetAddress( self::APPLICANT_STREET_ADDRESS );
-
-		return $address->freeze()->assertNoNullFields();
+		return new ApplicantAddress(
+			streetAddress: self::APPLICANT_STREET_ADDRESS,
+			postalCode: self::APPLICANT_POSTAL_CODE,
+			city: self::APPLICANT_CITY,
+			countryCode: self::APPLICANT_COUNTRY_CODE
+		);
 	}
 
 	public static function newDoctrineEntity( int $id = self::DEFAULT_ID ): DoctrineMembershipApplication {

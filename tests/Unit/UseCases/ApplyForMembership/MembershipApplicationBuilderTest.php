@@ -109,14 +109,12 @@ class MembershipApplicationBuilderTest extends TestCase {
 	}
 
 	private function getPhysicalAddress(): ApplicantAddress {
-		$address = new ApplicantAddress();
-
-		$address->setStreetAddress( ValidMembershipApplication::APPLICANT_STREET_ADDRESS );
-		$address->setPostalCode( ValidMembershipApplication::APPLICANT_POSTAL_CODE );
-		$address->setCity( ValidMembershipApplication::APPLICANT_CITY );
-		$address->setCountryCode( ValidMembershipApplication::APPLICANT_COUNTRY_CODE );
-
-		return $address->assertNoNullFields()->freeze();
+		return new ApplicantAddress(
+			streetAddress: ValidMembershipApplication::APPLICANT_STREET_ADDRESS,
+			postalCode: ValidMembershipApplication::APPLICANT_POSTAL_CODE,
+			city: ValidMembershipApplication::APPLICANT_CITY,
+			countryCode: ValidMembershipApplication::APPLICANT_COUNTRY_CODE
+		);
 	}
 
 	public function testWhenNoBirthDateAndPhoneNumberIsGiven_membershipApplicationIsStillBuiltCorrectly(): void {
