@@ -21,7 +21,6 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApp
 class MembershipApplicationBuilderTest extends TestCase {
 
 	private const COMPANY_NAME = 'Malenfant asteroid mining';
-	private const OMIT_OPTIONAL_FIELDS = true;
 
 	private const MEMBERSHIP_ID = 9;
 
@@ -46,33 +45,20 @@ class MembershipApplicationBuilderTest extends TestCase {
 	 * @return ApplyForMembershipRequest
 	 */
 	private function newCompanyMembershipRequest( bool $omitOptionalFields = false, array $incentives = [] ): ApplyForMembershipRequest {
-		$request = new ApplyForMembershipRequest();
-
-		$request->setMembershipType( ValidMembershipApplication::MEMBERSHIP_TYPE );
-		$request->markApplicantAsCompany();
-		$request->setApplicantCompanyName( self::COMPANY_NAME );
-		$request->setMembershipType( ValidMembershipApplication::MEMBERSHIP_TYPE );
-		$request->setApplicantSalutation( '' );
-		$request->setApplicantTitle( '' );
-		$request->setApplicantFirstName( '' );
-		$request->setApplicantLastName( '' );
-		$request->setApplicantStreetAddress( ValidMembershipApplication::APPLICANT_STREET_ADDRESS );
-		$request->setApplicantPostalCode( ValidMembershipApplication::APPLICANT_POSTAL_CODE );
-		$request->setApplicantCity( ValidMembershipApplication::APPLICANT_CITY );
-		$request->setApplicantCountryCode( ValidMembershipApplication::APPLICANT_COUNTRY_CODE );
-		$request->setApplicantEmailAddress( ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS );
-		$request->setApplicantPhoneNumber(
-			$omitOptionalFields ? '' : ValidMembershipApplication::APPLICANT_PHONE_NUMBER
+		return ApplyForMembershipRequest::newCompanyApplyForMembershipRequest(
+			membershipType: ValidMembershipApplication::MEMBERSHIP_TYPE,
+			applicantCompanyName: self::COMPANY_NAME,
+			applicantStreetAddress: ValidMembershipApplication::APPLICANT_STREET_ADDRESS,
+			applicantPostalCode: ValidMembershipApplication::APPLICANT_POSTAL_CODE,
+			applicantCity: ValidMembershipApplication::APPLICANT_CITY,
+			applicantCountryCode: ValidMembershipApplication::APPLICANT_COUNTRY_CODE,
+			applicantEmailAddress: ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS,
+			optsIntoDonationReceipt: true,
+			incentives: $incentives,
+			paymentParameters: ValidMembershipApplication::newPaymentParameters(),
+			trackingInfo: $this->newTrackingInfo(),
+			applicantPhoneNumber: $omitOptionalFields ? '' : ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
 		);
-		$request->setApplicantDateOfBirth(
-			$omitOptionalFields ? '' : ValidMembershipApplication::APPLICANT_DATE_OF_BIRTH
-		);
-		$request->setTrackingInfo( $this->newTrackingInfo() );
-		$request->setPiwikTrackingString( 'foo/bar' );
-		$request->setOptsIntoDonationReceipt( true );
-		$request->setIncentives( $incentives );
-
-		return $request->assertNoNullFields()->freeze();
 	}
 
 	private function newTrackingInfo(): MembershipApplicationTrackingInfo {
@@ -109,8 +95,8 @@ class MembershipApplicationBuilderTest extends TestCase {
 		);
 	}
 
-	public function testWhenNoBirthDateAndPhoneNumberIsGiven_membershipApplicationIsStillBuiltCorrectly(): void {
-		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS );
+	public function testWhenNoPhoneNumberIsGiven_membershipApplicationIsStillBuiltCorrectly(): void {
+		$request = $this->newCompanyMembershipRequest();
 		$testIncentiveFinder = new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] );
 		$builder = new MembershipApplicationBuilder( $testIncentiveFinder );
 
@@ -121,7 +107,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 	}
 
 	public function testWhenBuildingCompanyApplication_salutationFieldIsSet(): void {
-		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS );
+		$request = $this->newCompanyMembershipRequest();
 		$testIncentiveFinder = new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] );
 		$builder = new MembershipApplicationBuilder( $testIncentiveFinder );
 
@@ -136,7 +122,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 			$this->newIncentiveWithNameAndId( 'a_better_world', 2 )
 		];
 		$incentiveFinder = new TestIncentiveFinder( $incentives );
-		$request = $this->newCompanyMembershipRequest( self::OMIT_OPTIONAL_FIELDS, array_map(
+		$request = $this->newCompanyMembershipRequest( false, array_map(
 			fn ( $incentive ) => $incentive->getName(),
 			$incentives
 		) );

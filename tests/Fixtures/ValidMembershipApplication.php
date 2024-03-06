@@ -39,7 +39,7 @@ class ValidMembershipApplication {
 	public const APPLICANT_STREET_ADDRESS = 'Nyan street';
 
 	public const APPLICANT_EMAIL_ADDRESS = 'jeroendedauw@gmail.com';
-	public const APPLICANT_PHONE_NUMBER = '1337-1337-1337';
+	public const APPLICANT_PHONE_NUMBER = '';
 
 	public const MEMBERSHIP_TYPE = MembershipApplication::SUSTAINING_MEMBERSHIP;
 	public const PAYMENT_TYPE_PAYPAL = PaymentType::Paypal;
@@ -83,7 +83,7 @@ class ValidMembershipApplication {
 		return new MembershipApplication(
 			$id,
 			self::MEMBERSHIP_TYPE,
-			$self->newApplicant( $self->newCompanyApplicantName() ),
+			$self->newCompanyApplicant( $self->newCompanyApplicantName() ),
 			self::PAYMENT_ID,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
@@ -107,6 +107,15 @@ class ValidMembershipApplication {
 			new EmailAddress( self::APPLICANT_EMAIL_ADDRESS ),
 			new PhoneNumber( self::APPLICANT_PHONE_NUMBER ),
 			new DateTime( self::APPLICANT_DATE_OF_BIRTH )
+		);
+	}
+
+	private function newCompanyApplicant( ApplicantName $name ): Applicant {
+		return new Applicant(
+			$name,
+			$this->newAddress(),
+			new EmailAddress( self::APPLICANT_EMAIL_ADDRESS ),
+			new PhoneNumber( self::APPLICANT_PHONE_NUMBER )
 		);
 	}
 

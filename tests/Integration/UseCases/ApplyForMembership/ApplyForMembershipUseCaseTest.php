@@ -108,32 +108,25 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$this->assertFalse( $response->isSuccessful() );
 	}
 
-	private function newValidRequest(): ApplyForMembershipRequest {
-		$request = new ApplyForMembershipRequest();
-
-		$request->setMembershipType( ValidMembershipApplication::MEMBERSHIP_TYPE );
-		$request->setApplicantCompanyName( '' );
-		$request->setMembershipType( ValidMembershipApplication::MEMBERSHIP_TYPE );
-		$request->setApplicantSalutation( ValidMembershipApplication::APPLICANT_SALUTATION );
-		$request->setApplicantTitle( ValidMembershipApplication::APPLICANT_TITLE );
-		$request->setApplicantFirstName( ValidMembershipApplication::APPLICANT_FIRST_NAME );
-		$request->setApplicantLastName( ValidMembershipApplication::APPLICANT_LAST_NAME );
-		$request->setApplicantStreetAddress( ValidMembershipApplication::APPLICANT_STREET_ADDRESS );
-		$request->setApplicantPostalCode( ValidMembershipApplication::APPLICANT_POSTAL_CODE );
-		$request->setApplicantCity( ValidMembershipApplication::APPLICANT_CITY );
-		$request->setApplicantCountryCode( ValidMembershipApplication::APPLICANT_COUNTRY_CODE );
-		$request->setApplicantEmailAddress( ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS );
-		$request->setApplicantPhoneNumber( ValidMembershipApplication::APPLICANT_PHONE_NUMBER );
-		$request->setApplicantDateOfBirth( ValidMembershipApplication::APPLICANT_DATE_OF_BIRTH );
-
-		$request->setTrackingInfo( $this->newTrackingInfo() );
-		$request->setPiwikTrackingString( 'foo/bar' );
-
-		$request->setOptsIntoDonationReceipt( true );
-
-		$request->setPaymentParameters( ValidMembershipApplication::newPaymentParameters() );
-
-		return $request->assertNoNullFields();
+	private function newValidRequest( $optsIntoDonationReceipt = true ): ApplyForMembershipRequest {
+		return ApplyForMembershipRequest::newPrivateApplyForMembershipRequest(
+			membershipType: ValidMembershipApplication::MEMBERSHIP_TYPE,
+			applicantSalutation: ValidMembershipApplication::APPLICANT_SALUTATION,
+			applicantTitle: ValidMembershipApplication::APPLICANT_TITLE,
+			applicantFirstName: ValidMembershipApplication::APPLICANT_FIRST_NAME,
+			applicantLastName: ValidMembershipApplication::APPLICANT_LAST_NAME,
+			applicantStreetAddress: ValidMembershipApplication::APPLICANT_STREET_ADDRESS,
+			applicantPostalCode: ValidMembershipApplication::APPLICANT_POSTAL_CODE,
+			applicantCity: ValidMembershipApplication::APPLICANT_CITY,
+			applicantCountryCode: ValidMembershipApplication::APPLICANT_COUNTRY_CODE,
+			applicantEmailAddress: ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS,
+			optsIntoDonationReceipt: $optsIntoDonationReceipt,
+			incentives: [],
+			paymentParameters: ValidMembershipApplication::newPaymentParameters(),
+			trackingInfo: $this->newTrackingInfo(),
+			applicantDateOfBirth: ValidMembershipApplication::APPLICANT_DATE_OF_BIRTH,
+			applicantPhoneNumber: ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
+		);
 	}
 
 	private function newTrackingInfo(): MembershipApplicationTrackingInfo {
@@ -248,8 +241,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 	public function testGivenDonationReceiptOptOutRequest_applicationHoldsThisValue(): void {
 		$repository = $this->makeMembershipRepositoryStub();
-		$request = $this->newValidRequest();
-		$request->setOptsIntoDonationReceipt( false );
+		$request = $this->newValidRequest( false );
 		$this->makeUseCase( repository: $repository )->applyForMembership( $request );
 
 		$application = $repository->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID );

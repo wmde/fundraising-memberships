@@ -82,10 +82,10 @@ class ApplyForMembershipUseCase {
 		$this->eventEmitter->emit( new MembershipCreatedEvent( $application->getId(), $application->getApplicant() ) );
 
 		// TODO: handle exceptions
-		$this->membershipApplicationTracker->trackApplication( $application->getId(), $request->getTrackingInfo() );
+		$this->membershipApplicationTracker->trackApplication( $application->getId(), $request->trackingInfo );
 
 		// TODO: handle exceptions
-		$this->piwikTracker->trackApplication( $application->getId(), $request->getPiwikTrackingString() );
+		$this->piwikTracker->trackApplication( $application->getId(), $request->getMatomoTrackingString() );
 
 		if ( $application->shouldSendConfirmationMail() ) {
 			$this->notifier->sendConfirmationFor( $application );
@@ -131,11 +131,11 @@ class ApplyForMembershipUseCase {
 			$id,
 			$startTimeForRecurringPayment,
 			$this->generateInvoiceId( $id ),
-			$request->getApplicantFirstName(),
-			$request->getApplicantLastName()
+			$request->applicantFirstName,
+			$request->applicantLastName
 		);
 		return PaymentCreationRequest::newFromParameters(
-			$request->getPaymentParameters(),
+			$request->paymentParameters,
 			$this->paymentServiceFactory->newPaymentValidator( $applicantType ),
 			$domainSpecificContext,
 			$urlAuthenticator

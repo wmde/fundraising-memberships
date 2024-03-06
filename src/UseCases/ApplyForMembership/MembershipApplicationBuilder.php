@@ -24,10 +24,10 @@ class MembershipApplicationBuilder {
 	public function newApplicationFromRequest( ApplyForMembershipRequest $request, int $membershipId, int $paymentId ): MembershipApplication {
 		$application = new MembershipApplication(
 			$membershipId,
-			$request->getMembershipType(),
+			$request->membershipType,
 			$this->newApplicant( $request ),
 			$paymentId,
-			$request->getOptsIntoDonationReceipt()
+			$request->optsIntoDonationReceipt
 		);
 		$this->addIncentives( $application, $request );
 		return $application;
@@ -37,9 +37,9 @@ class MembershipApplicationBuilder {
 		return new Applicant(
 			$this->newPersonName( $request ),
 			$this->newAddress( $request ),
-			new EmailAddress( $request->getApplicantEmailAddress() ),
-			new PhoneNumber( $request->getApplicantPhoneNumber() ),
-			( $request->getApplicantDateOfBirth() === '' ) ? null : new DateTime( $request->getApplicantDateOfBirth() )
+			new EmailAddress( $request->applicantEmailAddress ),
+			new PhoneNumber( $request->applicantPhoneNumber ),
+			( $request->applicantDateOfBirth === '' ) ? null : new DateTime( $request->applicantDateOfBirth )
 		);
 	}
 
@@ -53,28 +53,28 @@ class MembershipApplicationBuilder {
 
 	private function newPrivatePersonName( ApplyForMembershipRequest $request ): ApplicantName {
 		return ApplicantName::newPrivatePersonName(
-			$request->getApplicantSalutation(),
-			$request->getApplicantTitle(),
-			$request->getApplicantFirstName(),
-			$request->getApplicantLastName()
+			$request->applicantSalutation,
+			$request->applicantTitle,
+			$request->applicantFirstName,
+			$request->applicantLastName
 		);
 	}
 
 	private function newCompanyPersonName( ApplyForMembershipRequest $request ): ApplicantName {
-		return ApplicantName::newCompanyName( $request->getApplicantCompanyName() );
+		return ApplicantName::newCompanyName( $request->applicantCompanyName );
 	}
 
 	private function newAddress( ApplyForMembershipRequest $request ): ApplicantAddress {
 		return new ApplicantAddress(
-			streetAddress: $request->getApplicantStreetAddress(),
-			postalCode: $request->getApplicantPostalCode(),
-			city: $request->getApplicantCity(),
-			countryCode: $request->getApplicantCountryCode()
+			streetAddress: $request->applicantStreetAddress,
+			postalCode: $request->applicantPostalCode,
+			city: $request->applicantCity,
+			countryCode: $request->applicantCountryCode
 		);
 	}
 
 	private function addIncentives( MembershipApplication $application, ApplyForMembershipRequest $request ): void {
-		foreach ( $request->getIncentives() as $incentiveName ) {
+		foreach ( $request->incentives as $incentiveName ) {
 			$foundIncentive = $this->incentiveFinder->findIncentiveByName( $incentiveName );
 			if ( $foundIncentive === null ) {
 				throw new UnknownIncentive( sprintf( 'Incentive "%s" not found', $incentiveName ) );
