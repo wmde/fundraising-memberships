@@ -10,6 +10,7 @@
 	stopOnFailure="false"
 	stopOnIncomplete="false"
 	cacheDirectory=".phpunit.cache"
+	requireCoverageMetadata="true"
 >
   <coverage includeUncoveredFiles="true"/>
   <testsuites>
