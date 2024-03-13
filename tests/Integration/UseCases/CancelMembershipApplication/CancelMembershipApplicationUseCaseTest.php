@@ -91,15 +91,6 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 		$this->whenCancelApplicationRequestIsSent( $useCase, $application->getId() );
 	}
 
-	public function testWhenCancellationFails_confirmationEmailIsNotSend(): void {
-		$mailer = $this->givenTemplateBasedMailerSpy();
-		$useCase = $this->givenUseCase( mailer: $mailer );
-
-		$this->whenCancelApplicationRequestIsSent( $useCase, self::ID_OF_NON_EXISTING_APPLICATION );
-
-		$mailer->assertWasNeverCalled();
-	}
-
 	public function testWhenApplicationIsAlreadyCancelled_onlySuccessResponseIsReturned(): void {
 		$mailer = $this->givenTemplateBasedMailerSpy();
 		[ $repository, $application ] = $this->givenStoredCancelledApplication();
@@ -138,36 +129,6 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 		);
 	}
 
-	public function testWhenApplicationGetsCancelled_confirmationEmailIsSent(): void {
-		[ $repository, $application ] = $this->givenStoredCancelableApplication();
-		$mailer = $this->givenTemplateBasedMailerSpy();
-		$useCase = $this->givenUseCase( repository: $repository, mailer: $mailer );
-
-		$this->whenCancelApplicationRequestIsSent( $useCase, $application->getId() );
-
-		$mailer->assertCalledOnceWith(
-			$application->getApplicant()->getEmailAddress(),
-			[
-				'membershipApplicant' => [
-					'salutation' => $application->getApplicant()->getName()->getSalutation(),
-					'title' => $application->getApplicant()->getName()->getTitle(),
-					'lastName' => $application->getApplicant()->getName()->getLastName()
-				],
-				'applicationId' => 1
-			]
-		);
-	}
-
-	public function testWhenAuthorizedUserCancels_doesNotSendConfirmationEmail(): void {
-		[ $repository, $application ] = $this->givenStoredCancelableApplication();
-		$mailer = $this->givenTemplateBasedMailerSpy();
-		$useCase = $this->givenUseCase( repository: $repository, mailer: $mailer );
-
-		$this->whenCancelApplicationRequestIsSentByAdmin( $useCase, $application->getId() );
-
-		$mailer->assertWasNeverCalled();
-	}
-
 	private function givenUseCase(
 		?MembershipAuthorizationChecker $authorizer = null,
 		?ApplicationRepository $repository = null,
@@ -178,7 +139,6 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 		return new CancelMembershipApplicationUseCase(
 			$authorizer ?? new SucceedingAuthorizationChecker(),
 			$repository ?? new FakeApplicationRepository(),
-			$mailer ?? $this->createStub( TemplateMailerInterface::class ),
 			$logger ?? $this->createStub( MembershipApplicationEventLogger::class ),
 			$cancelPaymentUseCase ?? $this->givenSucceedingCancelPaymentUseCase()
 		);

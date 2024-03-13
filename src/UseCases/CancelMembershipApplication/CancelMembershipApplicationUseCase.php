@@ -9,7 +9,6 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogger;
-use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\CancelPaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\FailureResponse;
 
@@ -21,7 +20,6 @@ class CancelMembershipApplicationUseCase {
 	public function __construct(
 		private readonly MembershipAuthorizationChecker $authorizer,
 		private readonly ApplicationRepository $repository,
-		private readonly TemplateMailerInterface $mailer,
 		private readonly MembershipApplicationEventLogger $membershipApplicationEventLogger,
 		private readonly CancelPaymentUseCase $cancelPaymentUseCase
 	) {
@@ -48,9 +46,6 @@ class CancelMembershipApplicationUseCase {
 		if ( !$application->isCancelled() ) {
 			$application->cancel();
 			$this->repository->storeApplication( $application );
-			if ( !$request->initiatedByApplicant() ) {
-				$this->sendConfirmationEmail( $application );
-			}
 		}
 
 		$this->membershipApplicationEventLogger->log( $membershipApplicationId, $this->getLogMessage( $request ) );
@@ -72,28 +67,4 @@ class CancelMembershipApplicationUseCase {
 			return null;
 		}
 	}
-
-	private function sendConfirmationEmail( MembershipApplication $application ): void {
-		$this->mailer->sendMail(
-			$application->getApplicant()->getEmailAddress(),
-			$this->getConfirmationMailTemplateArguments( $application )
-		);
-	}
-
-	/**
-	 * @param MembershipApplication $application
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function getConfirmationMailTemplateArguments( MembershipApplication $application ): array {
-		return [
-			'applicationId' => $application->getId(),
-			'membershipApplicant' => [
-				'salutation' => $application->getApplicant()->getName()->getSalutation(),
-				'title' => $application->getApplicant()->getName()->getTitle(),
-				'lastName' => $application->getApplicant()->getName()->getLastName()
-			]
-		];
-	}
-
 }
