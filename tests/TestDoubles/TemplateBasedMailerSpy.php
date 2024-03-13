@@ -8,25 +8,23 @@ use LogicException;
 use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\Infrastructure\TemplateMailerInterface;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\ApplyForMembershipTemplateArguments;
 
 class TemplateBasedMailerSpy implements TemplateMailerInterface {
 
 	/**
-	 * @var array{EmailAddress,array<string, mixed>}[]
+	 * @var array{EmailAddress,ApplyForMembershipTemplateArguments}[]
 	 */
 	private array $sendMailCalls = [];
 
 	public function __construct( private readonly TestCase $testCase ) {
 	}
 
-	public function sendMail( EmailAddress $recipient, array $templateArguments = [] ): void {
+	public function sendMail( EmailAddress $recipient, ApplyForMembershipTemplateArguments $templateArguments ): void {
 		$this->sendMailCalls[] = [ $recipient, $templateArguments ];
 	}
 
-	/**
-	 * @return array<string, mixed>
-	 */
-	public function getTemplateArgumentsFromFirstCall(): array {
+	public function getTemplateArgumentsFromFirstCall(): ApplyForMembershipTemplateArguments {
 		if ( count( $this->sendMailCalls ) === 0 ) {
 			throw new LogicException( "sendMail() was not called, no calls to retrieve" );
 		}
@@ -34,13 +32,7 @@ class TemplateBasedMailerSpy implements TemplateMailerInterface {
 		return $firstCall[1];
 	}
 
-	/**
-	 * @param EmailAddress $expectedEmail
-	 * @param array<string, mixed> $expectedArguments
-	 *
-	 * @return void
-	 */
-	public function assertCalledOnceWith( EmailAddress $expectedEmail, array $expectedArguments ): void {
+	public function assertCalledOnceWith( EmailAddress $expectedEmail, ApplyForMembershipTemplateArguments $expectedArguments ): void {
 		$this->assertWasCalledOnce();
 
 		$this->testCase->assertEquals(
