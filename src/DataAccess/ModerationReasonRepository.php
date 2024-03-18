@@ -9,11 +9,14 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 
 class ModerationReasonRepository {
 
-	public function __construct(
-		private EntityManager $entityManager
-	) {
+	public function __construct( private readonly EntityManager $entityManager ) {
 	}
 
+	/**
+	 * @param ModerationReason ...$moderationReasons
+	 *
+	 * @return ModerationReason[]
+	 */
 	public function getModerationReasonsThatAreAlreadyPersisted( ModerationReason ...$moderationReasons ): array {
 		if ( count( $moderationReasons ) === 0 ) {
 			return [];
@@ -38,7 +41,11 @@ class ModerationReasonRepository {
 		}
 
 		$query = $queryBuilder->getQuery();
-		return $query->getResult();
+
+		/** @var ModerationReason[] $result */
+		$result = $query->getResult();
+
+		return $result;
 	}
 
 }

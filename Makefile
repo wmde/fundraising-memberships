@@ -30,7 +30,7 @@ fix-cs:
 	docker-compose run --rm --no-deps app ./vendor/bin/phpcbf
 
 stan:
-	docker-compose run --rm --no-deps app php -d memory_limit=1G vendor/bin/phpstan analyse --level=5 -c phpstan.test.neon --no-progress src/ tests/
+	docker-compose run --rm --no-deps app php -d memory_limit=1G vendor/bin/phpstan analyse --level=9 -c phpstan.test.neon --no-progress src/ tests/
 
 setup: install-php
 

@@ -9,6 +9,9 @@ use WMDE\Fundraising\MembershipContext\EventEmitter;
 
 class EventEmitterSpy implements EventEmitter {
 
+	/**
+	 * @var array<int, Event>
+	 */
 	private array $events = [];
 
 	public function emit( Event $event ): void {

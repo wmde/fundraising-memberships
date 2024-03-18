@@ -4,11 +4,10 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
+use LogicException;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 
 class ApplyForMembershipResponse {
-
-	private ApplicationValidationResult $validationResult;
 
 	private ?MembershipApplication $application;
 	private ?string $paymentCompletionUrl = null;
@@ -27,8 +26,7 @@ class ApplyForMembershipResponse {
 		return new self( $validationResult );
 	}
 
-	private function __construct( ApplicationValidationResult $validationResult ) {
-		$this->validationResult = $validationResult;
+	private function __construct( private readonly ApplicationValidationResult $validationResult ) {
 	}
 
 	public function isSuccessful(): bool {
@@ -39,12 +37,10 @@ class ApplyForMembershipResponse {
 	 * WARNING: we're returning the domain object to not have to create a more verbose response model.
 	 * Keep in mind that you should not use domain logic in the presenter, or put presentation helpers
 	 * in the domain object!
-	 *
-	 * @return MembershipApplication
 	 */
-	public function getMembershipApplication(): MembershipApplication {
+	public function getMembershipApplication(): ?MembershipApplication {
 		if ( !$this->isSuccessful() ) {
-			throw new \LogicException( 'The result only has a membership application object when successful' );
+			throw new LogicException( 'The result only has a membership application object when successful' );
 		}
 
 		return $this->application;
@@ -54,9 +50,9 @@ class ApplyForMembershipResponse {
 		return $this->validationResult;
 	}
 
-	public function getPaymentCompletionUrl(): string {
+	public function getPaymentCompletionUrl(): ?string {
 		if ( !$this->isSuccessful() ) {
-			throw new \LogicException( 'The result only has a payment completion URL when successful' );
+			throw new LogicException( 'The result only has a payment completion URL when successful' );
 		}
 
 		return $this->paymentCompletionUrl;

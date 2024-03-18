@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationTracker;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
@@ -14,10 +15,8 @@ use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInf
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationTracker
- *
- * @license GPL-2.0-or-later
  */
-class DoctrineMembershipApplicationTrackerTest extends \PHPUnit\Framework\TestCase {
+class DoctrineMembershipApplicationTrackerTest extends TestCase {
 
 	/**
 	 * @var EntityManager
@@ -35,6 +34,7 @@ class DoctrineMembershipApplicationTrackerTest extends \PHPUnit\Framework\TestCa
 		$application = ValidMembershipApplication::newDoctrineEntity();
 		$this->persistApplication( $application );
 
+		$this->assertNotNull( $application->getId() );
 		$this->newMembershipApplicationTracker()->trackApplication(
 			$application->getId(),
 			$this->newMembershipApplicationTrackingInfo( $campaignCode, $keyword )
@@ -42,10 +42,14 @@ class DoctrineMembershipApplicationTrackerTest extends \PHPUnit\Framework\TestCa
 
 		$storedApplication = $this->getApplicationById( $application->getId() );
 
+		$this->assertNotNull( $storedApplication );
 		$this->assertSame( $keyword, $storedApplication->getDecodedData()['confirmationPage'] );
 		$this->assertSame( $campaignCode, $storedApplication->getDecodedData()['confirmationPageCampaign'] );
 	}
 
+	/**
+	 * @return array<int, array<int, string>>
+	 */
 	public static function validTrackingDataProvider(): array {
 		return [
 			[ 'campaignCode', 'keyword' ],
@@ -60,7 +64,7 @@ class DoctrineMembershipApplicationTrackerTest extends \PHPUnit\Framework\TestCa
 		$this->entityManager->flush();
 	}
 
-	private function getApplicationById( int $applicationId ): MembershipApplication {
+	private function getApplicationById( int $applicationId ): ?MembershipApplication {
 		return $this->entityManager->find( MembershipApplication::class, $applicationId );
 	}
 

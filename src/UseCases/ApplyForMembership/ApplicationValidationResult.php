@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
+use OutOfBoundsException;
+
 class ApplicationValidationResult {
 
 	public const SOURCE_PAYMENT_AMOUNT = 'amount';
@@ -32,15 +34,15 @@ class ApplicationValidationResult {
 	public const VIOLATION_INVALID_MEMBERSHIP_TYPE = 'invalid-membership-type';
 	public const VIOLATION_INVALID_INTERVAL = 'interval-invalid';
 
-	private array $violations;
-
 	/**
-	 * @param string[] $violations ApplicationValidationResult::SOURCE_ => ApplicationValidationResult::VIOLATION_
+	 * @param array<string,string> $violations ApplicationValidationResult::SOURCE_ => ApplicationValidationResult::VIOLATION_
 	 */
-	public function __construct( array $violations = [] ) {
-		$this->violations = $violations;
+	public function __construct( private readonly array $violations = [] ) {
 	}
 
+	/**
+	 * @return array<string, string>
+	 */
 	public function getViolations(): array {
 		return $this->violations;
 	}
@@ -57,17 +59,14 @@ class ApplicationValidationResult {
 	}
 
 	/**
-	 * @param string $source
-	 *
-	 * @return string
-	 * @throws \OutOfBoundsException
+	 * @throws OutOfBoundsException
 	 */
 	public function getViolationType( string $source ): string {
 		if ( array_key_exists( $source, $this->violations ) ) {
 			 return $this->violations[$source];
 		}
 
-		throw new \OutOfBoundsException();
+		throw new OutOfBoundsException();
 	}
 
 }

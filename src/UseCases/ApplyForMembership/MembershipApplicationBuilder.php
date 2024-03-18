@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
+use DateTime;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\DataAccess\Exception\UnknownIncentive;
 use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
@@ -38,7 +39,7 @@ class MembershipApplicationBuilder {
 			$this->newAddress( $request ),
 			new EmailAddress( $request->getApplicantEmailAddress() ),
 			new PhoneNumber( $request->getApplicantPhoneNumber() ),
-			( $request->getApplicantDateOfBirth() === '' ) ? null : new \DateTime( $request->getApplicantDateOfBirth() )
+			( $request->getApplicantDateOfBirth() === '' ) ? null : new DateTime( $request->getApplicantDateOfBirth() )
 		);
 	}
 

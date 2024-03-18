@@ -7,15 +7,14 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplicatio
 use WMDE\Fundraising\MembershipContext\UseCases\SimpleResponse;
 
 /**
- * @license GPL-2.0-or-later
+ * @todo Convert this into a value object with public read-only properties
+ *    	 This is a backward breaking change, only do this if you are doing related backward breaking changes
  */
 class CancellationResponse implements SimpleResponse {
 
-	private int $applicationId;
 	private bool $success;
 
-	private function __construct( int $applicationId, bool $isSuccess ) {
-		$this->applicationId = $applicationId;
+	private function __construct( private readonly int $applicationId, bool $isSuccess ) {
 		$this->success = $isSuccess;
 	}
 

@@ -4,9 +4,6 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Domain\Repositories;
 
-/**
- * @license GPL-2.0-or-later
- */
 class ApplicationAnonymizedException extends GetMembershipApplicationException {
 
 	public function __construct() {

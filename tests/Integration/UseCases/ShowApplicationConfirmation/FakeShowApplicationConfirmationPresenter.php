@@ -4,12 +4,16 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ShowApplicationConfirmation;
 
+use RuntimeException;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationPresenter;
 
 class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirmationPresenter {
 
 	private ?MembershipApplication $application = null;
+	/**
+	 * @var array<string, mixed>
+	 */
 	private array $paymentData;
 	private bool $anonymizedResponseWasShown = false;
 	private bool $accessViolationWasShown = false;
@@ -17,17 +21,20 @@ class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirm
 
 	public function presentConfirmation( MembershipApplication $application, array $paymentData ): void {
 		if ( $this->application !== null ) {
-			throw new \RuntimeException( 'Presenter should only be invoked once' );
+			throw new RuntimeException( 'Presenter should only be invoked once' );
 		}
 
 		$this->application = $application;
 		$this->paymentData = $paymentData;
 	}
 
-	public function getShownApplication(): MembershipApplication {
+	public function getShownApplication(): ?MembershipApplication {
 		return $this->application;
 	}
 
+	/**
+	 * @return array<string, mixed>
+	 */
 	public function getShownPaymentData(): array {
 		return $this->paymentData;
 	}

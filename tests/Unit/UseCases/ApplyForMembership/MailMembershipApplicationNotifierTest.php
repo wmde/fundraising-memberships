@@ -9,6 +9,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateBasedMailerSpy;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateMailerStub;
+use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\ApplyForMembershipTemplateArguments;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MailMembershipApplicationNotifier;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
@@ -28,21 +29,21 @@ class MailMembershipApplicationNotifierTest extends TestCase {
 			'admin@blabla.de'
 		);
 		$notifier->sendConfirmationFor( ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID ) );
-		$arguments = [
-			'id' => self::MEMBERSHIP_APPLICATION_ID,
-			'membershipType' => 'sustaining',
-			'membershipFee' => '10.00',
-			'membershipFeeInCents' => 1000,
-			'paymentIntervalInMonths' => ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS,
-			'paymentType' => ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT,
-			'salutation' => ValidMembershipApplication::APPLICANT_SALUTATION,
-			'title' => ValidMembershipApplication::APPLICANT_TITLE,
-			'lastName' => ValidMembershipApplication::APPLICANT_LAST_NAME,
-			'firstName' => ValidMembershipApplication::APPLICANT_FIRST_NAME,
-			'hasReceiptEnabled' => ValidMembershipApplication::OPTS_INTO_DONATION_RECEIPT,
-			'incentives' => [],
-			'moderationFlags' => []
-		];
+		$arguments = new ApplyForMembershipTemplateArguments(
+			id:self::MEMBERSHIP_APPLICATION_ID,
+			membershipType: 'sustaining',
+			membershipFee: '10.00',
+			membershipFeeInCents: 1000,
+			paymentIntervalInMonths: ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS->value,
+			paymentType: ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT->value,
+			salutation: ValidMembershipApplication::APPLICANT_SALUTATION,
+			title: ValidMembershipApplication::APPLICANT_TITLE,
+			lastName: ValidMembershipApplication::APPLICANT_LAST_NAME,
+			firstName: ValidMembershipApplication::APPLICANT_FIRST_NAME,
+			hasReceiptEnabled: ValidMembershipApplication::OPTS_INTO_DONATION_RECEIPT,
+			incentives: [],
+			moderationFlags: []
+		);
 
 		$confirmationSpy->assertCalledOnceWith( new EmailAddress( ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS ), $arguments );
 	}
@@ -62,7 +63,7 @@ class MailMembershipApplicationNotifierTest extends TestCase {
 		$notifier->sendConfirmationFor( $application );
 
 		$templateArgsFromFirstCall = $confirmationSpy->getTemplateArgumentsFromFirstCall();
-		$this->assertEquals( [ ValidMembershipApplication::INCENTIVE_NAME ], $templateArgsFromFirstCall['incentives'] );
+		$this->assertEquals( [ ValidMembershipApplication::INCENTIVE_NAME ], $templateArgsFromFirstCall->incentives );
 	}
 
 	public function testRendersMailWithModerationFlags(): void {
@@ -86,7 +87,7 @@ class MailMembershipApplicationNotifierTest extends TestCase {
 		$templateArgsFromFirstCall = $confirmationSpy->getTemplateArgumentsFromFirstCall();
 		$this->assertEquals(
 			[ 'MANUALLY_FLAGGED_BY_ADMIN' => true, 'MEMBERSHIP_FEE_TOO_HIGH' => true ],
-			$templateArgsFromFirstCall['moderationFlags']
+			$templateArgsFromFirstCall->moderationFlags
 		);
 	}
 
@@ -97,8 +98,8 @@ class MailMembershipApplicationNotifierTest extends TestCase {
 			->with( ValidMembershipApplication::PAYMENT_ID )
 			->willReturn( [
 				'amount' => 1000,
-				'interval' => ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS,
-				'paymentType' => ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT
+				'interval' => ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS->value,
+				'paymentType' => ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT->value
 			] );
 		return $mock;
 	}

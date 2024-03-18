@@ -28,6 +28,13 @@ class ShowApplicationConfirmationUseCase {
 
 		try {
 			$application = $this->repository->getUnexportedMembershipApplicationById( $request->getApplicationId() );
+
+			// This is here to make phpstan happy, the authorizer already checks for non-existing membership applications
+			if ( $application === null ) {
+				$this->presenter->presentTechnicalError( 'Membership application not found' );
+				return;
+			}
+
 			$paymentData = $this->getPaymentUseCase->getPaymentDataArray( $application->getPaymentId() );
 		} catch ( ApplicationAnonymizedException $ex ) {
 			$this->presenter->presentApplicationWasAnonymized();

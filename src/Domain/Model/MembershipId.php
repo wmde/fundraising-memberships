@@ -21,10 +21,8 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 class MembershipId {
 
 	private ?int $id = null;
-	private int $membershipId;
 
-	public function __construct( int $membershipId = 0 ) {
-		$this->membershipId = $membershipId;
+	public function __construct( private readonly int $membershipId = 0 ) {
 	}
 
 	public function getId(): ?int {

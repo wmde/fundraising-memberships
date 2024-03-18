@@ -9,9 +9,6 @@ use Doctrine\ORM\Exception\ORMException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
-/**
- * @license GPL-2.0-or-later
- */
 class ThrowingEntityManager {
 
 	public static function newInstance( TestCase $testCase ): EntityManager {

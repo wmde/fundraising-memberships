@@ -15,7 +15,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
 class LegacyToDomainConverter {
 	public function createFromLegacyObject( DoctrineApplication $doctrineApplication ): MembershipApplication {
 		$application = new MembershipApplication(
-			$doctrineApplication->getId(),
+			is_int( $doctrineApplication->getId() ) ? $doctrineApplication->getId() : 0,
 			$doctrineApplication->getMembershipType(),
 			new Applicant(
 				$this->newPersonName( $doctrineApplication ),
@@ -55,12 +55,12 @@ class LegacyToDomainConverter {
 			$personName = ApplicantName::newPrivatePersonName();
 			$personName->setFirstName( $application->getApplicantFirstName() );
 			$personName->setLastName( $application->getApplicantLastName() );
-			$personName->setSalutation( $application->getApplicantSalutation() );
-			$personName->setTitle( $application->getApplicantTitle() );
+			$personName->setSalutation( is_string( $application->getApplicantSalutation() ) ? $application->getApplicantSalutation() : '' );
+			$personName->setTitle( is_string( $application->getApplicantTitle() ) ? $application->getApplicantTitle() : '' );
 		} else {
 			$personName = ApplicantName::newCompanyName();
 			$personName->setCompanyName( $application->getCompany() );
-			$personName->setSalutation( $application->getApplicantSalutation() );
+			$personName->setSalutation( is_string( $application->getApplicantSalutation() ) ? $application->getApplicantSalutation() : '' );
 		}
 
 		return $personName->freeze()->assertNoNullFields();
@@ -69,10 +69,10 @@ class LegacyToDomainConverter {
 	private function newAddress( DoctrineApplication $application ): ApplicantAddress {
 		$address = new ApplicantAddress();
 
-		$address->setCity( $application->getCity() );
+		$address->setCity( is_string( $application->getCity() ) ? $application->getCity() : '' );
 		$address->setCountryCode( $application->getCountry() );
-		$address->setPostalCode( $application->getPostcode() );
-		$address->setStreetAddress( $application->getAddress() );
+		$address->setPostalCode( is_string( $application->getPostcode() ) ? $application->getPostcode() : '' );
+		$address->setStreetAddress( is_string( $application->getAddress() ) ? $application->getAddress() : '' );
 
 		return $address->freeze()->assertNoNullFields();
 	}

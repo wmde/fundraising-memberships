@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Domain;
 
+use LogicException;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicantType;
 use WMDE\Fundraising\PaymentContext\Domain\DomainSpecificPaymentValidator;
@@ -62,8 +63,8 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 	 * @param PaymentType[] $allowedPaymentTypes
 	 */
 	public function __construct(
-		private ApplicantType $applicantType,
-		private array $allowedPaymentTypes
+		private readonly ApplicantType $applicantType,
+		private readonly array $allowedPaymentTypes
 	) {
 	}
 
@@ -92,7 +93,7 @@ class MembershipPaymentValidator implements DomainSpecificPaymentValidator {
 		if ( $this->paymentIntervalInMonths->value !== 0 ) {
 			return $this->membershipFee->getEuros() * self::MONTHS_PER_YEAR / $this->paymentIntervalInMonths->value;
 		}
-		throw new \LogicException( "Payment Interval should never be 0 here because it's not allowed for memberships." );
+		throw new LogicException( "Payment Interval should never be 0 here because it's not allowed for memberships." );
 	}
 
 	private function getYearlyPaymentRequirement(): float {

@@ -55,6 +55,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	public function testGivenMembershipApplication_authorizerChecksUpdateToken( string $updateToken, bool $expectedResult ): void {
 		$application = $this->givenMembershipApplication();
 		$authorizer = $this->newAuthorizer( $updateToken );
+		$this->assertNotNull( $application->getId() );
 		$this->assertSame( $expectedResult, $authorizer->canModifyMembership( $application->getId() ) );
 	}
 
@@ -72,6 +73,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	public function testGivenMembershipApplication_authorizerChecksAccessToken( string $accessToken, bool $expectedResult ): void {
 		$application = $this->givenMembershipApplication();
 		$authorizer = $this->newAuthorizer( '', $accessToken );
+		$this->assertNotNull( $application->getId() );
 		$this->assertSame( $expectedResult, $authorizer->canAccessMembership( $application->getId() ) );
 	}
 
@@ -87,6 +89,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		$application = $this->storeMembershipApplication();
 		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
 
+		$this->assertNotNull( $application->getId() );
 		$this->assertFalse( $authorizer->canModifyMembership( $application->getId() ) );
 	}
 
@@ -94,6 +97,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		$application = $this->storeMembershipApplication();
 		$authorizer = $this->newAuthorizer( 'SomeToken', self::EMPTY_TOKEN );
 
+		$this->assertNotNull( $application->getId() );
 		$this->assertFalse( $authorizer->canAccessMembership( $application->getId() ) );
 	}
 
@@ -101,6 +105,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		$application = $this->storeMembershipApplication();
 		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
 
+		$this->assertNotNull( $application->getId() );
 		$this->assertFalse( $authorizer->canModifyMembership( $application->getId() ) );
 	}
 
@@ -108,6 +113,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		$application = $this->storeMembershipApplication();
 		$authorizer = $this->newAuthorizer( self::EMPTY_TOKEN, 'SomeToken' );
 
+		$this->assertNotNull( $application->getId() );
 		$this->assertFalse( $authorizer->canAccessMembership( $application->getId() ) );
 	}
 

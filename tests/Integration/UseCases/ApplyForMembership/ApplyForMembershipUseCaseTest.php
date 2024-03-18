@@ -193,11 +193,13 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	public function testGivenValidRequest_moderationIsNotNeeded(): void {
 		$response = $this->makeUseCase()->applyForMembership( $this->newValidRequest() );
 
+		$this->assertNotNull( $response->getMembershipApplication() );
 		$this->assertFalse( $response->getMembershipApplication()->isMarkedForModeration() );
 	}
 
 	public function testGivenFailingPolicyValidator_moderationIsNeeded(): void {
 		$response = $this->makeUseCase( policyValidator: $this->getFailingPolicyValidatorMock() )->applyForMembership( $this->newValidRequest() );
+		$this->assertNotNull( $response->getMembershipApplication() );
 		$this->assertTrue( $response->getMembershipApplication()->isMarkedForModeration() );
 	}
 
@@ -225,7 +227,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 		$useCase->applyForMembership( $this->newValidRequest() );
 
-		$this->assertCount( 0, $mailerSpy->getSendMailCalls() );
+		$mailerSpy->assertWasNeverCalled();
 	}
 
 	public function testWhenUsingForbiddenEmailAddress_confirmationEmailIsNotSent(): void {
@@ -241,7 +243,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 		$useCase->applyForMembership( $this->newValidRequest() );
 
-		$this->assertCount( 0, $mailerSpy->getSendMailCalls() );
+		$mailerSpy->assertWasNeverCalled();
 	}
 
 	public function testGivenDonationReceiptOptOutRequest_applicationHoldsThisValue(): void {
@@ -251,6 +253,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$this->makeUseCase( repository: $repository )->applyForMembership( $request );
 
 		$application = $repository->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID );
+		$this->assertNotNull( $application );
 		$this->assertFalse( $application->getDonationReceipt() );
 	}
 

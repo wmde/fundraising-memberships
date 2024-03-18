@@ -24,12 +24,12 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationReques
 class ApplyForMembershipUseCase {
 
 	public function __construct(
-		private ApplicationRepository $repository,
-		private MembershipIdGenerator $idGenerator,
-		private MembershipAuthorizer $authorizer,
-		private MembershipNotifier $notifier,
-		private MembershipApplicationValidator $validator,
-		private ModerationService $policyValidator,
+		private readonly ApplicationRepository $repository,
+		private readonly MembershipIdGenerator $idGenerator,
+		private readonly MembershipAuthorizer $authorizer,
+		private readonly MembershipNotifier $notifier,
+		private readonly MembershipApplicationValidator $validator,
+		private readonly ModerationService $policyValidator,
 		/**
 		 * @var ApplicationTracker
 		 * @deprecated See https://phabricator.wikimedia.org/T197112

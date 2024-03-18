@@ -17,7 +17,7 @@ class ModerationReason {
 	 * @param string $source origin that caused the moderation (e.g. street value contained a bad word)
 	 */
 	public function __construct(
-		private ModerationIdentifier $moderationIdentifier,
+		private readonly ModerationIdentifier $moderationIdentifier,
 		private string $source = '' ) {
 	}
 

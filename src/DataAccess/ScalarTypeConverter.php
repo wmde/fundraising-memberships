@@ -3,6 +3,8 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
+use InvalidArgumentException;
+
 /**
  * This class converts "mixed" values from libraries like Doctrine or Symfony into scalar values, without tripping up
  * PHPStan, which disallows calling "strval" and "intval" on variables with "mixed" type, because calling them
@@ -28,6 +30,6 @@ class ScalarTypeConverter {
 		if ( is_scalar( $value ) ) {
 			return $value;
 		}
-		throw new \InvalidArgumentException( "Given value is not a scalar type" );
+		throw new InvalidArgumentException( "Given value is not a scalar type" );
 	}
 }

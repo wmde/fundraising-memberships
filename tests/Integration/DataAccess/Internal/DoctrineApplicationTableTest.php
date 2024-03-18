@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess\Internal;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Events;
 use Doctrine\ORM\Exception\ORMException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -113,6 +114,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		$this->makeEntityManagerThrowOnPersist();
 
 		$this->expectException( StoreMembershipApplicationException::class );
+		$this->assertNotNull( $application->getId() );
 		$table->modifyApplication(
 			$application->getId(),
 			static function ( MembershipApplication $application ) {
@@ -120,11 +122,11 @@ class DoctrineApplicationTableTest extends TestCase {
 		);
 	}
 
-	private function makeEntityManagerThrowOnPersist() {
+	private function makeEntityManagerThrowOnPersist(): void {
 		$this->entityManager->getEventManager()->addEventListener(
-			\Doctrine\ORM\Events::onFlush,
+			Events::onFlush,
 			new class() {
-				public function onFlush() {
+				public function onFlush(): void {
 					throw new class() extends RuntimeException implements ORMException {
 					};
 				}
@@ -137,6 +139,7 @@ class DoctrineApplicationTableTest extends TestCase {
 		$table = $this->getTable();
 		$table->persistApplication( $application );
 
+		$this->assertNotNull( $application->getId() );
 		$table->modifyApplication(
 			$application->getId(),
 			static function ( MembershipApplication $app ) {

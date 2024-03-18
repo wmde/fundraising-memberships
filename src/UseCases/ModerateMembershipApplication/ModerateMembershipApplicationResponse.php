@@ -7,11 +7,10 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ModerateMembershipApplicat
 use WMDE\Fundraising\MembershipContext\UseCases\SimpleResponse;
 
 class ModerateMembershipApplicationResponse implements SimpleResponse {
-	private int $membershipApplicationId;
+
 	private bool $success;
 
-	private function __construct( int $membershipApplicationId, bool $isSuccess ) {
-		$this->membershipApplicationId = $membershipApplicationId;
+	private function __construct( private readonly int $membershipApplicationId, bool $isSuccess ) {
 		$this->success = $isSuccess;
 	}
 

@@ -5,26 +5,24 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests;
 
 use Doctrine\ORM\EntityManager;
+use Exception;
 
+/**
+ * @phpstan-import-type Params from \Doctrine\DBAL\DriverManager
+ */
 class TestEnvironment {
 
 	private TestMembershipContextFactory $factory;
 
+	/**
+	 * @param Params $config
+	 */
 	private function __construct( array $config ) {
 		$this->factory = new TestMembershipContextFactory( $config );
 	}
 
 	public static function newInstance(): self {
-		$environment = new self(
-			[
-				'db' => [
-					'driver' => 'pdo_sqlite',
-					'memory' => true,
-				],
-				'token-length' => 16,
-				'token-validity-timestamp' => 'PT4H',
-			]
-		);
+		$environment = new self( [ 'driver' => 'pdo_sqlite', 'memory' => true, ] );
 
 		$environment->install();
 
@@ -36,7 +34,7 @@ class TestEnvironment {
 
 		try {
 			$schemaCreator->dropSchema();
-		} catch ( \Exception $ex ) {
+		} catch ( Exception $ex ) {
 		}
 
 		$schemaCreator->createSchema();

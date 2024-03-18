@@ -6,10 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 class Incentive {
 	private ?int $id;
 
-	private string $name;
-
-	public function __construct( string $name ) {
-		$this->name = $name;
+	public function __construct( private readonly string $name ) {
 		$this->id = null;
 	}
 

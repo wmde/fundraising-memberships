@@ -18,10 +18,8 @@ use WMDE\FunValidators\ValidationResult;
 use WMDE\FunValidators\Validators\EmailValidator;
 
 /**
+ * @covers \WMDE\FunValidators\ValidationResult
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult
- *
- * @license GPL-2.0-or-later
  */
 class MembershipApplicationValidatorTest extends TestCase {
 
@@ -50,6 +48,12 @@ class MembershipApplicationValidatorTest extends TestCase {
 		return ValidMembershipApplicationRequest::newValidRequest();
 	}
 
+	/**
+	 * @param ApplyForMembershipRequest $request
+	 * @param array<string, string> $expectedErrors
+	 *
+	 * @return void
+	 */
 	private function assertRequestValidationResultInErrors( ApplyForMembershipRequest $request, array $expectedErrors ): void {
 		$this->assertEquals(
 			new Result( $expectedErrors ),
@@ -80,6 +84,9 @@ class MembershipApplicationValidatorTest extends TestCase {
 		);
 	}
 
+	/**
+	 * @return array<string, array<string>>
+	 */
 	public static function invalidPhoneNumberProvider(): array {
 		return [
 			'potato' => [ 'potato' ],
@@ -104,6 +111,9 @@ class MembershipApplicationValidatorTest extends TestCase {
 		);
 	}
 
+	/**
+	 * @return array<array<int, string>>
+	 */
 	public static function emailViolationTypeProvider(): array {
 		return [
 			[ 'email_address_wrong_format' ],

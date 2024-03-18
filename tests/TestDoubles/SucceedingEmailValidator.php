@@ -8,9 +8,6 @@ use WMDE\FunValidators\DomainNameValidator;
 use WMDE\FunValidators\ValidationResult;
 use WMDE\FunValidators\Validators\EmailValidator;
 
-/**
- * @license GPL-2.0-or-later
- */
 class SucceedingEmailValidator extends EmailValidator {
 
 	public function __construct() {

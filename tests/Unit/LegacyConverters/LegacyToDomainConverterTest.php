@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\LegacyConverters;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
@@ -122,7 +123,7 @@ class LegacyToDomainConverterTest extends TestCase {
 
 	public function testGivenExportedDoctrineApplication_setsExportedInDomain(): void {
 		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
-		$doctrineApplication->setExport( new \DateTime() );
+		$doctrineApplication->setExport( new DateTime() );
 
 		$converter = new LegacyToDomainConverter();
 		$application = $converter->createFromLegacyObject( $doctrineApplication );

@@ -7,9 +7,6 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Repositories;
 use RuntimeException;
 use Throwable;
 
-/**
- * @license GPL-2.0-or-later
- */
 class StoreMembershipApplicationException extends RuntimeException {
 
 	public function __construct( string $message = null, Throwable $previous = null ) {

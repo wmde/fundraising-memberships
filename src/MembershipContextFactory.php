@@ -15,6 +15,9 @@ class MembershipContextFactory {
 	public const DOCTRINE_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DoctrineClassMapping/';
 	public const DOMAIN_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DomainClassMapping/';
 
+	/**
+	 * @return string[]
+	 */
 	public function getDoctrineMappingPaths(): array {
 		return [
 			self::DOCTRINE_CLASS_MAPPING_DIRECTORY,

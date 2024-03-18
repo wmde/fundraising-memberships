@@ -8,11 +8,9 @@ use WMDE\Fundraising\MembershipContext\UseCases\SimpleResponse;
 
 class RestoreMembershipApplicationResponse implements SimpleResponse {
 
-	private int $membershipApplicationId;
 	private bool $success;
 
-	private function __construct( int $membershipApplicationId, bool $isSuccess ) {
-		$this->membershipApplicationId = $membershipApplicationId;
+	private function __construct( private readonly int $membershipApplicationId, bool $isSuccess ) {
 		$this->success = $isSuccess;
 	}
 

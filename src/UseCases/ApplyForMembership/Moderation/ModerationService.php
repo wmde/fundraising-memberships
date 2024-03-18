@@ -24,16 +24,16 @@ class ModerationService {
 	private const YEARLY_PAYMENT_MODERATION_THRESHOLD_IN_EURO = 1000;
 	private const MONTHS_PER_YEAR = 12;
 
-	private TextPolicyValidator $textPolicyValidator;
-	/**
-	 * @var string[]
-	 */
-	private array $emailAddressBlocklist;
 	private ModerationResult $result;
 
-	public function __construct( TextPolicyValidator $textPolicyValidator, array $emailAddressBlocklist = [] ) {
-		$this->textPolicyValidator = $textPolicyValidator;
-		$this->emailAddressBlocklist = $emailAddressBlocklist;
+	/**
+	 * @param TextPolicyValidator $textPolicyValidator
+	 * @param string[] $emailAddressBlocklist
+	 */
+	public function __construct(
+		private readonly TextPolicyValidator $textPolicyValidator,
+		private readonly array $emailAddressBlocklist = []
+	) {
 	}
 
 	public function moderateMembershipApplicationRequest( MembershipApplication $application, int $amountInCents, int $interval ): ModerationResult {

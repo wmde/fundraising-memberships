@@ -6,9 +6,6 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Repositories;
 
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 
-/**
- * @license GPL-2.0-or-later
- */
 interface ApplicationRepository {
 
 	/**

@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\Domain\Model;
 
+use DateTime;
+use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
@@ -13,7 +15,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\PhoneNumber;
 /**
  * @covers \WMDE\Fundraising\MembershipContext\Domain\Model\Applicant
  */
-class ApplicantTest extends \PHPUnit\Framework\TestCase {
+class ApplicantTest extends TestCase {
 
 	public function testWhenApplicantIsPrivatePerson_personTypeIsReturned(): void {
 		$applicant = new Applicant(
@@ -21,7 +23,7 @@ class ApplicantTest extends \PHPUnit\Framework\TestCase {
 			new ApplicantAddress(),
 			new EmailAddress( 'test@wikimedia.de' ),
 			new PhoneNumber( '01234567890' ),
-			new \DateTime()
+			new DateTime()
 		);
 		$this->assertTrue( $applicant->isPrivatePerson() );
 		$this->assertFalse( $applicant->isCompany() );
@@ -33,7 +35,7 @@ class ApplicantTest extends \PHPUnit\Framework\TestCase {
 			new ApplicantAddress(),
 			new EmailAddress( 'test@wikimedia.de' ),
 			new PhoneNumber( '01234567890' ),
-			new \DateTime()
+			new DateTime()
 		);
 		$this->assertTrue( $applicant->isCompany() );
 		$this->assertFalse( $applicant->isPrivatePerson() );

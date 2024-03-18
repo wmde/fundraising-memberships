@@ -22,10 +22,7 @@ class MembershipApplication {
 	private ?int $id = null;
 
 	/**
-	 * FIXME: this should not be nullable
-	 *
-	 * @var int
-	 *
+	 * TODO: this should not be nullable
 	 */
 	private int $status = 0;
 
@@ -89,9 +86,7 @@ class MembershipApplication {
 	private int $paymentAmountInEuro = 0;
 
 	/**
-	 * FIXME: this should not be nullable
-	 *
-	 * @var int
+	 * TODO: this should not be nullable
 	 * @deprecated
 	 */
 	private int $paymentIntervalInMonths = 12;
@@ -142,10 +137,16 @@ class MembershipApplication {
 
 	private ?bool $donationReceipt = null;
 
+	/**
+	 * @var Collection<int, Incentive>|ArrayCollection<int, Incentive>
+	 */
 	private Collection|ArrayCollection $incentives;
 
 	private int $paymentId;
 
+	/**
+	 * @var Collection<array-key, ModerationReason>
+	 */
 	private Collection $moderationReasons;
 
 	public function __construct() {
@@ -198,7 +199,7 @@ class MembershipApplication {
 		return $this;
 	}
 
-	public function getApplicantTitle(): string {
+	public function getApplicantTitle(): ?string {
 		return $this->applicantTitle;
 	}
 
@@ -275,10 +276,6 @@ class MembershipApplication {
 
 	/**
 	 * Set email
-	 *
-	 * @param string $applicantEmailAddress
-	 *
-	 * @return self
 	 */
 	public function setApplicantEmailAddress( string $applicantEmailAddress ): self {
 		$this->applicantEmailAddress = $applicantEmailAddress;
@@ -288,8 +285,6 @@ class MembershipApplication {
 
 	/**
 	 * Get email
-	 *
-	 * @return string
 	 */
 	public function getApplicantEmailAddress(): string {
 		return $this->applicantEmailAddress;
@@ -297,10 +292,6 @@ class MembershipApplication {
 
 	/**
 	 * Set phone
-	 *
-	 * @param string $applicantPhoneNumber
-	 *
-	 * @return self
 	 */
 	public function setApplicantPhoneNumber( string $applicantPhoneNumber ): self {
 		$this->applicantPhoneNumber = $applicantPhoneNumber;
@@ -310,8 +301,6 @@ class MembershipApplication {
 
 	/**
 	 * Get phone
-	 *
-	 * @return string
 	 */
 	public function getApplicantPhoneNumber(): string {
 		return $this->applicantPhoneNumber;
@@ -327,11 +316,6 @@ class MembershipApplication {
 		return $this->applicantDateOfBirth;
 	}
 
-	/**
-	 * @param string $wikimediumShipping
-	 *
-	 * @return $this
-	 */
 	public function setWikimediumShipping( string $wikimediumShipping ): self {
 		$this->wikimediumShipping = $wikimediumShipping;
 
@@ -339,7 +323,6 @@ class MembershipApplication {
 	}
 
 	/**
-	 * @return string
 	 * @deprecated
 	 */
 	public function getWikimediumShipping(): string {
@@ -496,10 +479,6 @@ class MembershipApplication {
 
 	/**
 	 * Sets the time of export.
-	 *
-	 * @param DateTime|null $export
-	 *
-	 * @return self
 	 */
 	public function setExport( ?DateTime $export ): self {
 		$this->export = $export;
@@ -509,8 +488,6 @@ class MembershipApplication {
 
 	/**
 	 * Returns the time of export.
-	 *
-	 * @return DateTime|null
 	 */
 	public function getExport(): ?DateTime {
 		return $this->export;
@@ -518,10 +495,6 @@ class MembershipApplication {
 
 	/**
 	 * Sets the time of backup.
-	 *
-	 * @param DateTime|null $backup
-	 *
-	 * @return self
 	 */
 	public function setBackup( ?DateTime $backup ): self {
 		$this->backup = $backup;
@@ -531,8 +504,6 @@ class MembershipApplication {
 
 	/**
 	 * Returns the time of backup.
-	 *
-	 * @return DateTime|null
 	 */
 	public function getBackup(): ?DateTime {
 		return $this->backup;
@@ -561,10 +532,6 @@ class MembershipApplication {
 	/**
 	 * Sets the status of the membership request.
 	 * The allowed values are the STATUS_ constants in this class.
-	 *
-	 * @param int $status
-	 *
-	 * @return self
 	 */
 	public function setStatus( int $status ): self {
 		$this->status = $status;
@@ -575,8 +542,6 @@ class MembershipApplication {
 	/**
 	 * Returns the status of the membership request.
 	 * The possible values are the STATUS_ constants in this class.
-	 *
-	 * @return int
 	 */
 	public function getStatus(): int {
 		return $this->status;
@@ -630,6 +595,9 @@ class MembershipApplication {
 
 	public function log( string $message ): self {
 		$dataArray = $this->getDecodedData();
+		if ( !is_array( $dataArray['log'] ) ) {
+			$dataArray['log'] = [];
+		}
 		$dataArray['log'][date( 'Y-m-d H:i:s' )] = $message;
 		$this->encodeAndSetData( $dataArray );
 
@@ -639,7 +607,7 @@ class MembershipApplication {
 	/**
 	 * NOTE: if possible, use @see getDataObject instead, as it provides a nicer API.
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
 	public function getDecodedData(): array {
 		if ( $this->data === null ) {
@@ -654,9 +622,9 @@ class MembershipApplication {
 	/**
 	 * NOTE: if possible, use @see modifyDataObject instead, as it provides a nicer API.
 	 *
-	 * @param array $dataArray
+	 * @param array<string, mixed> $dataArray
 	 */
-	public function encodeAndSetData( array $dataArray ) {
+	public function encodeAndSetData( array $dataArray ): void {
 		$this->data = base64_encode( serialize( $dataArray ) );
 	}
 
@@ -664,17 +632,15 @@ class MembershipApplication {
 	 * WARNING: updates made to the return value will not be reflected in the Donation state.
 	 * Similarly, updates to the Donation state will not propagate to the returned object.
 	 * To update the Donation state, explicitly call @see setDataObject.
-	 *
-	 * @return MembershipApplicationData
 	 */
 	public function getDataObject(): MembershipApplicationData {
 		$dataArray = $this->getDecodedData();
 
 		$data = new MembershipApplicationData();
 
-		$data->setAccessToken( array_key_exists( 'token', $dataArray ) ? $dataArray['token'] : null );
-		$data->setUpdateToken( array_key_exists( 'utoken', $dataArray ) ? $dataArray['utoken'] : null );
-		$data->setPreservedStatus( array_key_exists( 'old_status', $dataArray ) ? $dataArray['old_status'] : null );
+		$data->setAccessToken( array_key_exists( 'token', $dataArray ) && is_string( $dataArray['token'] ) ? $dataArray['token'] : null );
+		$data->setUpdateToken( array_key_exists( 'utoken', $dataArray ) && is_string( $dataArray['utoken'] ) ? $dataArray['utoken'] : null );
+		$data->setPreservedStatus( array_key_exists( 'old_status', $dataArray ) && is_int( $dataArray['old_status'] ) ? $dataArray['old_status'] : null );
 
 		return $data;
 	}
@@ -701,7 +667,7 @@ class MembershipApplication {
 	/**
 	 * @param callable $modificationFunction Takes a modifiable MembershipApplicationData parameter
 	 */
-	public function modifyDataObject( callable $modificationFunction ) {
+	public function modifyDataObject( callable $modificationFunction ): void {
 		$dataObject = $this->getDataObject();
 		$modificationFunction( $dataObject );
 		$this->setDataObject( $dataObject );
@@ -709,9 +675,6 @@ class MembershipApplication {
 
 	/**
 	 * Set donation receipt state
-	 *
-	 * @param bool|null $donationReceipt
-	 * @return self
 	 */
 	public function setDonationReceipt( ?bool $donationReceipt ): self {
 		$this->donationReceipt = $donationReceipt;
@@ -721,20 +684,20 @@ class MembershipApplication {
 
 	/**
 	 * Get donation receipt state
-	 *
-	 * @return bool|null
 	 */
 	public function getDonationReceipt(): ?bool {
 		return $this->donationReceipt;
 	}
 
+	/**
+	 * @return Collection<int, Incentive>
+	 */
 	public function getIncentives(): Collection {
 		return $this->incentives;
 	}
 
 	/**
-	 * @param Collection<Incentive> $incentives
-	 * @return self
+	 * @param Collection<int,Incentive> $incentives
 	 */
 	public function setIncentives( Collection $incentives ): self {
 		$this->incentives = $incentives;
@@ -749,10 +712,16 @@ class MembershipApplication {
 		$this->paymentId = $paymentId;
 	}
 
+	/**
+	 * @param ModerationReason ...$moderationReasons
+	 */
 	public function setModerationReasons( ModerationReason ...$moderationReasons ): void {
 		$this->moderationReasons = new ArrayCollection( $moderationReasons );
 	}
 
+	/**
+	 * @return Collection<array-key, ModerationReason>
+	 */
 	public function getModerationReasons(): Collection {
 		return $this->moderationReasons;
 	}

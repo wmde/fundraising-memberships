@@ -10,15 +10,9 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 class TestIncentiveFinder implements IncentiveFinder {
 
 	/**
-	 * @var Incentive[]
-	 */
-	private array $incentives;
-
-	/**
 	 * @param Incentive[] $incentives
 	 */
-	public function __construct( array $incentives ) {
-		$this->incentives = $incentives;
+	public function __construct( private readonly array $incentives ) {
 	}
 
 	public function findIncentiveByName( string $name ): ?Incentive {

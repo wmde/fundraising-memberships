@@ -59,10 +59,8 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 	public function testHappyPath_successResponseWithApplicationIsReturned(): void {
 		$this->invokeUseCaseWithCorrectRequestModel();
 
-		$this->assertSame(
-			self::APPLICATION_ID,
-			$this->presenter->getShownApplication()->getId()
-		);
+		$this->assertNotNull( $this->presenter->getShownApplication() );
+		$this->assertSame( self::APPLICATION_ID, $this->presenter->getShownApplication()->getId() );
 
 		$this->assertSame(
 			self::PAYMENT_DATA,

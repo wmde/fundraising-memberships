@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\Domain\Model;
 
+use LogicException;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
@@ -12,8 +13,6 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication
- *
- * @license GPL-2.0-or-later
  */
 class MembershipApplicationTest extends TestCase {
 
@@ -76,7 +75,7 @@ class MembershipApplicationTest extends TestCase {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->cancel();
 
-		$this->expectException( \LogicException::class );
+		$this->expectException( LogicException::class );
 		$application->cancel();
 	}
 
@@ -84,13 +83,13 @@ class MembershipApplicationTest extends TestCase {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->setExported();
 
-		$this->expectException( \LogicException::class );
+		$this->expectException( LogicException::class );
 		$application->cancel();
 	}
 
 	public function testMarkForModerationNeedsAtLeastOneModerationReason(): void {
 		$application = ValidMembershipApplication::newCompanyApplication();
-		$this->expectException( \LogicException::class );
+		$this->expectException( LogicException::class );
 		$application->markForModeration();
 	}
 

@@ -30,7 +30,7 @@ class MailMembershipApplicationNotifier implements MembershipNotifier {
 		);
 	}
 
-	private function getTemplateArguments( MembershipApplication $application ): array {
+	private function getTemplateArguments( MembershipApplication $application ): ApplyForMembershipTemplateArguments {
 		$paymentValues = $this->paymentRetriever->getPaymentDataArray( $application->getPaymentId() );
 
 		$incentives = [];
@@ -38,21 +38,21 @@ class MailMembershipApplicationNotifier implements MembershipNotifier {
 		foreach ( $application->getIncentives() as $incentive ) {
 			$incentives[] = $incentive->getName();
 		}
-		return [
-			'id' => $application->getId(),
-			'membershipType' => $application->getType(),
-			'membershipFee' => Euro::newFromCents( $paymentValues['amount'] )->getEuroString(),
-			'membershipFeeInCents' => $paymentValues['amount'],
-			'paymentIntervalInMonths' => $paymentValues['interval'],
-			'paymentType' => $paymentValues['paymentType'],
-			'salutation' => $application->getApplicant()->getName()->getSalutation(),
-			'title' => $application->getApplicant()->getName()->getTitle(),
-			'lastName' => $application->getApplicant()->getName()->getLastName(),
-			'firstName' => $application->getApplicant()->getName()->getFirstName(),
-			'hasReceiptEnabled' => $application->getDonationReceipt(),
-			'incentives' => $incentives,
-			'moderationFlags' => $this->getModerationFlags( ...$application->getModerationReasons() ),
-		];
+		return new ApplyForMembershipTemplateArguments(
+			id: $application->getId(),
+			membershipType: $application->getType(),
+			membershipFee: Euro::newFromCents( intval( $paymentValues['amount'] ) )->getEuroString(),
+			membershipFeeInCents: intval( $paymentValues['amount'] ),
+			paymentIntervalInMonths: intval( $paymentValues['interval'] ),
+			paymentType: strval( $paymentValues['paymentType'] ),
+			salutation: $application->getApplicant()->getName()->getSalutation(),
+			title: $application->getApplicant()->getName()->getTitle(),
+			lastName: $application->getApplicant()->getName()->getLastName(),
+			firstName: $application->getApplicant()->getName()->getFirstName(),
+			hasReceiptEnabled: $application->getDonationReceipt() ?? false,
+			incentives: $incentives,
+			moderationFlags: $this->getModerationFlags( ...$application->getModerationReasons() ),
+		);
 	}
 
 	/**
@@ -74,7 +74,7 @@ class MailMembershipApplicationNotifier implements MembershipNotifier {
 			$application->getModerationReasons(),
 			fn ( $moderationReason ) => $moderationReason->getModerationIdentifier() === ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH
 		);
-		if ( \count( $importantReasons ) === 0 ) {
+		if ( count( $importantReasons ) === 0 ) {
 			return;
 		}
 		$this->adminMailer->sendMail(

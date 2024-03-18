@@ -11,19 +11,17 @@ use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData
- *
- * @license GPL-2.0-or-later
  */
 class MembershipApplicationTest extends TestCase {
 
-	public function testWhenSettingIdToAnInteger_getIdReturnsIt() {
+	public function testWhenSettingIdToAnInteger_getIdReturnsIt(): void {
 		$application = new MembershipApplication();
 		$application->setId( 1337 );
 
 		$this->assertSame( 1337, $application->getId() );
 	}
 
-	public function testWhenSettingIdToNull_getIdReturnsNull() {
+	public function testWhenSettingIdToNull_getIdReturnsNull(): void {
 		$application = new MembershipApplication();
 		$application->setId( 1337 );
 		$application->setId( null );
@@ -31,13 +29,13 @@ class MembershipApplicationTest extends TestCase {
 		$this->assertNull( $application->getId() );
 	}
 
-	public function testWhenIdIsNotSet_getIdReturnsNull() {
+	public function testWhenIdIsNotSet_getIdReturnsNull(): void {
 		$application = new MembershipApplication();
 
 		$this->assertNull( $application->getId() );
 	}
 
-	public function testGivenNoData_getDataObjectReturnsObjectWithNullValues() {
+	public function testGivenNoData_getDataObjectReturnsObjectWithNullValues(): void {
 		$application = new MembershipApplication();
 
 		$this->assertNull( $application->getDataObject()->getAccessToken() );
@@ -45,7 +43,7 @@ class MembershipApplicationTest extends TestCase {
 		$this->assertNull( $application->getDataObject()->getPreservedStatus() );
 	}
 
-	public function testWhenProvidingData_setDataObjectSetsData() {
+	public function testWhenProvidingData_setDataObjectSetsData(): void {
 		$data = new MembershipApplicationData();
 		$data->setAccessToken( 'foo' );
 		$data->setUpdateToken( 'bar' );
@@ -64,7 +62,7 @@ class MembershipApplicationTest extends TestCase {
 		);
 	}
 
-	public function testWhenProvidingNullData_setObjectDoesNotSetFields() {
+	public function testWhenProvidingNullData_setObjectDoesNotSetFields(): void {
 		$application = new MembershipApplication();
 		$application->setDataObject( new MembershipApplicationData() );
 
@@ -74,7 +72,7 @@ class MembershipApplicationTest extends TestCase {
 		);
 	}
 
-	public function testWhenDataAlreadyExists_setDataObjectRetainsAndUpdatesData() {
+	public function testWhenDataAlreadyExists_setDataObjectRetainsAndUpdatesData(): void {
 		$application = new MembershipApplication();
 		$application->encodeAndSetData( [
 			'nyan' => 'cat',
@@ -99,7 +97,7 @@ class MembershipApplicationTest extends TestCase {
 		);
 	}
 
-	public function testWhenModifyingTheDataObject_modificationsAreReflected() {
+	public function testWhenModifyingTheDataObject_modificationsAreReflected(): void {
 		$application = new MembershipApplication();
 		$application->encodeAndSetData( [
 			'nyan' => 'cat',
@@ -123,27 +121,27 @@ class MembershipApplicationTest extends TestCase {
 		);
 	}
 
-	public function testStatusConstantsExist() {
+	public function testStatusConstantsExist(): void {
 		$this->assertNotNull( MembershipApplication::STATUS_MODERATION );
 		$this->assertNotNull( MembershipApplication::STATUS_CANCELED );
 		$this->assertNotNull( MembershipApplication::STATUS_CONFIRMED );
 		$this->assertNotNull( MembershipApplication::STATUS_NEUTRAL );
 	}
 
-	public function testGivenModerationStatus_needsModerationReturnsTrue() {
+	public function testGivenModerationStatus_needsModerationReturnsTrue(): void {
 		$application = new MembershipApplication();
 		$application->setStatus( MembershipApplication::STATUS_MODERATION );
 
 		$this->assertTrue( $application->needsModeration() );
 	}
 
-	public function testGivenDefaultStatus_needsModerationReturnsFalse() {
+	public function testGivenDefaultStatus_needsModerationReturnsFalse(): void {
 		$application = new MembershipApplication();
 
 		$this->assertFalse( $application->needsModeration() );
 	}
 
-	public function testGivenModerationAndCancelledStatus_needsModerationReturnsTrue() {
+	public function testGivenModerationAndCancelledStatus_needsModerationReturnsTrue(): void {
 		$application = new MembershipApplication();
 		$application->setStatus(
 			MembershipApplication::STATUS_MODERATION + MembershipApplication::STATUS_CANCELED
@@ -152,20 +150,20 @@ class MembershipApplicationTest extends TestCase {
 		$this->assertTrue( $application->needsModeration() );
 	}
 
-	public function testGivenCancelledStatus_isCancelledReturnsTrue() {
+	public function testGivenCancelledStatus_isCancelledReturnsTrue(): void {
 		$application = new MembershipApplication();
 		$application->setStatus( MembershipApplication::STATUS_CANCELED );
 
 		$this->assertTrue( $application->isCancelled() );
 	}
 
-	public function testGivenDefaultStatus_isCancelledReturnsFalse() {
+	public function testGivenDefaultStatus_isCancelledReturnsFalse(): void {
 		$application = new MembershipApplication();
 
 		$this->assertFalse( $application->isCancelled() );
 	}
 
-	public function testGivenModerationAndCancelledStatus_isCancelledReturnsTrue() {
+	public function testGivenModerationAndCancelledStatus_isCancelledReturnsTrue(): void {
 		$application = new MembershipApplication();
 		$application->setStatus(
 			MembershipApplication::STATUS_MODERATION + MembershipApplication::STATUS_CANCELED
@@ -174,7 +172,7 @@ class MembershipApplicationTest extends TestCase {
 		$this->assertTrue( $application->isCancelled() );
 	}
 
-	public function testGivenDefaultStatus_isDeletedReturnsFalse() {
+	public function testGivenDefaultStatus_isDeletedReturnsFalse(): void {
 		$application = new MembershipApplication();
 
 		$this->assertFalse( $application->isCancelled() );
