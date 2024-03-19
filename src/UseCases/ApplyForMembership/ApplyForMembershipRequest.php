@@ -9,6 +9,26 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentParameters;
 
 class ApplyForMembershipRequest {
 
+	/**
+	 * @param string $membershipType
+	 * @param bool $applicantIsCompany
+	 * @param string $applicantStreetAddress
+	 * @param string $applicantPostalCode
+	 * @param string $applicantCity
+	 * @param string $applicantCountryCode
+	 * @param string $applicantEmailAddress
+	 * @param PaymentParameters $paymentParameters
+	 * @param MembershipApplicationTrackingInfo $trackingInfo
+	 * @param string $applicantCompanyName
+	 * @param string $applicantSalutation
+	 * @param string $applicantTitle
+	 * @param string $applicantFirstName
+	 * @param string $applicantLastName
+	 * @param string $applicantDateOfBirth
+	 * @param string $applicantPhoneNumber
+	 * @param bool $optsIntoDonationReceipt
+	 * @param array<string> $incentives
+	 */
 	private function __construct(
 		public readonly string $membershipType,
 		public readonly bool $applicantIsCompany,
@@ -31,6 +51,26 @@ class ApplyForMembershipRequest {
 	) {
 	}
 
+	/**
+	 * @param string $membershipType
+	 * @param string $applicantSalutation
+	 * @param string $applicantTitle
+	 * @param string $applicantFirstName
+	 * @param string $applicantLastName
+	 * @param string $applicantStreetAddress
+	 * @param string $applicantPostalCode
+	 * @param string $applicantCity
+	 * @param string $applicantCountryCode
+	 * @param string $applicantEmailAddress
+	 * @param bool $optsIntoDonationReceipt
+	 * @param array<string> $incentives
+	 * @param PaymentParameters $paymentParameters
+	 * @param MembershipApplicationTrackingInfo $trackingInfo
+	 * @param string $applicantDateOfBirth
+	 * @param string $applicantPhoneNumber
+	 *
+	 * @return ApplyForMembershipRequest
+	 */
 	public static function newPrivateApplyForMembershipRequest(
 		string $membershipType,
 		string $applicantSalutation,
@@ -70,6 +110,22 @@ class ApplyForMembershipRequest {
 		);
 	}
 
+	/**
+	 * @param string $membershipType
+	 * @param string $applicantCompanyName
+	 * @param string $applicantStreetAddress
+	 * @param string $applicantPostalCode
+	 * @param string $applicantCity
+	 * @param string $applicantCountryCode
+	 * @param string $applicantEmailAddress
+	 * @param bool $optsIntoDonationReceipt
+	 * @param array<string> $incentives
+	 * @param PaymentParameters $paymentParameters
+	 * @param MembershipApplicationTrackingInfo $trackingInfo
+	 * @param string $applicantPhoneNumber
+	 *
+	 * @return ApplyForMembershipRequest
+	 */
 	public static function newCompanyApplyForMembershipRequest(
 		string $membershipType,
 		string $applicantCompanyName,

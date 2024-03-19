@@ -108,7 +108,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		$this->assertFalse( $response->isSuccessful() );
 	}
 
-	private function newValidRequest( $optsIntoDonationReceipt = true ): ApplyForMembershipRequest {
+	private function newValidRequest( bool $optsIntoDonationReceipt = true ): ApplyForMembershipRequest {
 		return ApplyForMembershipRequest::newPrivateApplyForMembershipRequest(
 			membershipType: ValidMembershipApplication::MEMBERSHIP_TYPE,
 			applicantSalutation: ValidMembershipApplication::APPLICANT_SALUTATION,

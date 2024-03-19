@@ -45,19 +45,19 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	private function newPrivateRequest(
-		$membershipType = ValidMembershipApplication::MEMBERSHIP_TYPE,
-		$applicantSalutation = ValidMembershipApplication::APPLICANT_SALUTATION,
-		$applicantTitle = ValidMembershipApplication::APPLICANT_TITLE,
-		$applicantFirstName = ValidMembershipApplication::APPLICANT_FIRST_NAME,
-		$applicantLastName = ValidMembershipApplication::APPLICANT_LAST_NAME,
-		$applicantStreetAddress = ValidMembershipApplication::APPLICANT_STREET_ADDRESS,
-		$applicantPostalCode = ValidMembershipApplication::APPLICANT_POSTAL_CODE,
-		$applicantCity = ValidMembershipApplication::APPLICANT_CITY,
-		$applicantCountryCode = ValidMembershipApplication::APPLICANT_COUNTRY_CODE,
-		$applicantEmailAddress = ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS,
-		$applicantPhoneNumber = ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
-		$paymentParameters = null,
-		$applicantDateOfBirth = ValidMembershipApplication::APPLICANT_DATE_OF_BIRTH,
+		string $membershipType = ValidMembershipApplication::MEMBERSHIP_TYPE,
+		string $applicantSalutation = ValidMembershipApplication::APPLICANT_SALUTATION,
+		string $applicantTitle = ValidMembershipApplication::APPLICANT_TITLE,
+		string $applicantFirstName = ValidMembershipApplication::APPLICANT_FIRST_NAME,
+		string $applicantLastName = ValidMembershipApplication::APPLICANT_LAST_NAME,
+		string $applicantStreetAddress = ValidMembershipApplication::APPLICANT_STREET_ADDRESS,
+		string $applicantPostalCode = ValidMembershipApplication::APPLICANT_POSTAL_CODE,
+		string $applicantCity = ValidMembershipApplication::APPLICANT_CITY,
+		string $applicantCountryCode = ValidMembershipApplication::APPLICANT_COUNTRY_CODE,
+		string $applicantEmailAddress = ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS,
+		string $applicantPhoneNumber = ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
+		?PaymentParameters $paymentParameters = null,
+		string $applicantDateOfBirth = ValidMembershipApplication::APPLICANT_DATE_OF_BIRTH,
 	): ApplyForMembershipRequest {
 		return ApplyForMembershipRequest::newPrivateApplyForMembershipRequest(
 			membershipType: $membershipType,
@@ -79,7 +79,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 		);
 	}
 
-	private function newCompanyRequest( $applicantCompanyName = 'ACME' ): ApplyForMembershipRequest {
+	private function newCompanyRequest( string $applicantCompanyName = 'ACME' ): ApplyForMembershipRequest {
 		return ApplyForMembershipRequest::newCompanyApplyForMembershipRequest(
 			membershipType: ValidMembershipApplication::MEMBERSHIP_TYPE,
 			applicantCompanyName: $applicantCompanyName,
