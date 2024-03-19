@@ -13,8 +13,7 @@
 		"wmde/fundraising-payments": "~7.0",
 		"wmde/euro": "~1.0",
 		"wmde/email-address": "~1.0",
-		"wmde/fun-validators": "~4.0",
-		"wmde/freezable-value-object": "~2.0"
+		"wmde/fun-validators": "~4.0"
 	},
 	"repositories": [
 		{

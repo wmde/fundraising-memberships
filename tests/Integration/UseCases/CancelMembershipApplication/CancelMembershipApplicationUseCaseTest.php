@@ -139,7 +139,7 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 	}
 
 	/**
-	 * @return array{FakeApplicationRepository,MembershipApplication}
+	 * @return array{0:FakeApplicationRepository,1:MembershipApplication}
 	 */
 	private function givenStoredCancelableApplication(): array {
 		$repository = new FakeApplicationRepository();

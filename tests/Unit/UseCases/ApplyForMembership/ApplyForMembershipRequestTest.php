@@ -4,6 +4,7 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
 use PHPUnit\Framework\TestCase;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 
@@ -11,82 +12,103 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembe
  * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest
  */
 class ApplyForMembershipRequestTest extends TestCase {
-	public function testApplicantAccessors(): void {
-		$request = new ApplyForMembershipRequest();
-		$request->setApplicantSalutation( 'Herr' );
-		$request->setApplicantTitle( 'Dr.' );
-		$request->setApplicantFirstName( 'Bruce' );
-		$request->setApplicantLastName( 'Wayne' );
-		$request->setApplicantCompanyName( 'Wayne Enterprises' );
-		$request->setApplicantPostalCode( '66484' );
-		$request->setApplicantStreetAddress( 'Fledergasse 9' );
-		$request->setApplicantCity( 'Battweiler' );
-		$request->setApplicantCountryCode( 'ZZ' );
-		$request->setApplicantEmailAddress( 'bw@waynecorp.biz' );
-		$request->setApplicantPhoneNumber( '+16060842' );
-		$request->setApplicantDateOfBirth( '1978-04-17' );
-		$request->setOptsIntoDonationReceipt( true );
-		$request->setIncentives( [ 'bat-infos' ] );
-		$companyRequest = new ApplyForMembershipRequest();
-		$companyRequest->markApplicantAsCompany();
 
-		$this->assertSame( 'Herr', $request->getApplicantSalutation() );
-		$this->assertSame( 'Dr.', $request->getApplicantTitle() );
-		$this->assertSame( 'Bruce', $request->getApplicantFirstName() );
-		$this->assertSame( 'Wayne', $request->getApplicantLastName() );
-		$this->assertSame( 'Wayne Enterprises', $request->getApplicantCompanyName() );
-		$this->assertSame( 'Fledergasse 9', $request->getApplicantStreetAddress() );
-		$this->assertSame( '66484', $request->getApplicantPostalCode() );
-		$this->assertSame( 'Battweiler', $request->getApplicantCity() );
-		$this->assertSame( 'ZZ', $request->getApplicantCountryCode() );
-		$this->assertSame( 'bw@waynecorp.biz', $request->getApplicantEmailAddress() );
-		$this->assertSame( '+16060842', $request->getApplicantPhoneNumber() );
-		$this->assertSame( '1978-04-17', $request->getApplicantDateOfBirth() );
-		$this->assertTrue( $request->getOptsIntoDonationReceipt() );
-		$this->assertEquals( [ 'bat-infos' ], $request->getIncentives() );
+	public function testRequestIsMarkedAsPrivate(): void {
+		$request = ApplyForMembershipRequest::newPrivateApplyForMembershipRequest(
+			membershipType: '',
+			applicantSalutation: 'Herr',
+			applicantTitle: 'Dr.',
+			applicantFirstName: 'Bruce',
+			applicantLastName: 'Wayne',
+			applicantStreetAddress: 'Fledergasse 9',
+			applicantPostalCode: '66484',
+			applicantCity: 'Battweiler',
+			applicantCountryCode: 'ZZ',
+			applicantEmailAddress: 'bw@waynecorp.biz',
+			optsIntoDonationReceipt: true,
+			incentives: [],
+			paymentParameters: ValidMembershipApplication::newPaymentParameters(),
+			trackingInfo: new MembershipApplicationTrackingInfo( 'test_campaign', 'test_keyword' ),
+			applicantDateOfBirth: ' 1978-04-17',
+			applicantPhoneNumber: ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
+		);
+
 		$this->assertFalse( $request->isCompanyApplication() );
-		$this->assertTrue( $companyRequest->isCompanyApplication() );
 	}
 
-	public function testTrackingAccessors(): void {
-		$request = new ApplyForMembershipRequest();
-		$trackingInfo = new MembershipApplicationTrackingInfo( 'test_campaign', 'test_keyword' );
-		$request->setTrackingInfo( $trackingInfo );
-		$request->setPiwikTrackingString( 'test_campaign/test_keyword' );
+	public function testRequestIsMarkedAsCompany(): void {
+		$request = ApplyForMembershipRequest::newCompanyApplyForMembershipRequest(
+			membershipType: '',
+			applicantCompanyName: 'ACME',
+			applicantStreetAddress: 'Fledergasse 9',
+			applicantPostalCode: '66484',
+			applicantCity: 'Battweiler',
+			applicantCountryCode: 'ZZ',
+			applicantEmailAddress: 'bw@waynecorp.biz',
+			optsIntoDonationReceipt: true,
+			incentives: [],
+			paymentParameters: ValidMembershipApplication::newPaymentParameters(),
+			trackingInfo: new MembershipApplicationTrackingInfo( 'test_campaign', 'test_keyword' ),
+			applicantPhoneNumber: ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
+		);
 
-		$this->assertEquals( $trackingInfo, $request->getTrackingInfo() );
-		$this->assertSame( 'test_campaign/test_keyword', $request->getPiwikTrackingString() );
+		$this->assertTrue( $request->isCompanyApplication() );
 	}
 
-	public function testStringValuesAreTrimmed(): void {
-		$request = new ApplyForMembershipRequest();
-		$request->setApplicantSalutation( ' Herr  ' );
-		$request->setApplicantTitle( ' Dr. ' );
-		$request->setApplicantFirstName( ' Bruce ' );
-		$request->setApplicantLastName( 'Wayne        ' );
-		$request->setApplicantCompanyName( '   Wayne Enterprises ' );
-		$request->setApplicantPostalCode( ' 66484   ' );
-		$request->setApplicantStreetAddress( ' Fledergasse 9 ' );
-		$request->setApplicantCity( '  Battweiler      ' );
-		$request->setApplicantCountryCode( ' ZZ ' );
-		$request->setApplicantEmailAddress( ' bw@waynecorp.biz ' );
-		$request->setApplicantPhoneNumber( '    +16060842 ' );
-		$request->setApplicantDateOfBirth( ' 1978-04-17' );
-		$request->setPiwikTrackingString( '   test_campaign/test_keyword ' );
+	public function testPrivateStringValuesAreTrimmed(): void {
+		$request = ApplyForMembershipRequest::newPrivateApplyForMembershipRequest(
+			membershipType: '',
+			applicantSalutation: ' Herr  ',
+			applicantTitle: ' Dr. ',
+			applicantFirstName: ' Bruce ',
+			applicantLastName: 'Wayne        ',
+			applicantStreetAddress: ' Fledergasse 9 ',
+			applicantPostalCode: ' 66484   ',
+			applicantCity: '  Battweiler      ',
+			applicantCountryCode: ' ZZ ',
+			applicantEmailAddress: ' bw@waynecorp.biz ',
+			optsIntoDonationReceipt: true,
+			incentives: [],
+			paymentParameters: ValidMembershipApplication::newPaymentParameters(),
+			trackingInfo: new MembershipApplicationTrackingInfo( 'test_campaign', 'test_keyword' ),
+			applicantDateOfBirth: ' 1978-04-17',
+			applicantPhoneNumber: ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
+		);
 
-		$this->assertSame( 'Herr', $request->getApplicantSalutation() );
-		$this->assertSame( 'Dr.', $request->getApplicantTitle() );
-		$this->assertSame( 'Bruce', $request->getApplicantFirstName() );
-		$this->assertSame( 'Wayne', $request->getApplicantLastName() );
-		$this->assertSame( 'Wayne Enterprises', $request->getApplicantCompanyName() );
-		$this->assertSame( 'Fledergasse 9', $request->getApplicantStreetAddress() );
-		$this->assertSame( '66484', $request->getApplicantPostalCode() );
-		$this->assertSame( 'Battweiler', $request->getApplicantCity() );
-		$this->assertSame( 'ZZ', $request->getApplicantCountryCode() );
-		$this->assertSame( 'bw@waynecorp.biz', $request->getApplicantEmailAddress() );
-		$this->assertSame( '+16060842', $request->getApplicantPhoneNumber() );
-		$this->assertSame( '1978-04-17', $request->getApplicantDateOfBirth() );
-		$this->assertSame( 'test_campaign/test_keyword', $request->getPiwikTrackingString() );
+		$this->assertSame( 'Herr', $request->applicantSalutation );
+		$this->assertSame( 'Dr.', $request->applicantTitle );
+		$this->assertSame( 'Bruce', $request->applicantFirstName );
+		$this->assertSame( 'Wayne', $request->applicantLastName );
+		$this->assertSame( 'Fledergasse 9', $request->applicantStreetAddress );
+		$this->assertSame( '66484', $request->applicantPostalCode );
+		$this->assertSame( 'Battweiler', $request->applicantCity );
+		$this->assertSame( 'ZZ', $request->applicantCountryCode );
+		$this->assertSame( 'bw@waynecorp.biz', $request->applicantEmailAddress );
+		$this->assertSame( '1978-04-17', $request->applicantDateOfBirth );
+	}
+
+	public function testCompanyStringValuesAreTrimmed(): void {
+		$request = ApplyForMembershipRequest::newCompanyApplyForMembershipRequest(
+			membershipType: '',
+			applicantCompanyName: ' ACME  ',
+			applicantStreetAddress: ' Fledergasse 9 ',
+			applicantPostalCode: ' 66484   ',
+			applicantCity: '  Battweiler      ',
+			applicantCountryCode: ' ZZ ',
+			applicantEmailAddress: ' bw@waynecorp.biz ',
+			optsIntoDonationReceipt: true,
+			incentives: [],
+			paymentParameters: ValidMembershipApplication::newPaymentParameters(),
+			trackingInfo: new MembershipApplicationTrackingInfo( 'test_campaign', 'test_keyword' ),
+			applicantPhoneNumber: ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
+		);
+
+		$this->assertSame( 'ACME', $request->applicantCompanyName );
+		$this->assertSame( 'Fledergasse 9', $request->applicantStreetAddress );
+		$this->assertSame( '66484', $request->applicantPostalCode );
+		$this->assertSame( 'Battweiler', $request->applicantCity );
+		$this->assertSame( 'ZZ', $request->applicantCountryCode );
+		$this->assertSame( 'bw@waynecorp.biz', $request->applicantEmailAddress );
 	}
 
 }

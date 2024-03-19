@@ -39,7 +39,7 @@ class ValidMembershipApplication {
 	public const APPLICANT_STREET_ADDRESS = 'Nyan street';
 
 	public const APPLICANT_EMAIL_ADDRESS = 'jeroendedauw@gmail.com';
-	public const APPLICANT_PHONE_NUMBER = '1337-1337-1337';
+	public const APPLICANT_PHONE_NUMBER = '';
 
 	public const MEMBERSHIP_TYPE = MembershipApplication::SUSTAINING_MEMBERSHIP;
 	public const PAYMENT_TYPE_PAYPAL = PaymentType::Paypal;
@@ -83,7 +83,7 @@ class ValidMembershipApplication {
 		return new MembershipApplication(
 			$id,
 			self::MEMBERSHIP_TYPE,
-			$self->newApplicant( $self->newCompanyApplicantName() ),
+			$self->newCompanyApplicant( $self->newCompanyApplicantName() ),
 			self::PAYMENT_ID,
 			self::OPTS_INTO_DONATION_RECEIPT
 		);
@@ -110,6 +110,15 @@ class ValidMembershipApplication {
 		);
 	}
 
+	private function newCompanyApplicant( ApplicantName $name ): Applicant {
+		return new Applicant(
+			$name,
+			$this->newAddress(),
+			new EmailAddress( self::APPLICANT_EMAIL_ADDRESS ),
+			new PhoneNumber( self::APPLICANT_PHONE_NUMBER )
+		);
+	}
+
 	public static function newDomainEntityWithEmailAddress( string $emailAddress ): MembershipApplication {
 		$self = ( new self() );
 		return new MembershipApplication(
@@ -132,32 +141,25 @@ class ValidMembershipApplication {
 	}
 
 	private function newPersonApplicantName(): ApplicantName {
-		$personName = ApplicantName::newPrivatePersonName();
-
-		$personName->setFirstName( self::APPLICANT_FIRST_NAME );
-		$personName->setLastName( self::APPLICANT_LAST_NAME );
-		$personName->setSalutation( self::APPLICANT_SALUTATION );
-		$personName->setTitle( self::APPLICANT_TITLE );
-
-		return $personName->freeze()->assertNoNullFields();
+		return ApplicantName::newPrivatePersonName(
+			self::APPLICANT_SALUTATION,
+			self::APPLICANT_TITLE,
+			self::APPLICANT_FIRST_NAME,
+			self::APPLICANT_LAST_NAME
+		);
 	}
 
 	private function newCompanyApplicantName(): ApplicantName {
-		$companyName = ApplicantName::newCompanyName();
-		$companyName->setCompanyName( self::APPLICANT_COMPANY_NAME );
-
-		return $companyName->freeze()->assertNoNullFields();
+		return ApplicantName::newCompanyName( self::APPLICANT_COMPANY_NAME );
 	}
 
 	private function newAddress(): ApplicantAddress {
-		$address = new ApplicantAddress();
-
-		$address->setCity( self::APPLICANT_CITY );
-		$address->setCountryCode( self::APPLICANT_COUNTRY_CODE );
-		$address->setPostalCode( self::APPLICANT_POSTAL_CODE );
-		$address->setStreetAddress( self::APPLICANT_STREET_ADDRESS );
-
-		return $address->freeze()->assertNoNullFields();
+		return new ApplicantAddress(
+			streetAddress: self::APPLICANT_STREET_ADDRESS,
+			postalCode: self::APPLICANT_POSTAL_CODE,
+			city: self::APPLICANT_CITY,
+			countryCode: self::APPLICANT_COUNTRY_CODE
+		);
 	}
 
 	public static function newDoctrineEntity( int $id = self::DEFAULT_ID ): DoctrineMembershipApplication {

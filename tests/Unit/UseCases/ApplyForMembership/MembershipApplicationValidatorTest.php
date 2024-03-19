@@ -6,8 +6,8 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembers
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplicationRequest;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingEmailValidator;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator;
@@ -30,7 +30,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	public function testGivenValidRequest_validationSucceeds(): void {
-		$validRequest = $this->newValidRequest();
+		$validRequest = $this->newPrivateRequest();
 		$response = $this->newValidator()->validate( $validRequest );
 
 		$this->assertEquals( new Result(), $response );
@@ -44,8 +44,55 @@ class MembershipApplicationValidatorTest extends TestCase {
 		);
 	}
 
-	private function newValidRequest(): ApplyForMembershipRequest {
-		return ValidMembershipApplicationRequest::newValidRequest();
+	private function newPrivateRequest(
+		string $membershipType = ValidMembershipApplication::MEMBERSHIP_TYPE,
+		string $applicantSalutation = ValidMembershipApplication::APPLICANT_SALUTATION,
+		string $applicantTitle = ValidMembershipApplication::APPLICANT_TITLE,
+		string $applicantFirstName = ValidMembershipApplication::APPLICANT_FIRST_NAME,
+		string $applicantLastName = ValidMembershipApplication::APPLICANT_LAST_NAME,
+		string $applicantStreetAddress = ValidMembershipApplication::APPLICANT_STREET_ADDRESS,
+		string $applicantPostalCode = ValidMembershipApplication::APPLICANT_POSTAL_CODE,
+		string $applicantCity = ValidMembershipApplication::APPLICANT_CITY,
+		string $applicantCountryCode = ValidMembershipApplication::APPLICANT_COUNTRY_CODE,
+		string $applicantEmailAddress = ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS,
+		string $applicantPhoneNumber = ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
+		?PaymentParameters $paymentParameters = null,
+		string $applicantDateOfBirth = ValidMembershipApplication::APPLICANT_DATE_OF_BIRTH,
+	): ApplyForMembershipRequest {
+		return ApplyForMembershipRequest::newPrivateApplyForMembershipRequest(
+			membershipType: $membershipType,
+			applicantSalutation: $applicantSalutation,
+			applicantTitle: $applicantTitle,
+			applicantFirstName: $applicantFirstName,
+			applicantLastName: $applicantLastName,
+			applicantStreetAddress: $applicantStreetAddress,
+			applicantPostalCode: $applicantPostalCode,
+			applicantCity: $applicantCity,
+			applicantCountryCode: $applicantCountryCode,
+			applicantEmailAddress: $applicantEmailAddress,
+			optsIntoDonationReceipt: false,
+			incentives: [],
+			paymentParameters: $paymentParameters ?? ValidMembershipApplication::newPaymentParameters(),
+			trackingInfo: $this->getTrackingInfo(),
+			applicantDateOfBirth: $applicantDateOfBirth,
+			applicantPhoneNumber: $applicantPhoneNumber,
+		);
+	}
+
+	private function newCompanyRequest( string $applicantCompanyName = 'ACME' ): ApplyForMembershipRequest {
+		return ApplyForMembershipRequest::newCompanyApplyForMembershipRequest(
+			membershipType: ValidMembershipApplication::MEMBERSHIP_TYPE,
+			applicantCompanyName: $applicantCompanyName,
+			applicantStreetAddress: ValidMembershipApplication::APPLICANT_STREET_ADDRESS,
+			applicantPostalCode: ValidMembershipApplication::APPLICANT_POSTAL_CODE,
+			applicantCity: ValidMembershipApplication::APPLICANT_CITY,
+			applicantCountryCode: ValidMembershipApplication::APPLICANT_COUNTRY_CODE,
+			applicantEmailAddress: ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS,
+			optsIntoDonationReceipt: true,
+			incentives: [],
+			paymentParameters: ValidMembershipApplication::newPaymentParameters(),
+			trackingInfo: $this->getTrackingInfo()
+		);
 	}
 
 	/**
@@ -62,8 +109,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	public function testWhenDateOfBirthIsNotDate_validationFails(): void {
-		$request = $this->newValidRequest();
-		$request->setApplicantDateOfBirth( 'this is not a valid date' );
+		$request = $this->newPrivateRequest( applicantDateOfBirth: 'this is not a valid date' );
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
@@ -71,12 +117,8 @@ class MembershipApplicationValidatorTest extends TestCase {
 		);
 	}
 
-	/**
-	 * @dataProvider invalidPhoneNumberProvider
-	 */
-	public function testWhenApplicantPhoneNumberIsInvalid_validationFails( string $invalidPhoneNumber ): void {
-		$request = $this->newValidRequest();
-		$request->setApplicantPhoneNumber( $invalidPhoneNumber );
+	public function testWhenApplicantPhoneNumberIsInvalid_validationFails(): void {
+		$request = $this->newPrivateRequest( applicantPhoneNumber: 'potato' );
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
@@ -85,25 +127,12 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	/**
-	 * @return array<string, array<string>>
-	 */
-	public static function invalidPhoneNumberProvider(): array {
-		return [
-			'potato' => [ 'potato' ],
-
-			// TODO: we use the regex from the old app, which allows for lots of bugus. Improve when time
-//			'number plus stuff' => [ '01189998819991197253 (invalid edition)' ],
-		];
-	}
-
-	/**
 	 * @dataProvider emailViolationTypeProvider
 	 */
 	public function testWhenApplicantEmailIsInvalid_validationFails( string $emailViolationType ): void {
 		$this->emailValidator = $this->newFailingEmailValidator( $emailViolationType );
 
-		$request = $this->newValidRequest();
-		$request->setApplicantEmailAddress( 'this is not a valid email' );
+		$request = $this->newPrivateRequest( applicantEmailAddress: 'this is not a valid email' );
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
@@ -125,14 +154,14 @@ class MembershipApplicationValidatorTest extends TestCase {
 	private function newFailingEmailValidator( string $violationType ): EmailValidator {
 		$feeValidator = $this->createMock( EmailValidator::class );
 		$feeValidator->method( 'validate' )
-			->willReturn( new ValidationResult( new ConstraintViolation( 'this is not a valid email', $violationType ) ) );
+			->willReturn(
+				new ValidationResult( new ConstraintViolation( 'this is not a valid email', $violationType ) )
+			);
 		return $feeValidator;
 	}
 
 	public function testWhenCompanyIsMissingFromCompanyApplication_validationFails(): void {
-		$request = $this->newValidRequest();
-		$request->markApplicantAsCompany();
-		$request->setApplicantCompanyName( '' );
+		$request = $this->newCompanyRequest( '' );
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
@@ -141,8 +170,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	public function testWhenFirstNameIsMissingFromPersonalApplication_validationFails(): void {
-		$request = $this->newValidRequest();
-		$request->setApplicantFirstName( '' );
+		$request = $this->newPrivateRequest( applicantFirstName: '' );
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
@@ -151,8 +179,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	public function testWhenLastNameIsMissingFromPersonalApplication_validationFails(): void {
-		$request = $this->newValidRequest();
-		$request->setApplicantLastName( '' );
+		$request = $this->newPrivateRequest( applicantLastName: '' );
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
@@ -161,8 +188,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	public function testWhenSalutationIsMissingFromPersonalApplication_validationFails(): void {
-		$request = $this->newValidRequest();
-		$request->setApplicantSalutation( '' );
+		$request = $this->newPrivateRequest( applicantSalutation: '' );
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
@@ -171,8 +197,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	public function testWhenStreetAddressIsMissing_validationFails(): void {
-		$request = $this->newValidRequest();
-		$request->setApplicantStreetAddress( '' );
+		$request = $this->newPrivateRequest( applicantStreetAddress: '' );
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
@@ -181,8 +206,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	public function testWhenPostalCodeIsMissing_validationFails(): void {
-		$request = $this->newValidRequest();
-		$request->setApplicantPostalCode( '' );
+		$request = $this->newPrivateRequest( applicantPostalCode: '' );
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
@@ -191,8 +215,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	public function testWhenCityIsMissing_validationFails(): void {
-		$request = $this->newValidRequest();
-		$request->setApplicantCity( '' );
+		$request = $this->newPrivateRequest( applicantCity: '' );
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
@@ -201,8 +224,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	public function testWhenCountryCodeIsMissing_validationFails(): void {
-		$request = $this->newValidRequest();
-		$request->setApplicantCountryCode( '' );
+		$request = $this->newPrivateRequest( applicantCountryCode: '' );
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
@@ -211,8 +233,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	public function testWhenMembershipTypeIsMissing_validationFails(): void {
-		$request = $this->newValidRequest();
-		$request->setMembershipType( '' );
+		$request = $this->newPrivateRequest( membershipType: '' );
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
@@ -221,30 +242,30 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	public function testPhoneNumberIsNotProvided_validationDoesNotFail(): void {
-		$request = $this->newValidRequest();
-		$request->setApplicantPhoneNumber( '' );
+		$request = $this->newPrivateRequest( applicantPhoneNumber: '' );
 
 		$this->assertTrue( $this->newValidator()->validate( $request )->isSuccessful() );
 	}
 
 	public function testDateOfBirthIsNotProvided_validationDoesNotFail(): void {
-		$request = $this->newValidRequest();
-		$request->setApplicantDateOfBirth( '' );
+		$request = $this->newPrivateRequest( applicantDateOfBirth: '' );
 
 		$this->assertTrue( $this->newValidator()->validate( $request )->isSuccessful() );
 	}
 
 	public function testPersonalInfoWithLongFields_validationFails(): void {
 		$longText = str_repeat( 'Cats ', 500 );
-		$request = $this->newValidRequest();
-		$request->setApplicantFirstName( $longText );
-		$request->setApplicantLastName( $longText );
-		$request->setApplicantTitle( $longText );
-		$request->setApplicantSalutation( $longText );
-		$request->setApplicantStreetAddress( $longText );
-		$request->setApplicantPostalCode( $longText );
-		$request->setApplicantCity( $longText );
-		$request->setApplicantCountryCode( $longText );
+		$request = $this->newPrivateRequest(
+			applicantSalutation: $longText,
+			applicantTitle: $longText,
+			applicantFirstName: $longText,
+			applicantLastName: $longText,
+			applicantStreetAddress: $longText,
+			applicantPostalCode: $longText,
+			applicantCity: $longText,
+			applicantCountryCode: $longText
+		);
+
 		$this->assertRequestValidationResultInErrors(
 			$request,
 			[
@@ -260,9 +281,10 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	public function testContactInfoWithLongFields_validationFails(): void {
-		$request = $this->newValidRequest();
-		$request->setApplicantEmailAddress( str_repeat( 'Cats', 500 ) . '@example.com' );
-		$request->setApplicantPhoneNumber( str_repeat( '1234', 500 ) );
+		$request = $this->newPrivateRequest(
+			applicantEmailAddress: str_repeat( 'Cats', 500 ) . '@example.com',
+			applicantPhoneNumber:  str_repeat( '1234', 500 ),
+		);
 
 		$this->assertRequestValidationResultInErrors(
 			$request,
@@ -288,9 +310,14 @@ class MembershipApplicationValidatorTest extends TestCase {
 			ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS->value,
 			PaymentType::Paypal->value
 		);
-		$membershipRequest = $this->newValidRequest();
-		$membershipRequest->setPaymentParameters( $paymentRequest );
-		return $membershipRequest;
+		return $this->newPrivateRequest( paymentParameters: $paymentRequest );
+	}
+
+	private function getTrackingInfo(): MembershipApplicationTrackingInfo {
+		return new MembershipApplicationTrackingInfo(
+			ValidMembershipApplication::TEMPLATE_CAMPAIGN,
+			ValidMembershipApplication::TEMPLATE_NAME
+		);
 	}
 
 }

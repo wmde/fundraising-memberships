@@ -21,34 +21,24 @@ class ValidMembershipApplicationRequest {
 	}
 
 	private function createValidRequest(): ApplyForMembershipRequest {
-		$request = new ApplyForMembershipRequest();
-
-		$request->setMembershipType( ValidMembershipApplication::MEMBERSHIP_TYPE );
-
-		$request->setApplicantFirstName( ValidMembershipApplication::APPLICANT_FIRST_NAME );
-		$request->setApplicantLastName( ValidMembershipApplication::APPLICANT_LAST_NAME );
-		$request->setApplicantSalutation( ValidMembershipApplication::APPLICANT_SALUTATION );
-		$request->setApplicantTitle( ValidMembershipApplication::APPLICANT_TITLE );
-		$request->setApplicantCompanyName( '' );
-
-		$request->setApplicantDateOfBirth( ValidMembershipApplication::APPLICANT_DATE_OF_BIRTH );
-
-		$request->setApplicantCity( ValidMembershipApplication::APPLICANT_CITY );
-		$request->setApplicantCountryCode( ValidMembershipApplication::APPLICANT_COUNTRY_CODE );
-		$request->setApplicantPostalCode( ValidMembershipApplication::APPLICANT_POSTAL_CODE );
-		$request->setApplicantStreetAddress( ValidMembershipApplication::APPLICANT_STREET_ADDRESS );
-
-		$request->setApplicantEmailAddress( ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS );
-		$request->setApplicantPhoneNumber( ValidMembershipApplication::APPLICANT_PHONE_NUMBER );
-
-		$request->setMembershipType( ValidMembershipApplication::MEMBERSHIP_TYPE );
-
-		$request->setTrackingInfo( $this->newTrackingInfo() );
-		$request->setPiwikTrackingString( 'foo/bar' );
-
-		$request->setPaymentParameters( ValidMembershipApplication::newPaymentParameters() );
-
-		return $request->assertNoNullFields();
+		return ApplyForMembershipRequest::newPrivateApplyForMembershipRequest(
+			membershipType: ValidMembershipApplication::MEMBERSHIP_TYPE,
+			applicantSalutation: ValidMembershipApplication::APPLICANT_SALUTATION,
+			applicantTitle: ValidMembershipApplication::APPLICANT_TITLE,
+			applicantFirstName: ValidMembershipApplication::APPLICANT_FIRST_NAME,
+			applicantLastName: ValidMembershipApplication::APPLICANT_LAST_NAME,
+			applicantStreetAddress: ValidMembershipApplication::APPLICANT_STREET_ADDRESS,
+			applicantPostalCode: ValidMembershipApplication::APPLICANT_POSTAL_CODE,
+			applicantCity: ValidMembershipApplication::APPLICANT_CITY,
+			applicantCountryCode: ValidMembershipApplication::APPLICANT_COUNTRY_CODE,
+			applicantEmailAddress: ValidMembershipApplication::APPLICANT_EMAIL_ADDRESS,
+			optsIntoDonationReceipt: false,
+			incentives: [],
+			paymentParameters: ValidMembershipApplication::newPaymentParameters(),
+			trackingInfo: $this->newTrackingInfo(),
+			applicantDateOfBirth: ValidMembershipApplication::APPLICANT_DATE_OF_BIRTH,
+			applicantPhoneNumber: ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
+		);
 	}
 
 	private function newTrackingInfo(): MembershipApplicationTrackingInfo {

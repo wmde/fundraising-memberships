@@ -72,8 +72,8 @@ class LegacyToDomainConverterTest extends TestCase {
 		$application = $converter->createFromLegacyObject( $doctrineApplication );
 
 		$this->assertTrue( $application->getApplicant()->isCompany() );
-		$this->assertEquals( $doctrineApplication->getCompany(), $application->getApplicant()->getName()->getCompanyName() );
-		$this->assertEquals( $doctrineApplication->getApplicantSalutation(), $application->getApplicant()->getName()->getSalutation() );
+		$this->assertEquals( $doctrineApplication->getCompany(), $application->getApplicant()->getName()->companyName );
+		$this->assertEquals( $doctrineApplication->getApplicantSalutation(), $application->getApplicant()->getName()->salutation );
 	}
 
 	public function testGivenPersonDoctrineApplication_setsPersonFieldsInDomain(): void {
@@ -83,10 +83,10 @@ class LegacyToDomainConverterTest extends TestCase {
 		$application = $converter->createFromLegacyObject( $doctrineApplication );
 
 		$this->assertTrue( $application->getApplicant()->isPrivatePerson() );
-		$this->assertEquals( $doctrineApplication->getApplicantFirstName(), $application->getApplicant()->getName()->getFirstName() );
-		$this->assertEquals( $doctrineApplication->getApplicantLastName(), $application->getApplicant()->getName()->getLastName() );
-		$this->assertEquals( $doctrineApplication->getApplicantSalutation(), $application->getApplicant()->getName()->getSalutation() );
-		$this->assertEquals( $doctrineApplication->getApplicantTitle(), $application->getApplicant()->getName()->getTitle() );
+		$this->assertEquals( $doctrineApplication->getApplicantFirstName(), $application->getApplicant()->getName()->firstName );
+		$this->assertEquals( $doctrineApplication->getApplicantLastName(), $application->getApplicant()->getName()->lastName );
+		$this->assertEquals( $doctrineApplication->getApplicantSalutation(), $application->getApplicant()->getName()->salutation );
+		$this->assertEquals( $doctrineApplication->getApplicantTitle(), $application->getApplicant()->getName()->title );
 	}
 
 	public function testGivenDoctrineApplicationThatNeedsModeration_setsNeedsModerationInDomain(): void {

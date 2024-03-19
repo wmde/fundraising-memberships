@@ -24,10 +24,10 @@ class MembershipApplicationBuilder {
 	public function newApplicationFromRequest( ApplyForMembershipRequest $request, int $membershipId, int $paymentId ): MembershipApplication {
 		$application = new MembershipApplication(
 			$membershipId,
-			$request->getMembershipType(),
+			$request->membershipType,
 			$this->newApplicant( $request ),
 			$paymentId,
-			$request->getOptsIntoDonationReceipt()
+			$request->optsIntoDonationReceipt
 		);
 		$this->addIncentives( $application, $request );
 		return $application;
@@ -37,9 +37,9 @@ class MembershipApplicationBuilder {
 		return new Applicant(
 			$this->newPersonName( $request ),
 			$this->newAddress( $request ),
-			new EmailAddress( $request->getApplicantEmailAddress() ),
-			new PhoneNumber( $request->getApplicantPhoneNumber() ),
-			( $request->getApplicantDateOfBirth() === '' ) ? null : new DateTime( $request->getApplicantDateOfBirth() )
+			new EmailAddress( $request->applicantEmailAddress ),
+			new PhoneNumber( $request->applicantPhoneNumber ),
+			( $request->applicantDateOfBirth === '' ) ? null : new DateTime( $request->applicantDateOfBirth )
 		);
 	}
 
@@ -52,33 +52,29 @@ class MembershipApplicationBuilder {
 	}
 
 	private function newPrivatePersonName( ApplyForMembershipRequest $request ): ApplicantName {
-		$personName = ApplicantName::newPrivatePersonName();
-		$personName->setFirstName( $request->getApplicantFirstName() );
-		$personName->setLastName( $request->getApplicantLastName() );
-		$personName->setSalutation( $request->getApplicantSalutation() );
-		$personName->setTitle( $request->getApplicantTitle() );
-		return $personName->freeze()->assertNoNullFields();
+		return ApplicantName::newPrivatePersonName(
+			$request->applicantSalutation,
+			$request->applicantTitle,
+			$request->applicantFirstName,
+			$request->applicantLastName
+		);
 	}
 
 	private function newCompanyPersonName( ApplyForMembershipRequest $request ): ApplicantName {
-		$personName = ApplicantName::newCompanyName();
-		$personName->setCompanyName( $request->getApplicantCompanyName() );
-		return $personName->freeze()->assertNoNullFields();
+		return ApplicantName::newCompanyName( $request->applicantCompanyName );
 	}
 
 	private function newAddress( ApplyForMembershipRequest $request ): ApplicantAddress {
-		$address = new ApplicantAddress();
-
-		$address->setCity( $request->getApplicantCity() );
-		$address->setCountryCode( $request->getApplicantCountryCode() );
-		$address->setPostalCode( $request->getApplicantPostalCode() );
-		$address->setStreetAddress( $request->getApplicantStreetAddress() );
-
-		return $address->freeze()->assertNoNullFields();
+		return new ApplicantAddress(
+			streetAddress: $request->applicantStreetAddress,
+			postalCode: $request->applicantPostalCode,
+			city: $request->applicantCity,
+			countryCode: $request->applicantCountryCode
+		);
 	}
 
 	private function addIncentives( MembershipApplication $application, ApplyForMembershipRequest $request ): void {
-		foreach ( $request->getIncentives() as $incentiveName ) {
+		foreach ( $request->incentives as $incentiveName ) {
 			$foundIncentive = $this->incentiveFinder->findIncentiveByName( $incentiveName );
 			if ( $foundIncentive === null ) {
 				throw new UnknownIncentive( sprintf( 'Incentive "%s" not found', $incentiveName ) );

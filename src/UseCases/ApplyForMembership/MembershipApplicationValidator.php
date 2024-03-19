@@ -49,14 +49,14 @@ class MembershipApplicationValidator {
 	}
 
 	private function validateMembershipType(): void {
-		$membershipType = $this->request->getMembershipType();
+		$membershipType = $this->request->membershipType;
 		if ( $membershipType !== MembershipApplication::ACTIVE_MEMBERSHIP && $membershipType !== MembershipApplication::SUSTAINING_MEMBERSHIP ) {
 			$this->violations[Result::SOURCE_APPLICANT_MEMBERSHIP_TYPE] = Result::VIOLATION_INVALID_MEMBERSHIP_TYPE;
 		}
 	}
 
 	private function validateApplicantDateOfBirth(): void {
-		$dob = $this->request->getApplicantDateOfBirth();
+		$dob = $this->request->applicantDateOfBirth;
 
 		if ( $dob !== '' && !strtotime( $dob ) ) {
 			$this->violations[Result::SOURCE_APPLICANT_DATE_OF_BIRTH] = Result::VIOLATION_NOT_DATE;
@@ -66,14 +66,14 @@ class MembershipApplicationValidator {
 	private function validateApplicantContactInfo(): void {
 		$this->validatePhoneNumber();
 
-		$this->validateFieldLength( $this->request->getApplicantEmailAddress(), Result::SOURCE_APPLICANT_EMAIL );
-		if ( $this->emailValidator->validate( $this->request->getApplicantEmailAddress() )->hasViolations() ) {
+		$this->validateFieldLength( $this->request->applicantEmailAddress, Result::SOURCE_APPLICANT_EMAIL );
+		if ( $this->emailValidator->validate( $this->request->applicantEmailAddress )->hasViolations() ) {
 			$this->violations[Result::SOURCE_APPLICANT_EMAIL] = Result::VIOLATION_NOT_EMAIL;
 		}
 	}
 
 	private function validatePhoneNumber(): void {
-		$phoneNumber = $this->request->getApplicantPhoneNumber();
+		$phoneNumber = $this->request->applicantPhoneNumber;
 
 		$this->validateFieldLength( $phoneNumber, Result::SOURCE_APPLICANT_PHONE_NUMBER );
 		if ( $phoneNumber !== '' && !preg_match( '/^[0-9\+\-\(\)]+/i', $phoneNumber ) ) {
@@ -90,52 +90,52 @@ class MembershipApplicationValidator {
 	}
 
 	private function validateCompanyName(): void {
-		if ( $this->request->getApplicantCompanyName() === '' ) {
+		if ( $this->request->applicantCompanyName === '' ) {
 			$this->violations[Result::SOURCE_APPLICANT_COMPANY] = Result::VIOLATION_MISSING;
 		}
-		$this->validateFieldLength( $this->request->getApplicantCompanyName(), Result::SOURCE_APPLICANT_COMPANY );
+		$this->validateFieldLength( $this->request->applicantCompanyName, Result::SOURCE_APPLICANT_COMPANY );
 	}
 
 	private function validatePersonName(): void {
-		if ( $this->request->getApplicantFirstName() === '' ) {
+		if ( $this->request->applicantFirstName === '' ) {
 			$this->violations[Result::SOURCE_APPLICANT_FIRST_NAME] = Result::VIOLATION_MISSING;
 		}
-		$this->validateFieldLength( $this->request->getApplicantFirstName(), Result::SOURCE_APPLICANT_FIRST_NAME );
+		$this->validateFieldLength( $this->request->applicantFirstName, Result::SOURCE_APPLICANT_FIRST_NAME );
 
-		if ( $this->request->getApplicantLastName() === '' ) {
+		if ( $this->request->applicantLastName === '' ) {
 			$this->violations[Result::SOURCE_APPLICANT_LAST_NAME] = Result::VIOLATION_MISSING;
 		}
-		$this->validateFieldLength( $this->request->getApplicantLastName(), Result::SOURCE_APPLICANT_LAST_NAME );
+		$this->validateFieldLength( $this->request->applicantLastName, Result::SOURCE_APPLICANT_LAST_NAME );
 
-		if ( $this->request->getApplicantSalutation() === '' ) {
+		if ( $this->request->applicantSalutation === '' ) {
 			$this->violations[Result::SOURCE_APPLICANT_SALUTATION] = Result::VIOLATION_MISSING;
 		}
-		$this->validateFieldLength( $this->request->getApplicantSalutation(), Result::SOURCE_APPLICANT_SALUTATION );
+		$this->validateFieldLength( $this->request->applicantSalutation, Result::SOURCE_APPLICANT_SALUTATION );
 	}
 
 	private function validateApplicantAddress(): void {
-		if ( $this->request->getApplicantStreetAddress() === '' ) {
+		if ( $this->request->applicantStreetAddress === '' ) {
 			$this->violations[Result::SOURCE_APPLICANT_STREET_ADDRESS] = Result::VIOLATION_MISSING;
 		}
 		$this->validateFieldLength(
-			$this->request->getApplicantStreetAddress(),
+			$this->request->applicantStreetAddress,
 			Result::SOURCE_APPLICANT_STREET_ADDRESS
 		);
 
-		if ( $this->request->getApplicantPostalCode() === '' ) {
+		if ( $this->request->applicantPostalCode === '' ) {
 			$this->violations[Result::SOURCE_APPLICANT_POSTAL_CODE] = Result::VIOLATION_MISSING;
 		}
-		$this->validateFieldLength( $this->request->getApplicantPostalCode(), Result::SOURCE_APPLICANT_POSTAL_CODE );
+		$this->validateFieldLength( $this->request->applicantPostalCode, Result::SOURCE_APPLICANT_POSTAL_CODE );
 
-		if ( $this->request->getApplicantCity() === '' ) {
+		if ( $this->request->applicantCity === '' ) {
 			$this->violations[Result::SOURCE_APPLICANT_CITY] = Result::VIOLATION_MISSING;
 		}
-		$this->validateFieldLength( $this->request->getApplicantCity(), Result::SOURCE_APPLICANT_CITY );
+		$this->validateFieldLength( $this->request->applicantCity, Result::SOURCE_APPLICANT_CITY );
 
-		if ( $this->request->getApplicantCountryCode() === '' ) {
+		if ( $this->request->applicantCountryCode === '' ) {
 			$this->violations[Result::SOURCE_APPLICANT_COUNTRY] = Result::VIOLATION_MISSING;
 		}
-		$this->validateFieldLength( $this->request->getApplicantCountryCode(), Result::SOURCE_APPLICANT_COUNTRY );
+		$this->validateFieldLength( $this->request->applicantCountryCode, Result::SOURCE_APPLICANT_COUNTRY );
 	}
 
 	private function validateFieldLength( string $value, string $fieldName ): void {
