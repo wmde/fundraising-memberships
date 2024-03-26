@@ -11,3 +11,7 @@ updates:
       - "wmde/funtech-core"
     # Temporarily disable automated update PRs for this repository
     open-pull-requests-limit: 0
+    groups:
+      patch-updates:
+        update-types:
+          - patch
