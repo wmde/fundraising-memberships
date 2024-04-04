@@ -14,14 +14,14 @@ class CancellationRequestTest extends TestCase {
 	private const AUTH_USER_NAME = "Pintman Paddy Losty";
 
 	public function testAuthorizedRequestContainsApplicationIdAndUsername(): void {
-		$request = new CancellationRequest( 42,  self::AUTH_USER_NAME );
+		$request = new CancellationRequest( 42, self::AUTH_USER_NAME );
 
 		$this->assertSame( 42, $request->getApplicationId() );
 		$this->assertSame( self::AUTH_USER_NAME, $request->getUserName() );
 	}
 
 	public function testRequestWithUserIsAuthorized(): void {
-		$request = new CancellationRequest( 42,  self::AUTH_USER_NAME );
+		$request = new CancellationRequest( 42, self::AUTH_USER_NAME );
 
 		$this->assertTrue( $request->initiatedByApplicant() );
 	}
