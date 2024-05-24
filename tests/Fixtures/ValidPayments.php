@@ -27,7 +27,6 @@ class ValidPayments {
 			'blz' => self::PAYMENT_BANK_CODE,
 			'bankname' => self::PAYMENT_BANK_NAME
 		],
-			$legacy->paymentStatus
 		);
 	}
 
