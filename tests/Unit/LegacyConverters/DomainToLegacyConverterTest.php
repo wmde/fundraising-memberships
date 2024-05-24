@@ -12,7 +12,6 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
 
 /**
  * @covers \WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\DomainToLegacyConverter
@@ -32,7 +31,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$converter->convert(
 			$doctrineApplication,
 			$application,
-			new LegacyPaymentData( 1, 1, 'UEB', [], LegacyPaymentStatus::EXTERNAL_BOOKED->value ),
+			new LegacyPaymentData( 1, 1, 'UEB', [] ),
 			$application->getModerationReasons()
 		);
 
@@ -55,7 +54,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$converter->convert(
 			$doctrineApplication,
 			$application,
-			new LegacyPaymentData( 1, 1, 'UEB', [], LegacyPaymentStatus::EXTERNAL_BOOKED->value ),
+			new LegacyPaymentData( 1, 1, 'UEB', [] ),
 			[]
 		);
 
@@ -73,7 +72,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$converter->convert(
 			$doctrineApplication,
 			$application,
-			new LegacyPaymentData( 1, 1, 'UEB', [], LegacyPaymentStatus::EXTERNAL_BOOKED->value ),
+			new LegacyPaymentData( 1, 1, 'UEB', [] ),
 			[]
 		);
 
@@ -90,7 +89,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$converter->convert(
 			$doctrineApplication,
 			$application,
-			new LegacyPaymentData( 1, 1, 'UEB', [], LegacyPaymentStatus::EXTERNAL_BOOKED->value ),
+			new LegacyPaymentData( 1, 1, 'UEB', [] ),
 			[]
 		);
 
@@ -110,7 +109,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$converter->convert(
 			$doctrineApplication,
 			$application,
-			new LegacyPaymentData( 1, 1, 'UEB', [], LegacyPaymentStatus::EXTERNAL_BOOKED->value ),
+			new LegacyPaymentData( 1, 1, 'UEB', [] ),
 			[]
 		);
 
@@ -129,7 +128,7 @@ class DomainToLegacyConverterTest extends TestCase {
 			'bankname' => 'bank name',
 			'bic' => 'biccybic',
 			'iban' => 'ibannabi',
-		], LegacyPaymentStatus::EXTERNAL_BOOKED->value );
+		] );
 
 		$converter = new DomainToLegacyConverter();
 		$converter->convert( $doctrineApplication, $application, $paymentData, [] );
@@ -153,7 +152,7 @@ class DomainToLegacyConverterTest extends TestCase {
 		$converter->convert(
 			$doctrineApplication,
 			$application,
-			new LegacyPaymentData( 1, 1, 'BEZ', [], LegacyPaymentStatus::EXTERNAL_BOOKED->value ),
+			new LegacyPaymentData( 1, 1, 'BEZ', [] ),
 			[]
 		);
 

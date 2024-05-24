@@ -28,7 +28,7 @@ class SerializedDataHandlingTest extends TestCase {
 		$entityManager = TestEnvironment::newInstance()->getEntityManager();
 		$getPaymentUseCase = $this->createStub( GetPaymentUseCase::class );
 		$getPaymentUseCase->method( 'getLegacyPaymentDataObject' )->willReturn(
-			new LegacyPaymentData( 100, 0, 'MCP', [], 'X' )
+			new LegacyPaymentData( 100, 0, 'MCP', [] )
 		);
 
 		$repository = new DoctrineApplicationRepository(
