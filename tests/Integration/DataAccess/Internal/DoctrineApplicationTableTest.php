@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess\Intern
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Exception\ORMException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
@@ -17,9 +18,7 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManager;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable
- */
+#[CoversClass( DoctrineApplicationTable::class )]
 class DoctrineApplicationTableTest extends TestCase {
 
 	private const KNOWN_ID = 12345;

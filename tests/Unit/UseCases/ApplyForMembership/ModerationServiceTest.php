@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
@@ -13,9 +14,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\Mo
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\FunValidators\Validators\TextPolicyValidator;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService
- */
+#[CoversClass( ModerationService::class )]
 class ModerationServiceTest extends TestCase {
 
 	public function testGivenQuarterlyAmountTooHigh_MembershipApplicationNeedsModeration(): void {

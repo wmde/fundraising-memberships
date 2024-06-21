@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
@@ -22,9 +23,7 @@ use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManager;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository
- */
+#[CoversClass( DoctrineApplicationRepository::class )]
 class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 	private const MEMBERSHIP_APPLICATION_ID = 1;

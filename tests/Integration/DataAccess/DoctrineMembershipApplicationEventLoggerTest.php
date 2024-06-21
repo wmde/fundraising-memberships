@@ -5,6 +5,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use LogicException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
@@ -13,10 +14,8 @@ use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEvent
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManager;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipApplicationEventLogger
- * @covers \WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogException
- */
+#[CoversClass( DoctrineMembershipApplicationEventLogger::class )]
+#[CoversClass( MembershipApplicationEventLogException::class )]
 class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 
 	private const MEMBERSHIP_APPLICATION_ID = 12345;

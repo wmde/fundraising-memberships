@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingEmailValidator;
@@ -17,10 +19,8 @@ use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResult;
 use WMDE\FunValidators\Validators\EmailValidator;
 
-/**
- * @covers \WMDE\FunValidators\ValidationResult
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator
- */
+#[CoversClass( ValidationResult::class )]
+#[CoversClass( MembershipApplicationValidator::class )]
 class MembershipApplicationValidatorTest extends TestCase {
 
 	private EmailValidator $emailValidator;
@@ -126,9 +126,7 @@ class MembershipApplicationValidatorTest extends TestCase {
 		);
 	}
 
-	/**
-	 * @dataProvider emailViolationTypeProvider
-	 */
+	#[DataProvider( 'emailViolationTypeProvider' )]
 	public function testWhenApplicantEmailIsInvalid_validationFails( string $emailViolationType ): void {
 		$this->emailValidator = $this->newFailingEmailValidator( $emailViolationType );
 

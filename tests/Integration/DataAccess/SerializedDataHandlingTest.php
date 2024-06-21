@@ -5,6 +5,8 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
@@ -13,17 +15,15 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository
- */
+#[CoversClass( DoctrineApplicationRepository::class )]
 class SerializedDataHandlingTest extends TestCase {
 
 	private const MEMBERSHIP_APPLICATION_ID = 715;
 
 	/**
-	 * @dataProvider encodedMembershipDataProvider
 	 * @param array<string, mixed> $data
 	 */
+	#[DataProvider( 'encodedMembershipDataProvider' )]
 	public function testDataFieldOfMembershipApplicationIsInteractedWithCorrectly( array $data ): void {
 		$entityManager = TestEnvironment::newInstance()->getEntityManager();
 		$getPaymentUseCase = $this->createStub( GetPaymentUseCase::class );

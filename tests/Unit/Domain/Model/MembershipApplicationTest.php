@@ -5,15 +5,15 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\Domain\Model;
 
 use LogicException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
+use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication
- */
+#[CoversClass( MembershipApplication::class )]
 class MembershipApplicationTest extends TestCase {
 
 	public function testNewApplicationHasExpectedDefaults(): void {

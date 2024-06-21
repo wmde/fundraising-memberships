@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ValidateMembershipFee;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Domain\MembershipPaymentValidator;
 use WMDE\Fundraising\MembershipContext\Infrastructure\PaymentServiceFactory;
@@ -12,9 +14,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMe
 use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ValidateMembershipFee\ValidateMembershipFeeUseCase
- */
+#[CoversClass( ValidateMembershipFeeUseCase::class )]
 class ValidateMembershipFeeUseCaseTest extends TestCase {
 
 	public function testGivenValidRequest_validationSucceeds(): void {
@@ -36,9 +36,7 @@ class ValidateMembershipFeeUseCaseTest extends TestCase {
 		) );
 	}
 
-	/**
-	 * @dataProvider invalidAmountProvider
-	 */
+	#[DataProvider( 'invalidAmountProvider' )]
 	public function testGivenInvalidAmount_validationFails( int $amount, int $intervalInMonths, string $expectedError ): void {
 		$response = $this->newUseCase()->validate( $amount, $intervalInMonths, ApplicantType::PERSON_APPLICANT->value, "BEZ" );
 
@@ -58,9 +56,7 @@ class ValidateMembershipFeeUseCaseTest extends TestCase {
 		yield 'too low 4 times' => [ 5, 3, MembershipPaymentValidator::FEE_TOO_LOW ];
 	}
 
-	/**
-	 * @dataProvider validAmountProvider
-	 */
+	#[DataProvider( 'validAmountProvider' )]
 	public function testGivenValidAmount_validationSucceeds( int $amount, int $intervalInMonths ): void {
 		$this->assertTrue(
 			$this->newUseCase()

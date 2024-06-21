@@ -3,12 +3,11 @@
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\CancelMembershipApplication;
 
 use LogicException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancellationRequest;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancellationRequest
- */
+#[CoversClass( CancellationRequest::class )]
 class CancellationRequestTest extends TestCase {
 
 	private const AUTH_USER_NAME = "Pintman Paddy Losty";

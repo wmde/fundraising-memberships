@@ -4,6 +4,7 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipIdGenerator;
@@ -11,9 +12,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipId;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipIdGenerator;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipIdGenerator
- */
+#[CoversClass( DoctrineMembershipIdGenerator::class )]
 class DoctrineMembershipIdGeneratorTest extends TestCase {
 
 	private EntityManager $entityManager;

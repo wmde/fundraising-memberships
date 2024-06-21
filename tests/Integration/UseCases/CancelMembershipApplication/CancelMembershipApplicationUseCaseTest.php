@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\CancelMembershipApplication;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
@@ -22,10 +23,8 @@ use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\CancelPaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\SuccessResponse;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancelMembershipApplicationUseCase
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancellationResponse
- */
+#[CoversClass( CancelMembershipApplicationUseCase::class )]
+#[CoversClass( CancellationResponse::class )]
 class CancelMembershipApplicationUseCaseTest extends TestCase {
 
 	private const ID_OF_NON_EXISTING_APPLICATION = 1337;

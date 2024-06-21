@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\LegacyConverters;
 
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\LegacyToDomainConverter;
@@ -14,9 +15,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\LegacyToDomainConverter
- */
+#[CoversClass( LegacyToDomainConverter::class )]
 class LegacyToDomainConverterTest extends TestCase {
 	public function testGivenDoctrineApplicationWithModerationAndCancelled_domainEntityHasFlags(): void {
 		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();

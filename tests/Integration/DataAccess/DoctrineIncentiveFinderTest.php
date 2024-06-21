@@ -5,14 +5,13 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineIncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineIncentiveFinder
- */
+#[CoversClass( DoctrineIncentiveFinder::class )]
 class DoctrineIncentiveFinderTest extends TestCase {
 
 	private const MISSING_INCENTIVE = 'Diamond-studded fountain pen';

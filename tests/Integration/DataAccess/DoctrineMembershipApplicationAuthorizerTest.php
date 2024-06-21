@@ -6,6 +6,8 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
@@ -14,9 +16,7 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipAuthorizatio
 use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipAuthorizationChecker
- */
+#[CoversClass( DoctrineMembershipAuthorizationChecker::class )]
 class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 
 	private const CORRECT_UPDATE_TOKEN = 'CorrectUpdateToken';
@@ -49,9 +49,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		$this->assertFalse( $authorizer->canAccessMembership( self::MEANINGLESS_APPLICATION_ID ) );
 	}
 
-	/**
-	 * @dataProvider updateTokenProvider
-	 */
+	#[DataProvider( 'updateTokenProvider' )]
 	public function testGivenMembershipApplication_authorizerChecksUpdateToken( string $updateToken, bool $expectedResult ): void {
 		$application = $this->givenMembershipApplication();
 		$authorizer = $this->newAuthorizer( $updateToken );
@@ -67,9 +65,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 		yield 'incorrect update token' => [ self::WRONG__UPDATE_TOKEN, false ];
 	}
 
-	/**
-	 * @dataProvider accessTokenProvider
-	 */
+	#[DataProvider( 'accessTokenProvider' )]
 	public function testGivenMembershipApplication_authorizerChecksAccessToken( string $accessToken, bool $expectedResult ): void {
 		$application = $this->givenMembershipApplication();
 		$authorizer = $this->newAuthorizer( '', $accessToken );

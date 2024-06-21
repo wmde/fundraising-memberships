@@ -2,6 +2,7 @@
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
@@ -13,9 +14,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MailMembershipApplicationNotifier;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MailMembershipApplicationNotifier
- */
+#[CoversClass( MailMembershipApplicationNotifier::class )]
 class MailMembershipApplicationNotifierTest extends TestCase {
 
 	private const MEMBERSHIP_APPLICATION_ID = 23;
