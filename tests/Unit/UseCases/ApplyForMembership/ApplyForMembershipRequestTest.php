@@ -3,14 +3,13 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest
- */
+#[CoversClass( ApplyForMembershipRequest::class )]
 class ApplyForMembershipRequestTest extends TestCase {
 
 	public function testRequestIsMarkedAsPrivate(): void {

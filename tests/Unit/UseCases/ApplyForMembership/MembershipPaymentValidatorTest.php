@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\Domain\MembershipPaymentValidator;
@@ -12,9 +14,7 @@ use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicantType
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\Domain\MembershipPaymentValidator
- */
+#[CoversClass( MembershipPaymentValidator::class )]
 class MembershipPaymentValidatorTest extends TestCase {
 
 	public const VALID_MIN_AMOUNT_FOR_COMPANY = 100;
@@ -24,9 +24,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 		PaymentType::DirectDebit
 	];
 
-	/**
-	 * @dataProvider companyAmountProvider
-	 */
+	#[DataProvider( 'companyAmountProvider' )]
 	public function testGivenValidFeeAmountForCompany_validatorReturnsNoViolations( bool $isValid, int $amount ): void {
 		$validator = new MembershipPaymentValidator( ApplicantType::COMPANY_APPLICANT, self::ALLOWED_PAYMENT_TYPES );
 		$response = $validator->validatePaymentData(
@@ -37,9 +35,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 		$this->assertEquals( $isValid, $response->isSuccessful() );
 	}
 
-	/**
-	 * @dataProvider privatePersonAmountProvider
-	 */
+	#[DataProvider( 'privatePersonAmountProvider' )]
 	public function testGivenValidFeeAmountForPrivatePerson_validatorReturnsNoViolations( bool $isValid, int $amount ): void {
 		$validator = new MembershipPaymentValidator( ApplicantType::PERSON_APPLICANT, self::ALLOWED_PAYMENT_TYPES );
 		$response = $validator->validatePaymentData(
@@ -83,9 +79,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 		yield [ true, self::VALID_MIN_AMOUNT_FOR_PRIVATE_PERSON + 1 ];
 	}
 
-	/**
-	 * @dataProvider tooLowAmountProvider
-	 */
+	#[DataProvider( 'tooLowAmountProvider' )]
 	public function testGivenFeeAmountTooLowPerYear_validatorReturnsErrors( ApplicantType $applicantType, int $lowAmount ): void {
 		$validator = new MembershipPaymentValidator( $applicantType, self::ALLOWED_PAYMENT_TYPES );
 		$response = $validator->validatePaymentData(
@@ -122,9 +116,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 		$this->assertFalse( $response->isSuccessful() );
 	}
 
-	/**
-	 * @dataProvider validIntervalProvider
-	 */
+	#[DataProvider( 'validIntervalProvider' )]
 	public function testValidIntervalForMemberships_validatorReturnsNoErrors( PaymentInterval $validInterval ): void {
 		$validator = new MembershipPaymentValidator( ApplicantType::COMPANY_APPLICANT, self::ALLOWED_PAYMENT_TYPES );
 		$response = $validator->validatePaymentData(
@@ -145,9 +137,7 @@ class MembershipPaymentValidatorTest extends TestCase {
 		yield [ PaymentInterval::Yearly ];
 	}
 
-	/**
-	 * @dataProvider invalidPaymentTypeProvider
-	 */
+	#[DataProvider( 'invalidPaymentTypeProvider' )]
 	public function testInvalidPaymentTypesForMemberships_validatorReturnsErrors( PaymentType $invalidPaymentType ): void {
 		$validator = new MembershipPaymentValidator( ApplicantType::PERSON_APPLICANT, self::ALLOWED_PAYMENT_TYPES );
 		$response = $validator->validatePaymentData(

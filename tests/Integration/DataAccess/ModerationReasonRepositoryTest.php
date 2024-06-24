@@ -5,15 +5,14 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\ModerationReasonRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\ModerationReasonRepository
- */
+#[CoversClass( ModerationReasonRepository::class )]
 class ModerationReasonRepositoryTest extends TestCase {
 	private EntityManager $entityManager;
 

@@ -4,14 +4,13 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\DoctrineEntities;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData
- */
+#[CoversClass( MembershipApplication::class )]
+#[CoversClass( MembershipApplicationData::class )]
 class MembershipApplicationTest extends TestCase {
 
 	public function testWhenSettingIdToAnInteger_getIdReturnsIt(): void {

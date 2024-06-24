@@ -4,14 +4,13 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
 use LogicException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipResponse;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipResponse
- */
+#[CoversClass( ApplyForMembershipResponse::class )]
 class ApplyForMembershipResponseTest extends TestCase {
 
 	public function testSuccessResponseReturnsMembershipAndUrl(): void {

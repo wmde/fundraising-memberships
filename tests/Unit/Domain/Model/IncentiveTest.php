@@ -2,12 +2,11 @@
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\Domain\Model;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\Domain\Model\Incentive
- */
+#[CoversClass( Incentive::class )]
 class IncentiveTest extends TestCase {
 	public function testIdIsNullForNewInstances(): void {
 		$incentive = new Incentive( 'a_pony' );

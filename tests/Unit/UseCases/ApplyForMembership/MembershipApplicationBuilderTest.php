@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembership;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionObject;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
@@ -15,9 +16,7 @@ use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInf
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationBuilder;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationBuilder
- */
+#[CoversClass( MembershipApplicationBuilder::class )]
 class MembershipApplicationBuilderTest extends TestCase {
 
 	private const COMPANY_NAME = 'Malenfant asteroid mining';

@@ -5,6 +5,8 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationTracker;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
@@ -13,9 +15,7 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationTracker
- */
+#[CoversClass( DoctrineApplicationTracker::class )]
 class DoctrineMembershipApplicationTrackerTest extends TestCase {
 
 	/**
@@ -27,9 +27,7 @@ class DoctrineMembershipApplicationTrackerTest extends TestCase {
 		$this->entityManager = TestEnvironment::newInstance()->getEntityManager();
 	}
 
-	/**
-	 * @dataProvider validTrackingDataProvider
-	 */
+	#[DataProvider( 'validTrackingDataProvider' )]
 	public function testValidTrackingDataIsProperlyApplied( string $campaignCode, string $keyword ): void {
 		$application = ValidMembershipApplication::newDoctrineEntity();
 		$this->persistApplication( $application );

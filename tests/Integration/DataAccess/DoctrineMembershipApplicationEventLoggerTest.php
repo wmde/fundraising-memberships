@@ -5,19 +5,20 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use LogicException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipApplicationEventLogger;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogException;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManager;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManagerTrait;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipApplicationEventLogger
- * @covers \WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogException
- */
+#[CoversClass( DoctrineMembershipApplicationEventLogger::class )]
+#[CoversClass( MembershipApplicationEventLogException::class )]
 class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
+
+	use ThrowingEntityManagerTrait;
 
 	private const MEMBERSHIP_APPLICATION_ID = 12345;
 	public const DEFAULT_MESSAGE = 'Itchy, Tasty';
@@ -36,7 +37,7 @@ class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 	}
 
 	public function testWhenFetchFails_domainExceptionIsThrown(): void {
-		$logger = new DoctrineMembershipApplicationEventLogger( ThrowingEntityManager::newInstance( $this ) );
+		$logger = new DoctrineMembershipApplicationEventLogger( $this->getThrowingEntityManager() );
 
 		$this->expectException( MembershipApplicationEventLogException::class );
 		$logger->log( 1234, self::DEFAULT_MESSAGE );

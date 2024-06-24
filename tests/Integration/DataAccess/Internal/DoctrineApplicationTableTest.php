@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess\Intern
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Exception\ORMException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
@@ -14,13 +15,13 @@ use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTa
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManager;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManagerTrait;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable
- */
+#[CoversClass( DoctrineApplicationTable::class )]
 class DoctrineApplicationTableTest extends TestCase {
+
+	use ThrowingEntityManagerTrait;
 
 	private const KNOWN_ID = 12345;
 	private const UNKNOWN_ID = 32205;
@@ -53,7 +54,7 @@ class DoctrineApplicationTableTest extends TestCase {
 	}
 
 	public function testWhenDoctrineThrowsException_getApplicationOrNullByIdRethrowsIt(): void {
-		$this->entityManager = ThrowingEntityManager::newInstance( $this );
+		$this->entityManager = $this->getThrowingEntityManager();
 
 		$table = $this->getTable();
 
@@ -80,7 +81,7 @@ class DoctrineApplicationTableTest extends TestCase {
 	}
 
 	public function testWhenDoctrineThrowsException_getApplicationByIdRethrowsIt(): void {
-		$this->entityManager = ThrowingEntityManager::newInstance( $this );
+		$this->entityManager = $this->getThrowingEntityManager();
 
 		$table = $this->getTable();
 
@@ -89,7 +90,7 @@ class DoctrineApplicationTableTest extends TestCase {
 	}
 
 	public function testWhenDoctrineThrowsException_persistApplicationRethrowsIt(): void {
-		$this->entityManager = ThrowingEntityManager::newInstance( $this );
+		$this->entityManager = $this->getThrowingEntityManager();
 
 		$table = $this->getTable();
 

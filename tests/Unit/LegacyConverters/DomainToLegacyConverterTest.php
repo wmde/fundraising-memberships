@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Unit\LegacyConverters;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\DomainToLegacyConverter;
@@ -13,9 +14,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\DomainToLegacyConverter
- */
+#[CoversClass( DomainToLegacyConverter::class )]
 class DomainToLegacyConverterTest extends TestCase {
 
 	public function testWhenPersistingApplicationWithModerationFlag_doctrineApplicationHasFlag(): void {

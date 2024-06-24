@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
@@ -18,14 +19,14 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidPayments;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManager;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManagerTrait;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
-/**
- * @covers \WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository
- */
+#[CoversClass( DoctrineApplicationRepository::class )]
 class DoctrineMembershipApplicationRepositoryTest extends TestCase {
+
+	use ThrowingEntityManagerTrait;
 
 	private const MEMBERSHIP_APPLICATION_ID = 1;
 	private const ID_OF_APPLICATION_NOT_IN_DB = 35505;
@@ -83,7 +84,7 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 	}
 
 	public function testWhenReadFails_domainExceptionIsThrown(): void {
-		$repository = $this->givenApplicationRepository( entityManager: ThrowingEntityManager::newInstance( $this ) );
+		$repository = $this->givenApplicationRepository( $this->getThrowingEntityManager() );
 
 		$this->expectException( GetMembershipApplicationException::class );
 		$repository->getUnexportedMembershipApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB );
