@@ -168,32 +168,6 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$this->assertEquals( $incentive, $incentives[0] );
 	}
 
-	private function givenApplicationRepository( ?EntityManager $entityManager = null ): ApplicationRepository {
-		return new DoctrineApplicationRepository(
-			$entityManager ?? $this->entityManager,
-			$this->givenGetPaymentUseCaseStub(),
-			new ModerationReasonRepository( $this->entityManager )
-		);
-	}
-
-	public function givenGetPaymentUseCaseStub(): GetPaymentUseCase {
-		$stub = $this->createStub( GetPaymentUseCase::class );
-		$stub->method( 'getLegacyPaymentDataObject' )->willReturn( ValidPayments::newDirectDebitLegacyData() );
-		return $stub;
-	}
-
-	private function getApplicationFromDatabase( int $id ): DoctrineApplication {
-		$applicationRepo = $this->entityManager->getRepository( DoctrineApplication::class );
-		$donation = $applicationRepo->find( $id );
-		$this->assertInstanceOf( DoctrineApplication::class, $donation );
-		return $donation;
-	}
-
-	private function storeDoctrineApplication( DoctrineApplication $application ): void {
-		$this->entityManager->persist( $application );
-		$this->entityManager->flush();
-	}
-
 	public function testNewModeratedMembershipApplicationPersistenceRoundTrip(): void {
 		$application = ValidMembershipApplication::newCompanyApplication();
 		$application->markForModeration(
@@ -209,6 +183,32 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 		$this->assertNotNull( $membershipApplication );
 		$this->assertEquals( $application->getModerationReasons(), $membershipApplication->getModerationReasons() );
+	}
+
+	private function givenApplicationRepository( ?EntityManager $entityManager = null ): ApplicationRepository {
+		return new DoctrineApplicationRepository(
+			$entityManager ?? $this->entityManager,
+			$this->givenGetPaymentUseCaseStub(),
+			new ModerationReasonRepository( $this->entityManager )
+		);
+	}
+
+	private function givenGetPaymentUseCaseStub(): GetPaymentUseCase {
+		$stub = $this->createStub( GetPaymentUseCase::class );
+		$stub->method( 'getLegacyPaymentDataObject' )->willReturn( ValidPayments::newDirectDebitLegacyData() );
+		return $stub;
+	}
+
+	private function getApplicationFromDatabase( int $id ): DoctrineApplication {
+		$applicationRepo = $this->entityManager->getRepository( DoctrineApplication::class );
+		$donation = $applicationRepo->find( $id );
+		$this->assertInstanceOf( DoctrineApplication::class, $donation );
+		return $donation;
+	}
+
+	private function storeDoctrineApplication( DoctrineApplication $application ): void {
+		$this->entityManager->persist( $application );
+		$this->entityManager->flush();
 	}
 
 }
