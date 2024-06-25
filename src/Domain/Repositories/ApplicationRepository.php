@@ -1,31 +1,18 @@
 <?php
-
-declare( strict_types = 1 );
+declare( strict_types=1 );
 
 namespace WMDE\Fundraising\MembershipContext\Domain\Repositories;
 
-use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
-
-interface ApplicationRepository {
-
-	/**
-	 * @throws StoreMembershipApplicationException
-	 */
-	public function storeApplication( MembershipApplication $application ): void;
-
-	/**
-	 * Get a MembershipApplication domain object.
-	 *
-	 * Will throw a {@see ApplicationAnonymizedException} when the membership application has been anonymized.
-	 * For most of the use cases this is desired behavior. If you ever need to read an anonymized membership application,
-	 * add a new method to the interface.
-	 *
-	 * @param int $id
-	 *
-	 * @return MembershipApplication|null
-	 *
-	 * @throws GetMembershipApplicationException
-	 */
-	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication;
+/**
+ * This is a backwards-compatibility interface.
+ *
+ * We decided to shorten the concept of "membership applications" to "membership" instead of "application" (or "request"),
+ * because "application" and "request" have technical meaning and make the code more confusing to read.
+ *
+ * You can delete this interface when the Fundraising Application and the Fundraising Operation Center no longer use it.
+ *
+ * @deprecated Use {@see MembershipRepository} instead
+ */
+interface ApplicationRepository extends MembershipRepository {
 
 }

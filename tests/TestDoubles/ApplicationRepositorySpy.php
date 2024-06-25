@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\TestDoubles;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 
-class ApplicationRepositorySpy extends FakeApplicationRepository {
+class ApplicationRepositorySpy extends FakeMembershipRepository {
 
 	/**
 	 * @var MembershipApplication[]

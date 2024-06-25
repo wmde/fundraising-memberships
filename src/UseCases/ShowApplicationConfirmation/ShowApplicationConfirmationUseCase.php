@@ -6,8 +6,8 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmatio
 
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 class ShowApplicationConfirmationUseCase {
@@ -15,7 +15,7 @@ class ShowApplicationConfirmationUseCase {
 	public function __construct(
 		private readonly ShowApplicationConfirmationPresenter $presenter,
 		private readonly MembershipAuthorizationChecker $authorizer,
-		private readonly ApplicationRepository $repository,
+		private readonly MembershipRepository $repository,
 		private readonly GetPaymentUseCase $getPaymentUseCase
 	) {
 	}

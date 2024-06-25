@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\RestoreMembershipApplication;
 
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogger;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\CancelPaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\FailureResponse;
@@ -14,7 +14,7 @@ class RestoreMembershipApplicationUseCase {
 	public const LOG_MESSAGE_MARKED_AS_RESTORED = 'restored by user: %s';
 
 	public function __construct(
-		private readonly ApplicationRepository $applicationRepository,
+		private readonly MembershipRepository $applicationRepository,
 		private readonly MembershipApplicationEventLogger $applicationEventLogger,
 		private readonly CancelPaymentUseCase $cancelPaymentUseCase
 	) {

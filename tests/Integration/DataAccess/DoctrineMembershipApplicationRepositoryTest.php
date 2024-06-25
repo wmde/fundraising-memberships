@@ -9,21 +9,21 @@ use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
-use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\ModerationReasonRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidPayments;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManagerTrait;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
-#[CoversClass( DoctrineApplicationRepository::class )]
+#[CoversClass( DoctrineMembershipRepository::class )]
 class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 	use ThrowingEntityManagerTrait;
@@ -185,8 +185,8 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$this->assertEquals( $application->getModerationReasons(), $membershipApplication->getModerationReasons() );
 	}
 
-	private function givenApplicationRepository( ?EntityManager $entityManager = null ): ApplicationRepository {
-		return new DoctrineApplicationRepository(
+	private function givenApplicationRepository( ?EntityManager $entityManager = null ): MembershipRepository {
+		return new DoctrineMembershipRepository(
 			$entityManager ?? $this->entityManager,
 			$this->givenGetPaymentUseCaseStub(),
 			new ModerationReasonRepository( $this->entityManager )

@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\ModerateMembershipApplicat
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogger;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 
@@ -17,7 +17,7 @@ class ModerateMembershipApplicationUseCase {
 	public const LOG_MESSAGE_MARKED_AS_APPROVED = 'marked as approved by user: %s';
 
 	public function __construct(
-		private readonly ApplicationRepository $applicationRepository,
+		private readonly MembershipRepository $applicationRepository,
 		private readonly MembershipApplicationEventLogger $applicationEventLogger,
 		private readonly PaymentRepository $paymentRepository
 	) {
