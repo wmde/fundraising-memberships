@@ -12,14 +12,14 @@ use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipIdGenerator;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Infrastructure\PaymentServiceFactory;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\EventEmitterSpy;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\InMemoryApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\InMemoryMembershipIdGenerator;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\InMemoryMembershipRepository;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateBasedMailerSpy;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateMailerStub;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TestIncentiveFinder;
@@ -283,7 +283,7 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	}
 
 	private function makeUseCase(
-		?ApplicationRepository $repository = null,
+		?MembershipRepository $repository = null,
 		?MembershipIdGenerator $membershipIdGenerator = null,
 		?MembershipAuthorizer $membershipAuthorizer = null,
 		?MembershipNotifier $mailNotifier = null,
@@ -313,8 +313,8 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		);
 	}
 
-	private function makeMembershipRepositoryStub(): ApplicationRepository {
-		return new InMemoryApplicationRepository();
+	private function makeMembershipRepositoryStub(): MembershipRepository {
+		return new InMemoryMembershipRepository();
 	}
 
 	private function newPolicyValidatorWithEmailModeration(): ModerationService {

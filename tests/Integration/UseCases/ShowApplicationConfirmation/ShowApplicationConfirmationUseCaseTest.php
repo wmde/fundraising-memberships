@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FailingAuthorizationChecker;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeMembershipRepository;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowAppConfirmationRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationUseCase;
@@ -28,12 +28,12 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 
 	private MembershipAuthorizationChecker|SucceedingAuthorizationChecker $authorizer;
 
-	private FakeApplicationRepository $repository;
+	private FakeMembershipRepository $repository;
 
 	public function setUp(): void {
 		$this->presenter = new FakeShowApplicationConfirmationPresenter();
 		$this->authorizer = new SucceedingAuthorizationChecker();
-		$this->repository = new FakeApplicationRepository();
+		$this->repository = new FakeMembershipRepository();
 
 		$this->repository->storeApplication( ValidMembershipApplication::newDomainEntity( self::APPLICATION_ID ) );
 	}

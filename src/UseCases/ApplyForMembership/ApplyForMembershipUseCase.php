@@ -8,8 +8,8 @@ use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipIdGenerator;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Infrastructure\PaymentServiceFactory;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
@@ -24,7 +24,7 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationReques
 class ApplyForMembershipUseCase {
 
 	public function __construct(
-		private readonly ApplicationRepository $repository,
+		private readonly MembershipRepository $repository,
 		private readonly MembershipIdGenerator $idGenerator,
 		private readonly MembershipAuthorizer $authorizer,
 		private readonly MembershipNotifier $notifier,

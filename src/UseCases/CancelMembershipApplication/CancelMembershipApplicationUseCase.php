@@ -6,8 +6,8 @@ namespace WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplicatio
 
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogger;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\CancelPaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\FailureResponse;
@@ -19,7 +19,7 @@ class CancelMembershipApplicationUseCase {
 
 	public function __construct(
 		private readonly MembershipAuthorizationChecker $authorizer,
-		private readonly ApplicationRepository $repository,
+		private readonly MembershipRepository $repository,
 		private readonly MembershipApplicationEventLogger $membershipApplicationEventLogger,
 		private readonly CancelPaymentUseCase $cancelPaymentUseCase
 	) {

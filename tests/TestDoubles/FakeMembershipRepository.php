@@ -6,11 +6,11 @@ namespace WMDE\Fundraising\MembershipContext\Tests\TestDoubles;
 
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 
-class FakeApplicationRepository implements ApplicationRepository {
+class FakeMembershipRepository implements MembershipRepository {
 
 	private int $calls = 0;
 	/**

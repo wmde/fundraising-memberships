@@ -8,12 +8,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Infrastructure\MembershipApplicationEventLogger;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FailingAuthorizationChecker;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeMembershipRepository;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\MembershipApplicationEventLoggerSpy;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\UseCases\CancelMembershipApplication\CancellationRequest;
@@ -117,13 +117,13 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 
 	private function givenUseCase(
 		?MembershipAuthorizationChecker $authorizer = null,
-		?ApplicationRepository $repository = null,
+		?MembershipRepository $repository = null,
 		?MembershipApplicationEventLogger $logger = null,
 		?CancelPaymentUseCase $cancelPaymentUseCase = null
 	): CancelMembershipApplicationUseCase {
 		return new CancelMembershipApplicationUseCase(
 			$authorizer ?? new SucceedingAuthorizationChecker(),
-			$repository ?? new FakeApplicationRepository(),
+			$repository ?? new FakeMembershipRepository(),
 			$logger ?? $this->createStub( MembershipApplicationEventLogger::class ),
 			$cancelPaymentUseCase ?? $this->givenSucceedingCancelPaymentUseCase()
 		);
@@ -138,10 +138,10 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 	}
 
 	/**
-	 * @return array{0:FakeApplicationRepository,1:MembershipApplication}
+	 * @return array{0:FakeMembershipRepository,1:MembershipApplication}
 	 */
 	private function givenStoredCancelableApplication(): array {
-		$repository = new FakeApplicationRepository();
+		$repository = new FakeMembershipRepository();
 		$application = ValidMembershipApplication::newDomainEntity();
 		$repository->storeApplication( $application );
 		return [ $repository, $application ];

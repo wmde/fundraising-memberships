@@ -8,14 +8,14 @@ use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\ModerationReasonRepository;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
-#[CoversClass( DoctrineApplicationRepository::class )]
+#[CoversClass( DoctrineMembershipRepository::class )]
 class SerializedDataHandlingTest extends TestCase {
 
 	private const MEMBERSHIP_APPLICATION_ID = 715;
@@ -31,7 +31,7 @@ class SerializedDataHandlingTest extends TestCase {
 			new LegacyPaymentData( 100, 0, 'MCP', [] )
 		);
 
-		$repository = new DoctrineApplicationRepository(
+		$repository = new DoctrineMembershipRepository(
 			$entityManager,
 			$getPaymentUseCase,
 			new ModerationReasonRepository( $entityManager )
