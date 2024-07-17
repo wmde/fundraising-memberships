@@ -63,12 +63,12 @@ class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 	public function anonymizeWithIds( int ...$membershipIds ): void {
 		$gracePeriodCutoffDate = $this->clock->now()->sub( $this->gracePeriodForUnexportedData )->format( 'Y-m-d H:i:s' );
 		$queryBuilder = $this->newUpdateQueryBuilder();
-		$queryBuilder->where( 'id IN (:membershipId)' )
+		$queryBuilder->where( 'id IN (:membershipIds)' )
 			->andWhere( $queryBuilder->expr()->or(
 				$queryBuilder->expr()->isNotNull( 'export' ),
 				$queryBuilder->expr()->lte( 'timestamp', ':creationTime' )
 			) )
-			->setParameter( 'membershipId', $membershipIds, ArrayParameterType::INTEGER )
+			->setParameter( 'membershipIds', $membershipIds, ArrayParameterType::INTEGER )
 			->setParameter( 'creationTime', $gracePeriodCutoffDate, ParameterType::STRING );
 		try {
 			$rowCount = intval( $queryBuilder->executeStatement() );
