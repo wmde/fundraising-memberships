@@ -9,21 +9,21 @@ use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\EmailAddress\EmailAddress;
-use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineApplicationRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\ModerationReasonRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidPayments;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\ThrowingEntityManagerTrait;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
-#[CoversClass( DoctrineApplicationRepository::class )]
+#[CoversClass( DoctrineMembershipRepository::class )]
 class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 	use ThrowingEntityManagerTrait;
@@ -168,32 +168,6 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$this->assertEquals( $incentive, $incentives[0] );
 	}
 
-	private function givenApplicationRepository( ?EntityManager $entityManager = null ): ApplicationRepository {
-		return new DoctrineApplicationRepository(
-			$entityManager ?? $this->entityManager,
-			$this->givenGetPaymentUseCaseStub(),
-			new ModerationReasonRepository( $this->entityManager )
-		);
-	}
-
-	public function givenGetPaymentUseCaseStub(): GetPaymentUseCase {
-		$stub = $this->createStub( GetPaymentUseCase::class );
-		$stub->method( 'getLegacyPaymentDataObject' )->willReturn( ValidPayments::newDirectDebitLegacyData() );
-		return $stub;
-	}
-
-	private function getApplicationFromDatabase( int $id ): DoctrineApplication {
-		$applicationRepo = $this->entityManager->getRepository( DoctrineApplication::class );
-		$donation = $applicationRepo->find( $id );
-		$this->assertInstanceOf( DoctrineApplication::class, $donation );
-		return $donation;
-	}
-
-	private function storeDoctrineApplication( DoctrineApplication $application ): void {
-		$this->entityManager->persist( $application );
-		$this->entityManager->flush();
-	}
-
 	public function testNewModeratedMembershipApplicationPersistenceRoundTrip(): void {
 		$application = ValidMembershipApplication::newCompanyApplication();
 		$application->markForModeration(
@@ -209,6 +183,32 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 		$this->assertNotNull( $membershipApplication );
 		$this->assertEquals( $application->getModerationReasons(), $membershipApplication->getModerationReasons() );
+	}
+
+	private function givenApplicationRepository( ?EntityManager $entityManager = null ): MembershipRepository {
+		return new DoctrineMembershipRepository(
+			$entityManager ?? $this->entityManager,
+			$this->givenGetPaymentUseCaseStub(),
+			new ModerationReasonRepository( $this->entityManager )
+		);
+	}
+
+	private function givenGetPaymentUseCaseStub(): GetPaymentUseCase {
+		$stub = $this->createStub( GetPaymentUseCase::class );
+		$stub->method( 'getLegacyPaymentDataObject' )->willReturn( ValidPayments::newDirectDebitLegacyData() );
+		return $stub;
+	}
+
+	private function getApplicationFromDatabase( int $id ): DoctrineApplication {
+		$applicationRepo = $this->entityManager->getRepository( DoctrineApplication::class );
+		$donation = $applicationRepo->find( $id );
+		$this->assertInstanceOf( DoctrineApplication::class, $donation );
+		return $donation;
+	}
+
+	private function storeDoctrineApplication( DoctrineApplication $application ): void {
+		$this->entityManager->persist( $application );
+		$this->entityManager->flush();
 	}
 
 }

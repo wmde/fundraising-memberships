@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeMembershipRepository;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\MembershipApplicationEventLoggerSpy;
 use WMDE\Fundraising\MembershipContext\UseCases\RestoreMembershipApplication\RestoreMembershipApplicationResponse;
 use WMDE\Fundraising\MembershipContext\UseCases\RestoreMembershipApplication\RestoreMembershipApplicationUseCase;
@@ -21,12 +21,12 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 	private const AUTH_USER_NAME = "Pintman Paddy Losty";
 
 	private MembershipApplicationEventLoggerSpy $membershipApplicationEventLogger;
-	private FakeApplicationRepository $applicationRepository;
+	private FakeMembershipRepository $applicationRepository;
 
 	protected function setUp(): void {
 		parent::setUp();
 		$this->membershipApplicationEventLogger = new MembershipApplicationEventLoggerSpy();
-		$this->applicationRepository = new FakeApplicationRepository();
+		$this->applicationRepository = new FakeMembershipRepository();
 	}
 
 	public function testOnRestoreNonExistentMembershipApplication_actionFails(): void {

@@ -12,10 +12,10 @@ use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\LegacyToDomai
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationRepository;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
-class DoctrineApplicationRepository implements ApplicationRepository {
+class DoctrineMembershipRepository implements MembershipRepository {
 
 	private DoctrineApplicationTable $table;
 
