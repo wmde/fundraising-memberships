@@ -14,7 +14,7 @@ final class Version20240528122513 extends AbstractMigration {
 
 	public function up( Schema $schema ): void {
 		$table = $schema->getTable( 'request' );
-		$table->renameIndex( 'm_payment', 'idx_m_payment_id' );
+		$table->renameIndex( 'm_payment_id', 'idx_m_payment_id' );
 		$table->dropIndex( 'm_ort' );
 		$table->dropIndex( 'm_email' );
 		$table->dropIndex( 'm_name' );
@@ -28,7 +28,7 @@ final class Version20240528122513 extends AbstractMigration {
 
 	public function down( Schema $schema ): void {
 		$table = $schema->getTable( 'requests' );
-		$table->renameIndex( 'idx_m_payment_id', 'm_payment' );
+		$table->renameIndex( 'idx_m_payment_id', 'm_payment_id' );
 		$table->dropIndex( 'idx_m_ort' );
 		$table->dropIndex( 'idx_m_email' );
 		$table->dropIndex( 'idx_m_firstname' );
