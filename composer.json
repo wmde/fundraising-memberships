@@ -3,7 +3,7 @@
 	"license": "GPL-2.0-or-later",
 	"description": "Bounded Context for the Wikimedia Deutschland fundraising membership subdomain",
 	"require": {
-		"php": ">=8.2",
+		"php": ">=8.3",
 
 		"doctrine/orm": "~3.0",
 		"doctrine/migrations": "^3.5",
