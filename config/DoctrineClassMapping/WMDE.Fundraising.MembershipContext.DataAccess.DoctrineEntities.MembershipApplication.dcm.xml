@@ -39,7 +39,7 @@
       </options>
     </field>
     <field name="address" type="string" column="strasse" length="100" nullable="true"/>
-    <field name="postcode" type="string" column="plz" length="8" nullable="true"/>
+    <field name="postcode" type="string" column="plz" length="16" nullable="true"/>
     <field name="city" type="string" column="ort" length="100" nullable="true"/>
     <field name="country" type="string" column="country" length="8" nullable="true">
       <options>
