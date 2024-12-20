@@ -11,10 +11,11 @@ interface ShowApplicationConfirmationPresenter {
 	/**
 	 * @param MembershipApplication $application
 	 * @param array<string,mixed> $paymentData
+	 * @param string $tracking
 	 *
 	 * @return void
 	 */
-	public function presentConfirmation( MembershipApplication $application, array $paymentData ): void;
+	public function presentConfirmation( MembershipApplication $application, array $paymentData, string $tracking ): void;
 
 	public function presentApplicationWasAnonymized(): void;
 
