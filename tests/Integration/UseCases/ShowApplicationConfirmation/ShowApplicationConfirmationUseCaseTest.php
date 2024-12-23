@@ -11,7 +11,7 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FailingAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeMembershipRepository;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingAuthorizationChecker;
-use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTracking;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipTrackingRepository;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowAppConfirmationRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationUseCase;
@@ -55,7 +55,7 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 
 		$tracking = $this->createMock( MembershipTrackingRepository::class );
 		$tracking->method( 'getTracking' )->willReturn(
-			new MembershipApplicationTrackingInfo( self::TRACKING_CAMPAIGN, self::TRACKING_KEYWORD )
+			new MembershipTracking( self::TRACKING_CAMPAIGN, self::TRACKING_KEYWORD )
 		);
 
 		return new ShowApplicationConfirmationUseCase(

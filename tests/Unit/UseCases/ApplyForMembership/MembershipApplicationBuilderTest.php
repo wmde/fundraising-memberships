@@ -12,7 +12,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TestIncentiveFinder;
-use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTracking;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationBuilder;
 
@@ -60,8 +60,8 @@ class MembershipApplicationBuilderTest extends TestCase {
 		);
 	}
 
-	private function newTrackingInfo(): MembershipApplicationTrackingInfo {
-		return new MembershipApplicationTrackingInfo(
+	private function newTrackingInfo(): MembershipTracking {
+		return new MembershipTracking(
 			ValidMembershipApplication::TEMPLATE_CAMPAIGN,
 			ValidMembershipApplication::TEMPLATE_NAME
 		);

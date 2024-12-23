@@ -9,7 +9,7 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApp
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
-use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTracking;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipTrackingException;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipTrackingRepository;
 
@@ -21,7 +21,7 @@ class DoctrineMembershipTrackingRepository implements MembershipTrackingReposito
 		$this->table = new DoctrineApplicationTable( $entityManager );
 	}
 
-	public function storeTracking( int $membershipId, MembershipApplicationTrackingInfo $tracking ): void {
+	public function storeTracking( int $membershipId, MembershipTracking $tracking ): void {
 		try {
 			$this->table->modifyApplication(
 				$membershipId,
@@ -34,14 +34,14 @@ class DoctrineMembershipTrackingRepository implements MembershipTrackingReposito
 		}
 	}
 
-	public function getTracking( int $membershipId ): MembershipApplicationTrackingInfo {
+	public function getTracking( int $membershipId ): MembershipTracking {
 		try {
 			$trackingString = $this->table->getApplicationById( $membershipId )->getTracking() ?? '';
 		} catch ( GetMembershipApplicationException $e ) {
 			throw new MembershipTrackingException( 'Could not find membership application', $e );
 		}
 		$trackingParts = explode( '/', $trackingString );
-		return new MembershipApplicationTrackingInfo( $trackingParts[0], $trackingParts[1] ?? '' );
+		return new MembershipTracking( $trackingParts[0], $trackingParts[1] ?? '' );
 	}
 
 }

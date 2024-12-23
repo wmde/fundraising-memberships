@@ -12,10 +12,10 @@ interface MembershipTrackingRepository {
 	/**
 	 * @throws MembershipTrackingException
 	 */
-	public function storeTracking( int $membershipId, MembershipApplicationTrackingInfo $tracking ): void;
+	public function storeTracking( int $membershipId, MembershipTracking $tracking ): void;
 
 	/**
 	 * @throws MembershipTrackingException
 	 */
-	public function getTracking( int $membershipId ): MembershipApplicationTrackingInfo;
+	public function getTracking( int $membershipId ): MembershipTracking;
 }

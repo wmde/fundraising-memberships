@@ -23,7 +23,7 @@ use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\InMemoryMembershipRepos
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateBasedMailerSpy;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateMailerStub;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TestIncentiveFinder;
-use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTracking;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipTrackingRepository;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
@@ -128,8 +128,8 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		);
 	}
 
-	private function newTrackingInfo(): MembershipApplicationTrackingInfo {
-		return new MembershipApplicationTrackingInfo(
+	private function newTrackingInfo(): MembershipTracking {
+		return new MembershipTracking(
 			ValidMembershipApplication::TEMPLATE_CAMPAIGN,
 			ValidMembershipApplication::TEMPLATE_NAME
 		);

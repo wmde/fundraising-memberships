@@ -5,12 +5,12 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\Tracking;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTracking;
 
-#[CoversClass( MembershipApplicationTrackingInfo::class )]
-class MembershipApplicationTrackingInfoTest extends TestCase {
+#[CoversClass( MembershipTracking::class )]
+class MembershipTrackingTest extends TestCase {
 	public function testConstructorInitializesProperties(): void {
-		$trackingInfo = new MembershipApplicationTrackingInfo(
+		$trackingInfo = new MembershipTracking(
 			campaignCode: '07-ba-20241028',
 			keyword: 'org-07-2411028-ctrl'
 		);
@@ -21,7 +21,7 @@ class MembershipApplicationTrackingInfoTest extends TestCase {
 
 	#[DataProvider( 'matomoStringProvider' )]
 	public function testGetMatomoString( string $campaignCode, string $keyword, string $expectedMatomoString ): void {
-		$trackingInfo = new MembershipApplicationTrackingInfo( $campaignCode, $keyword );
+		$trackingInfo = new MembershipTracking( $campaignCode, $keyword );
 
 		$this->assertSame( $expectedMatomoString, $trackingInfo->getMatomoString() );
 	}
