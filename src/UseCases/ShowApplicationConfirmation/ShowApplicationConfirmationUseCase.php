@@ -8,7 +8,7 @@ use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChec
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
-use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTrackingRepository;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 class ShowApplicationConfirmationUseCase {
@@ -18,7 +18,7 @@ class ShowApplicationConfirmationUseCase {
 		private readonly MembershipAuthorizationChecker $authorizer,
 		private readonly MembershipRepository $repository,
 		private readonly GetPaymentUseCase $getPaymentUseCase,
-		private readonly ApplicationPiwikTracker $piwikTracker,
+		private readonly MembershipTrackingRepository $piwikTracker,
 	) {
 	}
 
@@ -30,7 +30,7 @@ class ShowApplicationConfirmationUseCase {
 
 		try {
 			$application = $this->repository->getUnexportedMembershipApplicationById( $request->getApplicationId() );
-			$tracking = $this->piwikTracker->getApplicationTracking( $request->getApplicationId() );
+			$tracking = $this->piwikTracker->getTracking( $request->getApplicationId() );
 
 			// This is here to make phpstan happy, the authorizer already checks for non-existing membership applications
 			if ( $application === null ) {

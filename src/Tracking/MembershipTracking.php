@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tracking;
 
-class MembershipApplicationTrackingInfo {
+class MembershipTracking {
 	public function __construct(
 		private readonly string $campaignCode,
 		private readonly string $keyword
@@ -20,7 +20,10 @@ class MembershipApplicationTrackingInfo {
 	}
 
 	public function getMatomoString(): string {
-		return "{$this->campaignCode}/{$this->keyword}";
+		if ( $this->campaignCode || $this->keyword ) {
+			return "{$this->campaignCode}/{$this->keyword}";
+		}
+		return "";
 	}
 
 }

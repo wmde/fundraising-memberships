@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingEmailValidator;
-use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTracking;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult as Result;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\MembershipApplicationValidator;
@@ -311,8 +311,8 @@ class MembershipApplicationValidatorTest extends TestCase {
 		return $this->newPrivateRequest( paymentParameters: $paymentRequest );
 	}
 
-	private function getTrackingInfo(): MembershipApplicationTrackingInfo {
-		return new MembershipApplicationTrackingInfo(
+	private function getTrackingInfo(): MembershipTracking {
+		return new MembershipTracking(
 			ValidMembershipApplication::TEMPLATE_CAMPAIGN,
 			ValidMembershipApplication::TEMPLATE_NAME
 		);

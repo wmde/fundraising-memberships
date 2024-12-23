@@ -6,7 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\UseCases\ApplyForMembers
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
-use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTracking;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 
 #[CoversClass( ApplyForMembershipRequest::class )]
@@ -27,7 +27,7 @@ class ApplyForMembershipRequestTest extends TestCase {
 			optsIntoDonationReceipt: true,
 			incentives: [],
 			paymentParameters: ValidMembershipApplication::newPaymentParameters(),
-			trackingInfo: new MembershipApplicationTrackingInfo( 'test_campaign', 'test_keyword' ),
+			trackingInfo: new MembershipTracking( 'test_campaign', 'test_keyword' ),
 			applicantDateOfBirth: ' 1978-04-17',
 			applicantPhoneNumber: ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
 		);
@@ -47,7 +47,7 @@ class ApplyForMembershipRequestTest extends TestCase {
 			optsIntoDonationReceipt: true,
 			incentives: [],
 			paymentParameters: ValidMembershipApplication::newPaymentParameters(),
-			trackingInfo: new MembershipApplicationTrackingInfo( 'test_campaign', 'test_keyword' ),
+			trackingInfo: new MembershipTracking( 'test_campaign', 'test_keyword' ),
 			applicantPhoneNumber: ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
 		);
 
@@ -69,7 +69,7 @@ class ApplyForMembershipRequestTest extends TestCase {
 			optsIntoDonationReceipt: true,
 			incentives: [],
 			paymentParameters: ValidMembershipApplication::newPaymentParameters(),
-			trackingInfo: new MembershipApplicationTrackingInfo( 'test_campaign', 'test_keyword' ),
+			trackingInfo: new MembershipTracking( 'test_campaign', 'test_keyword' ),
 			applicantDateOfBirth: ' 1978-04-17',
 			applicantPhoneNumber: ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
 		);
@@ -98,7 +98,7 @@ class ApplyForMembershipRequestTest extends TestCase {
 			optsIntoDonationReceipt: true,
 			incentives: [],
 			paymentParameters: ValidMembershipApplication::newPaymentParameters(),
-			trackingInfo: new MembershipApplicationTrackingInfo( 'test_campaign', 'test_keyword' ),
+			trackingInfo: new MembershipTracking( 'test_campaign', 'test_keyword' ),
 			applicantPhoneNumber: ValidMembershipApplication::APPLICANT_PHONE_NUMBER,
 		);
 
