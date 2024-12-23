@@ -12,7 +12,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipIdGenerator
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Infrastructure\PaymentServiceFactory;
-use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTrackingRepository;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MembershipNotifier;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
@@ -29,7 +29,7 @@ class ApplyForMembershipUseCase {
 		private readonly MembershipNotifier $notifier,
 		private readonly MembershipApplicationValidator $validator,
 		private readonly ModerationService $policyValidator,
-		private ApplicationPiwikTracker $piwikTracker,
+		private MembershipTrackingRepository $trackingRepository,
 		private EventEmitter $eventEmitter,
 		private IncentiveFinder $incentiveFinder,
 		private PaymentServiceFactory $paymentServiceFactory
@@ -74,7 +74,7 @@ class ApplyForMembershipUseCase {
 
 		$this->eventEmitter->emit( new MembershipCreatedEvent( $application->getId(), $application->getApplicant() ) );
 
-		$this->piwikTracker->trackApplication( $application->getId(), $request->getMatomoTrackingString() );
+		$this->trackingRepository->storeTracking( $application->getId(), $request->getMatomoTrackingString() );
 
 		if ( $application->shouldSendConfirmationMail() ) {
 			$this->notifier->sendConfirmationFor( $application );

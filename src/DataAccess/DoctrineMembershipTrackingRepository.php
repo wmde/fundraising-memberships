@@ -9,10 +9,10 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApp
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
-use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
-use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTrackingException;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTrackingException;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTrackingRepository;
 
-class DoctrineApplicationPiwikTracker implements ApplicationPiwikTracker {
+class DoctrineMembershipTrackingRepository implements MembershipTrackingRepository {
 
 	private DoctrineApplicationTable $table;
 
@@ -20,24 +20,24 @@ class DoctrineApplicationPiwikTracker implements ApplicationPiwikTracker {
 		$this->table = new DoctrineApplicationTable( $entityManager );
 	}
 
-	public function trackApplication( int $applicationId, string $trackingString ): void {
+	public function storeTracking( int $membershipId, string $trackingString ): void {
 		try {
 			$this->table->modifyApplication(
-				$applicationId,
+				$membershipId,
 				static function ( MembershipApplication $application ) use ( $trackingString ) {
 					$application->setTracking( $trackingString );
 				}
 			);
 		} catch ( GetMembershipApplicationException | StoreMembershipApplicationException $ex ) {
-			throw new ApplicationPiwikTrackingException( 'Could not add tracking info', $ex );
+			throw new MembershipTrackingException( 'Could not add tracking info', $ex );
 		}
 	}
 
-	public function getApplicationTracking( int $applicationId ): string {
+	public function getTracking( int $membershipId ): string {
 		try {
-			return $this->table->getApplicationById( $applicationId )->getTracking() ?? '';
+			return $this->table->getApplicationById( $membershipId )->getTracking() ?? '';
 		} catch ( GetMembershipApplicationException $e ) {
-			throw new ApplicationPiwikTrackingException( 'Could not find membership application', $e );
+			throw new MembershipTrackingException( 'Could not find membership application', $e );
 		}
 	}
 
