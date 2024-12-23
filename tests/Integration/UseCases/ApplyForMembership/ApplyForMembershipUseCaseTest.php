@@ -24,7 +24,6 @@ use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateBasedMailerSpy;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TemplateMailerStub;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\TestIncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
-use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplicationValidationResult;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
@@ -289,7 +288,6 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 		?MembershipNotifier $mailNotifier = null,
 		?MembershipApplicationValidator $validator = null,
 		?ModerationService $policyValidator = null,
-		?ApplicationTracker $membershipApplicationTracker = null,
 		?ApplicationPiwikTracker $piwikTracker = null,
 		?EventEmitter $eventEmitter = null,
 		?IncentiveFinder $incentiveFinder = null,
@@ -302,7 +300,6 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 			$mailNotifier ?? $this->makeMailNotifier(),
 			$validator ?? $this->newSucceedingValidator(),
 			$policyValidator ?? $this->getSucceedingPolicyValidatorMock(),
-			$membershipApplicationTracker ?? $this->createMock( ApplicationTracker::class ),
 			$piwikTracker ?? $this->createMock( ApplicationPiwikTracker::class ),
 			$eventEmitter ?? $this->createMock( EventEmitter::class ),
 			$incentiveFinder ?? new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] ),
