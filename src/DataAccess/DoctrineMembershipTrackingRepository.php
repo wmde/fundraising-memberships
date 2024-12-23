@@ -9,6 +9,7 @@ use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApp
 use WMDE\Fundraising\MembershipContext\DataAccess\Internal\DoctrineApplicationTable;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipTrackingException;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipTrackingRepository;
 
@@ -20,12 +21,12 @@ class DoctrineMembershipTrackingRepository implements MembershipTrackingReposito
 		$this->table = new DoctrineApplicationTable( $entityManager );
 	}
 
-	public function storeTracking( int $membershipId, string $trackingString ): void {
+	public function storeTracking( int $membershipId, MembershipApplicationTrackingInfo $tracking ): void {
 		try {
 			$this->table->modifyApplication(
 				$membershipId,
-				static function ( MembershipApplication $application ) use ( $trackingString ) {
-					$application->setTracking( $trackingString );
+				static function ( MembershipApplication $application ) use ( $tracking ) {
+					$application->setTracking( $tracking->getMatomoString() );
 				}
 			);
 		} catch ( GetMembershipApplicationException | StoreMembershipApplicationException $ex ) {
@@ -33,12 +34,14 @@ class DoctrineMembershipTrackingRepository implements MembershipTrackingReposito
 		}
 	}
 
-	public function getTracking( int $membershipId ): string {
+	public function getTracking( int $membershipId ): MembershipApplicationTrackingInfo {
 		try {
-			return $this->table->getApplicationById( $membershipId )->getTracking() ?? '';
+			$trackingString = $this->table->getApplicationById( $membershipId )->getTracking() ?? '';
 		} catch ( GetMembershipApplicationException $e ) {
 			throw new MembershipTrackingException( 'Could not find membership application', $e );
 		}
+		$trackingParts = explode( '/', $trackingString );
+		return new MembershipApplicationTrackingInfo( $trackingParts[0], $trackingParts[1] ?? '' );
 	}
 
 }

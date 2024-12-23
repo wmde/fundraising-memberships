@@ -74,7 +74,7 @@ class ApplyForMembershipUseCase {
 
 		$this->eventEmitter->emit( new MembershipCreatedEvent( $application->getId(), $application->getApplicant() ) );
 
-		$this->trackingRepository->storeTracking( $application->getId(), $request->getMatomoTrackingString() );
+		$this->trackingRepository->storeTracking( $application->getId(), $request->getTracking() );
 
 		if ( $application->shouldSendConfirmationMail() ) {
 			$this->notifier->sendConfirmationFor( $application );

@@ -5,17 +5,18 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation;
 
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 
 interface ShowApplicationConfirmationPresenter {
 
 	/**
 	 * @param MembershipApplication $application
 	 * @param array<string,mixed> $paymentData
-	 * @param string $tracking
+	 * @param MembershipApplicationTrackingInfo $tracking
 	 *
 	 * @return void
 	 */
-	public function presentConfirmation( MembershipApplication $application, array $paymentData, string $tracking ): void;
+	public function presentConfirmation( MembershipApplication $application, array $paymentData, MembershipApplicationTrackingInfo $tracking ): void;
 
 	public function presentApplicationWasAnonymized(): void;
 

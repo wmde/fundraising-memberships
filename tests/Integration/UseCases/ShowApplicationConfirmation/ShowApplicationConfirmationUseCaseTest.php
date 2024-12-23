@@ -11,6 +11,7 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FailingAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeMembershipRepository;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingAuthorizationChecker;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipTrackingRepository;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowAppConfirmationRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationUseCase;
@@ -25,7 +26,9 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		'go' => 'here',
 	];
 
-	private const TRACKING = 'campaign/keyword';
+	private const TRACKING_CAMPAIGN = 'campaign';
+	private const TRACKING_KEYWORD = 'keyword';
+	private const TRACKING_STRING = 'campaign/keyword';
 
 	private FakeShowApplicationConfirmationPresenter $presenter;
 
@@ -51,7 +54,9 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		$getPaymentUseCase->method( 'getPaymentDataArray' )->willReturn( self::PAYMENT_DATA );
 
 		$tracking = $this->createMock( MembershipTrackingRepository::class );
-		$tracking->method( 'getTracking' )->willReturn( self::TRACKING );
+		$tracking->method( 'getTracking' )->willReturn(
+			new MembershipApplicationTrackingInfo( self::TRACKING_CAMPAIGN, self::TRACKING_KEYWORD )
+		);
 
 		return new ShowApplicationConfirmationUseCase(
 			$this->presenter,
@@ -74,7 +79,7 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		);
 
 		$this->assertSame(
-			self::TRACKING,
+			self::TRACKING_STRING,
 			$this->presenter->getShownTracking()
 		);
 	}

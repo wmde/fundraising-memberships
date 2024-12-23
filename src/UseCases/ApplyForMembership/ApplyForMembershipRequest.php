@@ -161,7 +161,7 @@ class ApplyForMembershipRequest {
 		return $this->applicantIsCompany;
 	}
 
-	public function getMatomoTrackingString(): string {
-		return $this->trackingInfo->getMatomoString();
+	public function getTracking(): MembershipApplicationTrackingInfo {
+		return $this->trackingInfo;
 	}
 }

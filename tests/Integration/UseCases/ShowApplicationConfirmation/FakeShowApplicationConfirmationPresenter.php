@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ShowAppl
 
 use RuntimeException;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationPresenter;
 
 class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirmationPresenter {
@@ -15,12 +16,12 @@ class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirm
 	 * @var array<string, mixed>
 	 */
 	private array $paymentData;
-	private string $tracking;
+	private MembershipApplicationTrackingInfo $tracking;
 	private bool $anonymizedResponseWasShown = false;
 	private bool $accessViolationWasShown = false;
 	private string $shownTechnicalError;
 
-	public function presentConfirmation( MembershipApplication $application, array $paymentData, string $tracking ): void {
+	public function presentConfirmation( MembershipApplication $application, array $paymentData, MembershipApplicationTrackingInfo $tracking ): void {
 		if ( $this->application !== null ) {
 			throw new RuntimeException( 'Presenter should only be invoked once' );
 		}
@@ -42,7 +43,7 @@ class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirm
 	}
 
 	public function getShownTracking(): string {
-		return $this->tracking;
+		return $this->tracking->getMatomoString();
 	}
 
 	public function presentApplicationWasAnonymized(): void {
