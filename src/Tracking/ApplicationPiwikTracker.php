@@ -17,4 +17,10 @@ interface ApplicationPiwikTracker {
 	 */
 	public function trackApplication( int $applicationId, string $trackingString ): void;
 
+	/**
+	 * @param int $applicationId
+	 *
+	 * @throws ApplicationPiwikTrackingException
+	 */
+	public function getApplicationTracking( int $applicationId ): string;
 }

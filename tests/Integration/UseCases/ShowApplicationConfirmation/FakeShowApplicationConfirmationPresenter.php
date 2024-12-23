@@ -15,17 +15,19 @@ class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirm
 	 * @var array<string, mixed>
 	 */
 	private array $paymentData;
+	private string $tracking;
 	private bool $anonymizedResponseWasShown = false;
 	private bool $accessViolationWasShown = false;
 	private string $shownTechnicalError;
 
-	public function presentConfirmation( MembershipApplication $application, array $paymentData ): void {
+	public function presentConfirmation( MembershipApplication $application, array $paymentData, string $tracking ): void {
 		if ( $this->application !== null ) {
 			throw new RuntimeException( 'Presenter should only be invoked once' );
 		}
 
 		$this->application = $application;
 		$this->paymentData = $paymentData;
+		$this->tracking = $tracking;
 	}
 
 	public function getShownApplication(): ?MembershipApplication {
@@ -37,6 +39,10 @@ class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirm
 	 */
 	public function getShownPaymentData(): array {
 		return $this->paymentData;
+	}
+
+	public function getShownTracking(): string {
+		return $this->tracking;
 	}
 
 	public function presentApplicationWasAnonymized(): void {

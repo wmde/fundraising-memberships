@@ -11,6 +11,7 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FailingAuthorizationChecker;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\FakeMembershipRepository;
 use WMDE\Fundraising\MembershipContext\Tests\TestDoubles\SucceedingAuthorizationChecker;
+use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowAppConfirmationRequest;
 use WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation\ShowApplicationConfirmationUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
@@ -23,6 +24,8 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		'anything' => 'can',
 		'go' => 'here',
 	];
+
+	private const TRACKING = 'campaign/keyword';
 
 	private FakeShowApplicationConfirmationPresenter $presenter;
 
@@ -47,11 +50,15 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		$getPaymentUseCase = $this->createStub( GetPaymentUseCase::class );
 		$getPaymentUseCase->method( 'getPaymentDataArray' )->willReturn( self::PAYMENT_DATA );
 
+		$tracking = $this->createMock( ApplicationPiwikTracker::class );
+		$tracking->method( 'getApplicationTracking' )->willReturn( self::TRACKING );
+
 		return new ShowApplicationConfirmationUseCase(
 			$this->presenter,
 			$this->authorizer,
 			$this->repository,
-			$getPaymentUseCase
+			$getPaymentUseCase,
+			$tracking
 		);
 	}
 
@@ -64,6 +71,11 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		$this->assertSame(
 			self::PAYMENT_DATA,
 			$this->presenter->getShownPaymentData()
+		);
+
+		$this->assertSame(
+			self::TRACKING,
+			$this->presenter->getShownTracking()
 		);
 	}
 

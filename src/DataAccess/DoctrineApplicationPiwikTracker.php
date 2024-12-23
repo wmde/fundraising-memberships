@@ -33,4 +33,12 @@ class DoctrineApplicationPiwikTracker implements ApplicationPiwikTracker {
 		}
 	}
 
+	public function getApplicationTracking( int $applicationId ): string {
+		try {
+			return $this->table->getApplicationById( $applicationId )->getTracking() ?? '';
+		} catch ( GetMembershipApplicationException $e ) {
+			throw new ApplicationPiwikTrackingException( 'Could not find membership application', $e );
+		}
+	}
+
 }
