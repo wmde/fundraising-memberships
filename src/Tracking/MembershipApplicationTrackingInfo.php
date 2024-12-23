@@ -20,7 +20,10 @@ class MembershipApplicationTrackingInfo {
 	}
 
 	public function getMatomoString(): string {
-		return "{$this->campaignCode}/{$this->keyword}";
+		if ( $this->campaignCode || $this->keyword ) {
+			return "{$this->campaignCode}/{$this->keyword}";
+		}
+		return "";
 	}
 
 }
