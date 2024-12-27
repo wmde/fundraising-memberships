@@ -43,7 +43,7 @@ class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirm
 	}
 
 	public function getShownTracking(): string {
-		return $this->tracking->getMatomoString();
+		return $this->tracking->__toString();
 	}
 
 	public function presentApplicationWasAnonymized(): void {

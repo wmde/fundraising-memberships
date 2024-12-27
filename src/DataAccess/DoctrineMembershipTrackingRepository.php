@@ -26,7 +26,7 @@ class DoctrineMembershipTrackingRepository implements MembershipTrackingReposito
 			$this->table->modifyApplication(
 				$membershipId,
 				static function ( MembershipApplication $application ) use ( $tracking ) {
-					$application->setTracking( $tracking->getMatomoString() );
+					$application->setTracking( $tracking->__toString() );
 				}
 			);
 		} catch ( GetMembershipApplicationException | StoreMembershipApplicationException $ex ) {
