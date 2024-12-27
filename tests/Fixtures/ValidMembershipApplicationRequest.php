@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\Tests\Fixtures;
 
-use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTracking;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\ApplyForMembershipRequest;
 
 class ValidMembershipApplicationRequest {
@@ -41,8 +41,8 @@ class ValidMembershipApplicationRequest {
 		);
 	}
 
-	private function newTrackingInfo(): MembershipApplicationTrackingInfo {
-		return new MembershipApplicationTrackingInfo(
+	private function newTrackingInfo(): MembershipTracking {
+		return new MembershipTracking(
 			ValidMembershipApplication::TEMPLATE_CAMPAIGN,
 			ValidMembershipApplication::TEMPLATE_NAME
 		);

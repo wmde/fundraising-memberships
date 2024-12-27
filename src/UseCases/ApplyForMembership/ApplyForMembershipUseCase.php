@@ -12,8 +12,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipIdGenerator
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\MembershipContext\EventEmitter;
 use WMDE\Fundraising\MembershipContext\Infrastructure\PaymentServiceFactory;
-use WMDE\Fundraising\MembershipContext\Tracking\ApplicationPiwikTracker;
-use WMDE\Fundraising\MembershipContext\Tracking\ApplicationTracker;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTrackingRepository;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Moderation\ModerationService;
 use WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership\Notification\MembershipNotifier;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
@@ -30,12 +29,7 @@ class ApplyForMembershipUseCase {
 		private readonly MembershipNotifier $notifier,
 		private readonly MembershipApplicationValidator $validator,
 		private readonly ModerationService $policyValidator,
-		/**
-		 * @var ApplicationTracker
-		 * @deprecated See https://phabricator.wikimedia.org/T197112
-		 */
-		private ApplicationTracker $membershipApplicationTracker,
-		private ApplicationPiwikTracker $piwikTracker,
+		private MembershipTrackingRepository $trackingRepository,
 		private EventEmitter $eventEmitter,
 		private IncentiveFinder $incentiveFinder,
 		private PaymentServiceFactory $paymentServiceFactory
@@ -76,16 +70,11 @@ class ApplyForMembershipUseCase {
 			$application->markForModeration( ...$moderationResult->getViolations() );
 		}
 
-		// TODO: handle exceptions
 		$this->repository->storeApplication( $application );
 
 		$this->eventEmitter->emit( new MembershipCreatedEvent( $application->getId(), $application->getApplicant() ) );
 
-		// TODO: handle exceptions
-		$this->membershipApplicationTracker->trackApplication( $application->getId(), $request->trackingInfo );
-
-		// TODO: handle exceptions
-		$this->piwikTracker->trackApplication( $application->getId(), $request->getMatomoTrackingString() );
+		$this->trackingRepository->storeTracking( $application->getId(), $request->getTracking() );
 
 		if ( $application->shouldSendConfirmationMail() ) {
 			$this->notifier->sendConfirmationFor( $application );

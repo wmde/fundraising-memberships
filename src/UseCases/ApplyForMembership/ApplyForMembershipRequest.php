@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
-use WMDE\Fundraising\MembershipContext\Tracking\MembershipApplicationTrackingInfo;
+use WMDE\Fundraising\MembershipContext\Tracking\MembershipTracking;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentParameters;
 
 class ApplyForMembershipRequest {
@@ -18,7 +18,7 @@ class ApplyForMembershipRequest {
 	 * @param string $applicantCountryCode
 	 * @param string $applicantEmailAddress
 	 * @param PaymentParameters $paymentParameters
-	 * @param MembershipApplicationTrackingInfo $trackingInfo
+	 * @param MembershipTracking $trackingInfo
 	 * @param string $applicantCompanyName
 	 * @param string $applicantSalutation
 	 * @param string $applicantTitle
@@ -38,7 +38,7 @@ class ApplyForMembershipRequest {
 		public readonly string $applicantCountryCode,
 		public readonly string $applicantEmailAddress,
 		public readonly PaymentParameters $paymentParameters,
-		public readonly MembershipApplicationTrackingInfo $trackingInfo,
+		public readonly MembershipTracking $trackingInfo,
 		public readonly string $applicantCompanyName = '',
 		public readonly string $applicantSalutation = '',
 		public readonly string $applicantTitle = '',
@@ -65,7 +65,7 @@ class ApplyForMembershipRequest {
 	 * @param bool $optsIntoDonationReceipt
 	 * @param array<string> $incentives
 	 * @param PaymentParameters $paymentParameters
-	 * @param MembershipApplicationTrackingInfo $trackingInfo
+	 * @param MembershipTracking $trackingInfo
 	 * @param string $applicantDateOfBirth
 	 * @param string $applicantPhoneNumber
 	 *
@@ -85,7 +85,7 @@ class ApplyForMembershipRequest {
 		bool $optsIntoDonationReceipt,
 		array $incentives,
 		PaymentParameters $paymentParameters,
-		MembershipApplicationTrackingInfo $trackingInfo,
+		MembershipTracking $trackingInfo,
 		string $applicantDateOfBirth = '',
 		string $applicantPhoneNumber = '',
 	): ApplyForMembershipRequest {
@@ -121,7 +121,7 @@ class ApplyForMembershipRequest {
 	 * @param bool $optsIntoDonationReceipt
 	 * @param array<string> $incentives
 	 * @param PaymentParameters $paymentParameters
-	 * @param MembershipApplicationTrackingInfo $trackingInfo
+	 * @param MembershipTracking $trackingInfo
 	 * @param string $applicantPhoneNumber
 	 *
 	 * @return ApplyForMembershipRequest
@@ -137,7 +137,7 @@ class ApplyForMembershipRequest {
 		bool $optsIntoDonationReceipt,
 		array $incentives,
 		PaymentParameters $paymentParameters,
-		MembershipApplicationTrackingInfo $trackingInfo,
+		MembershipTracking $trackingInfo,
 		string $applicantPhoneNumber = '',
 	): ApplyForMembershipRequest {
 		return new self(
@@ -161,7 +161,7 @@ class ApplyForMembershipRequest {
 		return $this->applicantIsCompany;
 	}
 
-	public function getMatomoTrackingString(): string {
-		return $this->trackingInfo->getMatomoString();
+	public function getTracking(): MembershipTracking {
+		return $this->trackingInfo;
 	}
 }
