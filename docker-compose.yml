@@ -1,5 +1,3 @@
-version: '3.4'
-
 services:
   app:
     image: "registry.gitlab.com/fun-tech/fundraising-frontend-docker"
