@@ -9,7 +9,7 @@ use Throwable;
 
 class StoreMembershipApplicationException extends RuntimeException {
 
-	public function __construct( string $message = null, Throwable $previous = null ) {
+	public function __construct( ?string $message = null, ?Throwable $previous = null ) {
 		parent::__construct(
 			$message ?? 'Could not store membership application',
 			0,

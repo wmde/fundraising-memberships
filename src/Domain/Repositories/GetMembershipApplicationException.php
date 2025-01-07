@@ -9,7 +9,7 @@ use Throwable;
 
 class GetMembershipApplicationException extends RuntimeException {
 
-	public function __construct( string $message = null, Throwable $previous = null ) {
+	public function __construct( ?string $message = null, ?Throwable $previous = null ) {
 		parent::__construct(
 			$message ?? 'Could not get membership application',
 			0,
