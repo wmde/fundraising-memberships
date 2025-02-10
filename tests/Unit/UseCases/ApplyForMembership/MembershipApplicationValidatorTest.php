@@ -19,7 +19,6 @@ use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResult;
 use WMDE\FunValidators\Validators\EmailValidator;
 
-#[CoversClass( ValidationResult::class )]
 #[CoversClass( MembershipApplicationValidator::class )]
 class MembershipApplicationValidatorTest extends TestCase {
 
