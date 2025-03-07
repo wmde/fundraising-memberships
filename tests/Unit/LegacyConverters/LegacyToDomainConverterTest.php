@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\LegacyToDomainConverter;
+use WMDE\Fundraising\MembershipContext\Domain\Model\AnonymousEmailAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
@@ -128,6 +129,16 @@ class LegacyToDomainConverterTest extends TestCase {
 		$application = $converter->createFromLegacyObject( $doctrineApplication );
 
 		$this->assertTrue( $application->isExported() );
+	}
+
+	public function testGivenExportedDoctrineApplication_createsAnonymousEmailAddress(): void {
+		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
+		$doctrineApplication->setExport( new DateTime() );
+
+		$converter = new LegacyToDomainConverter();
+		$application = $converter->createFromLegacyObject( $doctrineApplication );
+
+		$this->assertInstanceOf( AnonymousEmailAddress::class, $application->getApplicant()->getEmailAddress() );
 	}
 
 	public function testDoctrineApplicationWithIncentives_setsIncentivesInDomain(): void {
