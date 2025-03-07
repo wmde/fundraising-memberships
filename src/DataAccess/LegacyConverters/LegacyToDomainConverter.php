@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters;
 
 use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
+use WMDE\Fundraising\MembershipContext\Domain\Model\AnonymousEmailAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
@@ -20,7 +21,7 @@ class LegacyToDomainConverter {
 			new Applicant(
 				$this->newPersonName( $doctrineApplication ),
 				$this->newAddress( $doctrineApplication ),
-				new EmailAddress( $doctrineApplication->getApplicantEmailAddress() ),
+				$this->newEmail( $doctrineApplication ),
 				new PhoneNumber( $doctrineApplication->getApplicantPhoneNumber() ),
 				$doctrineApplication->getApplicantDateOfBirth()
 			),
@@ -72,5 +73,13 @@ class LegacyToDomainConverter {
 			city: $application->getCity() ?? '',
 			countryCode: $application->getCountry()
 		);
+	}
+
+	private function newEmail( DoctrineApplication $application ): EmailAddress {
+		if ( $application->getExport() != null ) {
+			return new AnonymousEmailAddress();
+		}
+
+		return new EmailAddress( $application->getApplicantEmailAddress() );
 	}
 }

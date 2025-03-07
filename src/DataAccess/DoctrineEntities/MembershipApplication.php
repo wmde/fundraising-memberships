@@ -109,12 +109,12 @@ class MembershipApplication {
 	/**
 	 * @deprecated
 	 */
-	private string $paymentIban = '';
+	private ?string $paymentIban = '';
 
 	/**
 	 * @deprecated
 	 */
-	private string $paymentBic = '';
+	private ?string $paymentBic = '';
 
 	/**
 	 * @deprecated This is probably a db modeling leftover from donations - we never had comments for memberships
@@ -438,7 +438,7 @@ class MembershipApplication {
 	/**
 	 * @deprecated
 	 */
-	public function setPaymentIban( string $paymentIban ): self {
+	public function setPaymentIban( ?string $paymentIban ): self {
 		$this->paymentIban = $paymentIban;
 
 		return $this;
@@ -448,13 +448,13 @@ class MembershipApplication {
 	 * @deprecated
 	 */
 	public function getPaymentIban(): string {
-		return $this->paymentIban;
+		return $this->paymentIban ?? '';
 	}
 
 	/**
 	 * @deprecated
 	 */
-	public function setPaymentBic( string $paymentBic ): self {
+	public function setPaymentBic( ?string $paymentBic ): self {
 		$this->paymentBic = $paymentBic;
 
 		return $this;
@@ -464,7 +464,7 @@ class MembershipApplication {
 	 * @deprecated
 	 */
 	public function getPaymentBic(): string {
-		return $this->paymentBic;
+		return $this->paymentBic ?? '';
 	}
 
 	public function setComment( string $comment ): self {
