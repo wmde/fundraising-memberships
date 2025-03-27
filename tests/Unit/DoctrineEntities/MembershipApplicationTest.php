@@ -120,13 +120,6 @@ class MembershipApplicationTest extends TestCase {
 		);
 	}
 
-	public function testStatusConstantsExist(): void {
-		$this->assertNotNull( MembershipApplication::STATUS_MODERATION );
-		$this->assertNotNull( MembershipApplication::STATUS_CANCELED );
-		$this->assertNotNull( MembershipApplication::STATUS_CONFIRMED );
-		$this->assertNotNull( MembershipApplication::STATUS_NEUTRAL );
-	}
-
 	public function testGivenModerationStatus_needsModerationReturnsTrue(): void {
 		$application = new MembershipApplication();
 		$application->setStatus( MembershipApplication::STATUS_MODERATION );

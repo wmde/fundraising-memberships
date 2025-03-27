@@ -9,7 +9,7 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 
 class ApplyForMembershipResponse {
 
-	private ?MembershipApplication $application;
+	private MembershipApplication $application;
 	private ?string $paymentCompletionUrl = null;
 
 	public static function newSuccessResponse(
