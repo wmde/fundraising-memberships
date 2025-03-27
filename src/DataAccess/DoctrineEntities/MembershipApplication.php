@@ -13,11 +13,11 @@ use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 
 class MembershipApplication {
 
-	public const STATUS_CONFIRMED = 1;
-	public const STATUS_NEUTRAL = 0;
-	public const STATUS_CANCELED = -1;
-	public const STATUS_MODERATION = -2;
-	public const STATUS_CANCELLED_MODERATION = -3;
+	public const int STATUS_CONFIRMED = 1;
+	public const int STATUS_NEUTRAL = 0;
+	public const int STATUS_CANCELED = -1;
+	public const int STATUS_MODERATION = -2;
+	public const int STATUS_CANCELLED_MODERATION = -3;
 
 	private ?int $id = null;
 
