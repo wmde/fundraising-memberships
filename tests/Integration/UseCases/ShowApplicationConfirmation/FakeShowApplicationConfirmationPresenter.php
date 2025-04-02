@@ -46,10 +46,6 @@ class FakeShowApplicationConfirmationPresenter implements ShowApplicationConfirm
 		return $this->tracking->__toString();
 	}
 
-	public function presentApplicationWasAnonymized(): void {
-		$this->anonymizedResponseWasShown = true;
-	}
-
 	public function anonymizedResponseWasShown(): bool {
 		return $this->anonymizedResponseWasShown;
 	}

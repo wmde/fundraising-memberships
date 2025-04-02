@@ -69,4 +69,15 @@ class FakeMembershipRepository implements MembershipRepository {
 		return null;
 	}
 
+	public function getMembershipApplicationById( int $id ): ?MembershipApplication {
+		if ( $this->throwOnRead ) {
+			throw new GetMembershipApplicationException();
+		}
+
+		if ( array_key_exists( $id, $this->applications ) ) {
+			return clone $this->applications[$id];
+		}
+
+		return null;
+	}
 }
