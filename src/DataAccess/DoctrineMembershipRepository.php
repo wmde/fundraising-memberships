@@ -54,6 +54,11 @@ class DoctrineMembershipRepository implements MembershipRepository {
 		);
 	}
 
+	public function getMembershipApplicationById( int $id ): ?MembershipApplication {
+		$application = $this->table->getApplicationOrNullById( $id );
+		return $application === null ? null : $this->convertMembershipApplication( $application );
+	}
+
 	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication {
 		$application = $this->table->getApplicationOrNullById( $id );
 
@@ -65,6 +70,10 @@ class DoctrineMembershipRepository implements MembershipRepository {
 			throw new ApplicationAnonymizedException();
 		}
 
+		return $this->convertMembershipApplication( $application );
+	}
+
+	private function convertMembershipApplication( DoctrineApplication $application ): MembershipApplication {
 		$converter = new LegacyToDomainConverter();
 		return $converter->createFromLegacyObject( $application );
 	}

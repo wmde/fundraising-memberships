@@ -84,14 +84,6 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		);
 	}
 
-	public function testWhenRepositoryThrowsAnonymizedException_anonymizedMessageIsPresented(): void {
-		$this->repository->throwAnonymizedOnRead();
-
-		$this->invokeUseCaseWithCorrectRequestModel();
-
-		$this->assertTrue( $this->presenter->anonymizedResponseWasShown() );
-	}
-
 	public function testWhenAuthorizerReturnsFalse_accessViolationIsPresented(): void {
 		$this->authorizer = new FailingAuthorizationChecker();
 

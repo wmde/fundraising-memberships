@@ -18,8 +18,6 @@ interface ShowApplicationConfirmationPresenter {
 	 */
 	public function presentConfirmation( MembershipApplication $application, array $paymentData, MembershipTracking $tracking ): void;
 
-	public function presentApplicationWasAnonymized(): void;
-
 	public function presentAccessViolation(): void;
 
 	public function presentTechnicalError( string $message ): void;

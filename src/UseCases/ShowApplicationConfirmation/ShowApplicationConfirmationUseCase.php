@@ -5,7 +5,6 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\UseCases\ShowApplicationConfirmation;
 
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizationChecker;
-use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\GetMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\MembershipRepository;
 use WMDE\Fundraising\MembershipContext\Tracking\MembershipTrackingRepository;
@@ -29,7 +28,7 @@ class ShowApplicationConfirmationUseCase {
 		}
 
 		try {
-			$application = $this->repository->getUnexportedMembershipApplicationById( $request->getApplicationId() );
+			$application = $this->repository->getMembershipApplicationById( $request->getApplicationId() );
 			$tracking = $this->piwikTracker->getTracking( $request->getApplicationId() );
 
 			// This is here to make phpstan happy, the authorizer already checks for non-existing membership applications
@@ -39,9 +38,6 @@ class ShowApplicationConfirmationUseCase {
 			}
 
 			$paymentData = $this->getPaymentUseCase->getPaymentDataArray( $application->getPaymentId() );
-		} catch ( ApplicationAnonymizedException $ex ) {
-			$this->presenter->presentApplicationWasAnonymized();
-			return;
 		} catch ( GetMembershipApplicationException $ex ) {
 			$this->presenter->presentTechnicalError( 'A database error occurred' );
 			return;

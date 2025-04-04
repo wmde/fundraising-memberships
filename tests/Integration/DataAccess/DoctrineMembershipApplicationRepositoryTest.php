@@ -28,8 +28,8 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 	use ThrowingEntityManagerTrait;
 
-	private const MEMBERSHIP_APPLICATION_ID = 1;
-	private const ID_OF_APPLICATION_NOT_IN_DB = 35505;
+	private const int MEMBERSHIP_APPLICATION_ID = 1;
+	private const int ID_OF_APPLICATION_NOT_IN_DB = 35505;
 
 	private EntityManager $entityManager;
 
@@ -68,7 +68,88 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$this->assertSame( self::MEMBERSHIP_APPLICATION_ID, $application->getId() );
 	}
 
-	public function testWhenMembershipApplicationInDatabase_itIsReturnedAsMatchingDomainEntity(): void {
+	public function testWriteAndReadRoundtrip(): void {
+		$repository = $this->givenApplicationRepository();
+		$application = ValidMembershipApplication::newDomainEntity();
+
+		$repository->storeApplication( $application );
+
+		$this->assertEquals(
+			$application,
+			$repository->getMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )
+		);
+	}
+
+	public function testApplicationWithIncentivesHasIncentivesAfterRoundtrip(): void {
+		$incentive = ValidMembershipApplication::newIncentive();
+		$this->entityManager->persist( $incentive );
+		$this->entityManager->flush();
+		$application = ValidMembershipApplication::newCompanyApplication();
+		$application->addIncentive( $incentive );
+		$repo = $this->givenApplicationRepository();
+		$repo->storeApplication( $application );
+		// find() will retrieve a cached value, so we should clear the entity cache here
+		$this->entityManager->clear();
+
+		$actual = $repo->getMembershipApplicationById( $application->getId() );
+		$this->assertNotNull( $actual );
+		$incentives = iterator_to_array( $actual->getIncentives() );
+
+		$this->assertCount( 1, $incentives );
+		$this->assertEquals( $incentive, $incentives[0] );
+	}
+
+	public function testNewModeratedMembershipApplicationPersistenceRoundTrip(): void {
+		$application = ValidMembershipApplication::newCompanyApplication();
+		$application->markForModeration(
+			new ModerationReason( ModerationIdentifier::ADDRESS_CONTENT_VIOLATION )
+		);
+
+		$repository = $this->givenApplicationRepository();
+
+		$repository->storeApplication( $application );
+		// find() will retrieve a cached value, so we should clear the entity cache here
+		$this->entityManager->clear();
+		$membershipApplication = $repository->getMembershipApplicationById( $application->getId() );
+
+		$this->assertNotNull( $membershipApplication );
+		$this->assertEquals( $application->getModerationReasons(), $membershipApplication->getModerationReasons() );
+	}
+
+	public function testGetMembershipApplicationById_WhenMembershipApplicationInDatabase_itIsReturnedAsMatchingDomainEntity(): void {
+		$this->storeDoctrineApplication( ValidMembershipApplication::newDoctrineEntity() );
+
+		$expected = ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID );
+
+		$this->assertEquals(
+			$expected,
+			$this->givenApplicationRepository()->getMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )
+		);
+	}
+
+	public function testGetMembershipApplicationById_WhenEntityDoesNotExist_getEntityReturnsNull(): void {
+		$this->assertNull( $this->givenApplicationRepository()->getMembershipApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB ) );
+	}
+
+	public function testGetMembershipApplicationById_WhenReadFails_domainExceptionIsThrown(): void {
+		$repository = $this->givenApplicationRepository( $this->getThrowingEntityManager() );
+
+		$this->expectException( GetMembershipApplicationException::class );
+		$repository->getMembershipApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB );
+	}
+
+	public function testGetMembershipApplicationById_ReadingAnonymizedApplication_itIsReturnedAsMatchingDomainEntity(): void {
+		$this->storeDoctrineApplication( ValidMembershipApplication::newAnonymizedDoctrineEntity() );
+
+		$expected = ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID );
+
+		$this->assertEquals(
+			$expected,
+			$this->givenApplicationRepository()->getMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )
+		);
+	}
+
+	public function testGetUnexportedMembershipApplicationById_WhenMembershipApplicationInDatabase_itIsReturnedAsMatchingDomainEntity(): void {
 		$this->storeDoctrineApplication( ValidMembershipApplication::newDoctrineEntity() );
 
 		$expected = ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID );
@@ -79,15 +160,23 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		);
 	}
 
-	public function testWhenEntityDoesNotExist_getEntityReturnsNull(): void {
+	public function testGetUnexportedMembershipApplicationById_WhenEntityDoesNotExist_getEntityReturnsNull(): void {
 		$this->assertNull( $this->givenApplicationRepository()->getUnexportedMembershipApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB ) );
 	}
 
-	public function testWhenReadFails_domainExceptionIsThrown(): void {
+	public function testGetUnexportedMembershipApplicationById_WhenReadFails_domainExceptionIsThrown(): void {
 		$repository = $this->givenApplicationRepository( $this->getThrowingEntityManager() );
 
 		$this->expectException( GetMembershipApplicationException::class );
 		$repository->getUnexportedMembershipApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB );
+	}
+
+	public function testGetUnexportedMembershipApplicationById_ReadingAnonymizedApplication_anonymizedExceptionIsThrown(): void {
+		$this->storeDoctrineApplication( ValidMembershipApplication::newAnonymizedDoctrineEntity() );
+
+		$this->expectException( ApplicationAnonymizedException::class );
+
+		$this->givenApplicationRepository()->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID );
 	}
 
 	public function testWhenApplicationAlreadyExists_persistingCausesUpdate(): void {
@@ -105,18 +194,6 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$doctrineApplication = $this->getApplicationFromDatabase( $newApplication->getId() );
 
 		$this->assertSame( 'chuck.norris@always.win', $doctrineApplication->getApplicantEmailAddress() );
-	}
-
-	public function testWriteAndReadRoundtrip(): void {
-		$repository = $this->givenApplicationRepository();
-		$application = ValidMembershipApplication::newDomainEntity();
-
-		$repository->storeApplication( $application );
-
-		$this->assertEquals(
-			$application,
-			$repository->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )
-		);
 	}
 
 	public function testGivenDoctrineApplicationWithCancelledFlag_initialStatusIsPreserved(): void {
@@ -139,50 +216,6 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 
 		$this->assertNotNull( $actual->getCompany() );
 		$this->assertEquals( $expected->getCompany(), $actual->getCompany() );
-	}
-
-	public function testReadingAnonymizedApplication_anonymizedExceptionIsThrown(): void {
-		$this->storeDoctrineApplication( ValidMembershipApplication::newAnonymizedDoctrineEntity() );
-
-		$this->expectException( ApplicationAnonymizedException::class );
-
-		$this->givenApplicationRepository()->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID );
-	}
-
-	public function testApplicationWithIncentivesHasIncentivesAfterRoundtrip(): void {
-		$incentive = ValidMembershipApplication::newIncentive();
-		$this->entityManager->persist( $incentive );
-		$this->entityManager->flush();
-		$application = ValidMembershipApplication::newCompanyApplication();
-		$application->addIncentive( $incentive );
-		$repo = $this->givenApplicationRepository();
-		$repo->storeApplication( $application );
-		// find() will retrieve a cached value, so we should clear the entity cache here
-		$this->entityManager->clear();
-
-		$actual = $repo->getUnexportedMembershipApplicationById( $application->getId() );
-		$this->assertNotNull( $actual );
-		$incentives = iterator_to_array( $actual->getIncentives() );
-
-		$this->assertCount( 1, $incentives );
-		$this->assertEquals( $incentive, $incentives[0] );
-	}
-
-	public function testNewModeratedMembershipApplicationPersistenceRoundTrip(): void {
-		$application = ValidMembershipApplication::newCompanyApplication();
-		$application->markForModeration(
-			new ModerationReason( ModerationIdentifier::ADDRESS_CONTENT_VIOLATION )
-		);
-
-		$repository = $this->givenApplicationRepository();
-
-		$repository->storeApplication( $application );
-		// find() will retrieve a cached value, so we should clear the entity cache here
-		$this->entityManager->clear();
-		$membershipApplication = $repository->getUnexportedMembershipApplicationById( $application->getId() );
-
-		$this->assertNotNull( $membershipApplication );
-		$this->assertEquals( $application->getModerationReasons(), $membershipApplication->getModerationReasons() );
 	}
 
 	private function givenApplicationRepository( ?EntityManager $entityManager = null ): MembershipRepository {

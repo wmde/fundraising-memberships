@@ -13,12 +13,12 @@ interface MembershipRepository {
 	 */
 	public function storeApplication( MembershipApplication $application ): void;
 
+	public function getMembershipApplicationById( int $id ): ?MembershipApplication;
+
 	/**
-	 * Get a MembershipApplication domain object.
+	 * Get an un-exported MembershipApplication domain object.
 	 *
 	 * Will throw a {@see ApplicationAnonymizedException} when the membership application has been anonymized.
-	 * For most of the use cases this is desired behavior. If you ever need to read an anonymized membership application,
-	 * add a new method to the interface.
 	 *
 	 * @param int $id
 	 *
