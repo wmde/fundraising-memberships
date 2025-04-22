@@ -2959,32 +2959,28 @@
         },
         {
             "name": "wmde/euro",
-            "version": "1.3.0",
+            "version": "v1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/Euro.git",
-                "reference": "dfcfb7aab1f0c3867e5a9cdddef18205ca796a5e"
+                "reference": "9274edfacf8357927f2f8966de23c2420fabb503"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/Euro/zipball/dfcfb7aab1f0c3867e5a9cdddef18205ca796a5e",
-                "reference": "dfcfb7aab1f0c3867e5a9cdddef18205ca796a5e",
+                "url": "https://api.github.com/repos/wmde/Euro/zipball/9274edfacf8357927f2f8966de23c2420fabb503",
+                "reference": "9274edfacf8357927f2f8966de23c2420fabb503",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": ">=7.4"
+                "php": ">=8.4"
             },
             "require-dev": {
-                "phpunit/phpunit": "~9.0",
-                "wmde/fundraising-phpcs": "~7.0"
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "~11.0",
+                "wmde/fundraising-phpcs": "~12.0"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.1.x-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "WMDE\\Euro\\": "src/"
@@ -2998,9 +2994,9 @@
             "homepage": "https://github.com/wmde/Euro",
             "support": {
                 "issues": "https://github.com/wmde/Euro/issues",
-                "source": "https://github.com/wmde/Euro/tree/1.3.0"
+                "source": "https://github.com/wmde/Euro/tree/v1.4.0"
             },
-            "time": "2022-05-24T08:33:29+00:00"
+            "time": "2025-04-22T10:36:55+00:00"
         },
         {
             "name": "wmde/fun-validators",
@@ -5616,12 +5612,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.4"
     },
-    "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
 }
