@@ -2915,25 +2915,25 @@
         },
         {
             "name": "wmde/email-address",
-            "version": "1.0.2",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/email-address.git",
-                "reference": "9c19879e09f5844e383fac7fe172976bf64740fc"
+                "reference": "28180a7b3df82b74a17d012c1e3739698b27ca2b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/email-address/zipball/9c19879e09f5844e383fac7fe172976bf64740fc",
-                "reference": "9c19879e09f5844e383fac7fe172976bf64740fc",
+                "url": "https://api.github.com/repos/wmde/email-address/zipball/28180a7b3df82b74a17d012c1e3739698b27ca2b",
+                "reference": "28180a7b3df82b74a17d012c1e3739698b27ca2b",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.1"
+                "php": ">=8.4"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.10",
-                "phpunit/phpunit": "~10.0",
-                "wmde/fundraising-phpcs": "~8.0"
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "~12.0",
+                "wmde/fundraising-phpcs": "~12.0"
             },
             "type": "library",
             "extra": {
@@ -2953,9 +2953,9 @@
             "description": "Email Address value object written in PHP 7",
             "support": {
                 "issues": "https://github.com/wmde/email-address/issues",
-                "source": "https://github.com/wmde/email-address/tree/1.0.2"
+                "source": "https://github.com/wmde/email-address/tree/v1.1.0"
             },
-            "time": "2023-08-04T04:23:15+00:00"
+            "time": "2025-04-22T10:40:19+00:00"
         },
         {
             "name": "wmde/euro",
@@ -5616,12 +5616,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.4"
     },
-    "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
 }
