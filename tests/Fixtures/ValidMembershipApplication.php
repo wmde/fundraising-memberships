@@ -204,8 +204,8 @@ class ValidMembershipApplication {
 		return $application;
 	}
 
-	public static function newDoctrineCompanyEntity(): DoctrineMembershipApplication {
-		$application = self::createDoctrineApplicationWithoutApplicantName();
+	public static function newDoctrineCompanyEntity( int $id = self::DEFAULT_ID ): DoctrineMembershipApplication {
+		$application = self::createDoctrineApplicationWithoutApplicantName( $id );
 
 		$application->setCompany( self::APPLICANT_COMPANY_NAME );
 		$application->setApplicantTitle( '' );
@@ -217,9 +217,9 @@ class ValidMembershipApplication {
 		return $application;
 	}
 
-	public static function newAnonymizedDoctrineEntity(): DoctrineMembershipApplication {
-		$application = self::newDoctrineEntity();
-		$application->setBackup( new DateTime() );
+	public static function newAnonymizedDoctrineEntity( int $id = self::DEFAULT_ID, ?DateTime $backupTime = null ): DoctrineMembershipApplication {
+		$application = self::newDoctrineEntity( $id );
+		$application->setBackup( $backupTime ?? new DateTime() );
 		return $application;
 	}
 
