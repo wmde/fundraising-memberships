@@ -5552,26 +5552,25 @@
         },
         {
             "name": "wmde/psr-log-test-doubles",
-            "version": "v3.2.0",
+            "version": "v3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/PsrLogTestDoubles.git",
-                "reference": "bd8d677c72a7f107c2179fe1eeb830c59412d9bf"
+                "reference": "738eca9021325e9960328fdcc28c97df1118f681"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/PsrLogTestDoubles/zipball/bd8d677c72a7f107c2179fe1eeb830c59412d9bf",
-                "reference": "bd8d677c72a7f107c2179fe1eeb830c59412d9bf",
+                "url": "https://api.github.com/repos/wmde/PsrLogTestDoubles/zipball/738eca9021325e9960328fdcc28c97df1118f681",
+                "reference": "738eca9021325e9960328fdcc28c97df1118f681",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.0",
-                "psr/log": "~3.0|~2.0"
+                "php": ">=8.3",
+                "psr/log": "~3.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.4.2",
-                "phpunit/phpunit": "~9.5",
-                "vimeo/psalm": "^4.18.1"
+                "phpstan/phpstan": "^2.0.2",
+                "phpunit/phpunit": "~11.0"
             },
             "type": "library",
             "autoload": {
@@ -5584,6 +5583,10 @@
                 "GPL-2.0-or-later"
             ],
             "authors": [
+                {
+                    "name": "Wikimedia Deutschland FUN Team",
+                    "email": "fundraising-tech-internal@wikimedia.de"
+                },
                 {
                     "name": "Jeroen De Dauw",
                     "email": "jeroendedauw@gmail.com",
@@ -5610,19 +5613,19 @@
             ],
             "support": {
                 "issues": "https://github.com/wmde/PsrLogTestDoubles/issues",
-                "source": "https://github.com/wmde/PsrLogTestDoubles/tree/v3.2.0"
+                "source": "https://github.com/wmde/PsrLogTestDoubles/tree/v3.4.0"
             },
-            "time": "2022-05-02T08:10:10+00:00"
+            "time": "2025-04-24T08:44:30+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.4"
     },
-    "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
 }
