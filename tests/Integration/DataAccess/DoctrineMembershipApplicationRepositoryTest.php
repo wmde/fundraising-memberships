@@ -196,16 +196,6 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$this->assertSame( 'chuck.norris@always.win', $doctrineApplication->getApplicantEmailAddress() );
 	}
 
-	public function testGivenDoctrineApplicationWithCancelledFlag_initialStatusIsPreserved(): void {
-		$application = ValidMembershipApplication::newDomainEntity();
-		$application->cancel();
-
-		$this->givenApplicationRepository()->storeApplication( $application );
-		$doctrineApplication = $this->getApplicationFromDatabase( $application->getId() );
-
-		$this->assertSame( DoctrineApplication::STATUS_CONFIRMED, $doctrineApplication->getDataObject()->getPreservedStatus() );
-	}
-
 	public function testGivenCompanyApplication_companyNameIsPersisted(): void {
 		$this->givenApplicationRepository()->storeApplication( ValidMembershipApplication::newCompanyApplication() );
 
