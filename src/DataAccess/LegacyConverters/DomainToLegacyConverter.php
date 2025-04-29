@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\Collection;
 use Traversable;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
-use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
@@ -39,7 +38,6 @@ class DomainToLegacyConverter {
 		);
 
 		$doctrineStatus = $this->getDoctrineStatus( $application );
-		$this->preserveDoctrineStatus( $doctrineApplication, $doctrineStatus );
 		$doctrineApplication->setStatus( $doctrineStatus );
 	}
 
@@ -154,13 +152,5 @@ class DomainToLegacyConverter {
 		}
 
 		return DoctrineApplication::STATUS_NEUTRAL;
-	}
-
-	private function preserveDoctrineStatus( DoctrineApplication $doctrineApplication, int $doctrineStatus ): void {
-		if ( $doctrineStatus < DoctrineApplication::STATUS_CONFIRMED ) {
-			$doctrineApplication->modifyDataObject( static function ( MembershipApplicationData $data ): void {
-				$data->setPreservedStatus( DoctrineApplication::STATUS_CONFIRMED );
-			} );
-		}
 	}
 }
