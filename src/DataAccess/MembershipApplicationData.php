@@ -4,6 +4,10 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
+/**
+ * @deprecated The access tokens are an HTTP layer detail that does not belong in the domain.
+ *              You should access this information using the AuthenticationToken entity in the Application or Op Center.
+ */
 class MembershipApplicationData {
 
 	private ?string $accessToken = null;

@@ -629,9 +629,10 @@ class MembershipApplication {
 	}
 
 	/**
-	 * WARNING: updates made to the return value will not be reflected in the Donation state.
-	 * Similarly, updates to the Donation state will not propagate to the returned object.
-	 * To update the Donation state, explicitly call @see setDataObject.
+	 * WARNING: updates made to the return value will not be reflected in the Membership state.
+	 * Similarly, updates to the Membership state will not propagate to the returned object.
+	 * To update the Membership state, explicitly call @see setDataObject.
+	 * @deprecated The access tokens have been removed from the blob. You should set this information using the AuthenticationToken entity in the Application or Op Center
 	 */
 	public function getDataObject(): MembershipApplicationData {
 		$dataArray = $this->getDecodedData();
@@ -645,6 +646,9 @@ class MembershipApplication {
 		return $data;
 	}
 
+	/**
+	 * @deprecated The access tokens have been removed from the blob. You should set this information using the AuthenticationToken entity in the Application or Op Center
+	 */
 	public function setDataObject( MembershipApplicationData $data ): void {
 		$dataArray = array_merge(
 			$this->getDecodedData(),
@@ -666,6 +670,7 @@ class MembershipApplication {
 
 	/**
 	 * @param callable $modificationFunction Takes a modifiable MembershipApplicationData parameter
+	 * @deprecated The access tokens have been removed from the blob. You should set this information using the AuthenticationToken entity in the Application or Op Center
 	 */
 	public function modifyDataObject( callable $modificationFunction ): void {
 		$dataObject = $this->getDataObject();

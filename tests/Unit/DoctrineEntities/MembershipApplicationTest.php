@@ -96,6 +96,9 @@ class MembershipApplicationTest extends TestCase {
 		);
 	}
 
+	/**
+	 * @deprecated Remove when removing {@see MembershipApplication::modifyDataObject}
+	 */
 	public function testWhenModifyingTheDataObject_modificationsAreReflected(): void {
 		$application = new MembershipApplication();
 		$application->encodeAndSetData( [
