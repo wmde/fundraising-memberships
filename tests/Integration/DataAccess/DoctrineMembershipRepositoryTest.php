@@ -24,7 +24,7 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 #[CoversClass( DoctrineMembershipRepository::class )]
-class DoctrineMembershipApplicationRepositoryTest extends TestCase {
+class DoctrineMembershipRepositoryTest extends TestCase {
 
 	use ThrowingEntityManagerTrait;
 
