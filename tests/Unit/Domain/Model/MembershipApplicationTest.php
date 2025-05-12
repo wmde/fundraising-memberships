@@ -99,7 +99,7 @@ class MembershipApplicationTest extends TestCase {
 		$this->assertFalse( $application->shouldSendConfirmationMail() );
 	}
 
-	public function testGivenConfirmedApplicationWithEmailModeration_shouldSendConfirmationMailReturnsFalse(): void {
+	public function testGivenConfirmedApplicationWithModerationReasons_shouldSendConfirmationMailReturnsFalse(): void {
 		$application = ValidMembershipApplication::newApplication();
 		$application->confirm();
 		$application->markForModeration( new ModerationReason( ModerationIdentifier::EMAIL_BLOCKED ) );
@@ -107,11 +107,9 @@ class MembershipApplicationTest extends TestCase {
 		$this->assertFalse( $application->shouldSendConfirmationMail() );
 	}
 
-	public function testGivenConfirmedApplicationWithOtherModeration_shouldSendConfirmationMailReturnsTrue(): void {
+	public function testGivenConfirmedApplicationWithoutModerationReasons_shouldSendConfirmationMailReturnsTrue(): void {
 		$application = ValidMembershipApplication::newApplication();
 		$application->confirm();
-		$application->markForModeration( new ModerationReason( ModerationIdentifier::MANUALLY_FLAGGED_BY_ADMIN ) );
-
 		$this->assertTrue( $application->shouldSendConfirmationMail() );
 	}
 

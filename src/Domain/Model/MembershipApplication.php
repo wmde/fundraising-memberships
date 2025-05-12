@@ -144,10 +144,8 @@ class MembershipApplication {
 		if ( !$this->confirmed ) {
 			return false;
 		}
-		foreach ( $this->moderationReasons as $moderationReason ) {
-			if ( $moderationReason->getModerationIdentifier() === ModerationIdentifier::EMAIL_BLOCKED ) {
-				return false;
-			}
+		if ( count( $this->moderationReasons ) > 0 ) {
+			return false;
 		}
 		return true;
 	}
