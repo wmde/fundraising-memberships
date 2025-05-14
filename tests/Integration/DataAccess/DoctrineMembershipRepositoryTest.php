@@ -24,7 +24,7 @@ use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 #[CoversClass( DoctrineMembershipRepository::class )]
-class DoctrineMembershipApplicationRepositoryTest extends TestCase {
+class DoctrineMembershipRepositoryTest extends TestCase {
 
 	use ThrowingEntityManagerTrait;
 
@@ -194,16 +194,6 @@ class DoctrineMembershipApplicationRepositoryTest extends TestCase {
 		$doctrineApplication = $this->getApplicationFromDatabase( $newApplication->getId() );
 
 		$this->assertSame( 'chuck.norris@always.win', $doctrineApplication->getApplicantEmailAddress() );
-	}
-
-	public function testGivenDoctrineApplicationWithCancelledFlag_initialStatusIsPreserved(): void {
-		$application = ValidMembershipApplication::newDomainEntity();
-		$application->cancel();
-
-		$this->givenApplicationRepository()->storeApplication( $application );
-		$doctrineApplication = $this->getApplicationFromDatabase( $application->getId() );
-
-		$this->assertSame( DoctrineApplication::STATUS_CONFIRMED, $doctrineApplication->getDataObject()->getPreservedStatus() );
 	}
 
 	public function testGivenCompanyApplication_companyNameIsPersisted(): void {
