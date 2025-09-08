@@ -22,8 +22,8 @@ class MembershipId {
 
 	/**
 	 * used for doctrine mapping only
-	 * @phpstan-ignore-next-line
 	 */
+	// @phpstan-ignore-next-line
 	private ?int $id = null;
 
 	public function __construct( private readonly int $membershipId = 0 ) {

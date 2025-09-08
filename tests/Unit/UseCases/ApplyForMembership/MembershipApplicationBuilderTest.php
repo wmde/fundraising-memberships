@@ -122,7 +122,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 		];
 		$incentiveFinder = new TestIncentiveFinder( $incentives );
 		$request = $this->newCompanyMembershipRequest( false, array_map(
-			fn ( $incentive ) => $incentive->getName(),
+			static fn ( $incentive ) => $incentive->getName(),
 			$incentives
 		) );
 		$builder = new MembershipApplicationBuilder( $incentiveFinder );

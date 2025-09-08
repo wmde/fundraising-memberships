@@ -32,8 +32,8 @@ class MembershipApplication {
 	 * Until we remove all references to this field in the backend, the field is not removed but just marked as deprecated.
 	 *
 	 * @deprecated
-	 * @phpstan-ignore-next-line
 	 */
+	// @phpstan-ignore-next-line
 	private ?int $donationId = null;
 
 	private ?DateTime $creationTime = null;

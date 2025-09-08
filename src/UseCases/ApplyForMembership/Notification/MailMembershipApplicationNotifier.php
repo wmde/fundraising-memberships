@@ -72,7 +72,7 @@ class MailMembershipApplicationNotifier implements MembershipNotifier {
 	public function sendModerationNotificationToAdmin( MembershipApplication $application ): void {
 		$importantReasons = array_filter(
 			$application->getModerationReasons(),
-			fn ( $moderationReason ) => $moderationReason->getModerationIdentifier() === ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH
+			static fn ( $moderationReason ) => $moderationReason->getModerationIdentifier() === ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH
 		);
 		if ( count( $importantReasons ) === 0 ) {
 			return;
