@@ -40,6 +40,7 @@ class FeeChangeUseCase {
 		}
 
 		$presenter->showFeeChangeForm(
+			$uuid,
 			$feeChange->getExternalMemberId(),
 			$feeChange->getCurrentAmountInCents(),
 			$feeChange->getSuggestedAmountInCents(),

@@ -59,6 +59,7 @@ class FeeChangeUseCaseTest extends TestCase {
 		$useCase = $this->newFeeChangeUseCase();
 
 		$presenter->expects( $this->once() )->method( 'showFeeChangeForm' )->with(
+			self::UUID_NEW_FEE_CHANGE,
 			FeeChanges::EXTERNAL_MEMBER_ID,
 			FeeChanges::AMOUNT,
 			FeeChanges::SUGGESTED_AMOUNT,
