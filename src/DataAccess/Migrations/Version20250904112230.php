@@ -28,6 +28,7 @@ final class Version20250904112230 extends AbstractMigration {
 		);
 		$feeChangesTable->addColumn( 'uuid', 'string', [ 'length' => 36, 'notnull' => true, 'unique' => true ] );
 		$feeChangesTable->addColumn( 'external_member_id', 'integer', [ 'notnull' => true ] );
+		$feeChangesTable->addColumn( 'member_name', 'string', [ 'length' => 255 ] );
 		$feeChangesTable->addColumn( 'current_amount_in_cents', 'integer', [ 'notnull' => true ] );
 		$feeChangesTable->addColumn( 'suggested_amount_in_cents', 'integer', [ 'notnull' => true ] );
 		$feeChangesTable->addColumn( 'current_interval', 'integer', [ 'notnull' => true ] );

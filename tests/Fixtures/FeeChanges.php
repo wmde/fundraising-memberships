@@ -14,6 +14,7 @@ class FeeChanges {
 	public const string UUID_4 = 'e76569bf-f73b-4a7c-bb40-bcb5a3ba6abc';
 	public const int PAYMENT_ID = 1;
 	public const int EXTERNAL_MEMBER_ID = 12345678;
+	public const string MEMBER_NAME = 'James T. Kirk';
 	public const int AMOUNT = 4200;
 	public const int SUGGESTED_AMOUNT = 6400;
 	public const int INTERVAL = 12;
@@ -25,6 +26,7 @@ class FeeChanges {
 			$uuid,
 			self::PAYMENT_ID,
 			self::EXTERNAL_MEMBER_ID,
+			'',
 			self::AMOUNT,
 			self::SUGGESTED_AMOUNT,
 			self::INTERVAL,
@@ -38,6 +40,7 @@ class FeeChanges {
 			$uuid,
 			self::PAYMENT_ID,
 			self::EXTERNAL_MEMBER_ID,
+			'',
 			self::AMOUNT,
 			self::SUGGESTED_AMOUNT,
 			self::INTERVAL,
@@ -51,6 +54,7 @@ class FeeChanges {
 			$uuid,
 			self::PAYMENT_ID,
 			self::EXTERNAL_MEMBER_ID,
+			'',
 			self::AMOUNT,
 			self::SUGGESTED_AMOUNT,
 			self::INTERVAL,

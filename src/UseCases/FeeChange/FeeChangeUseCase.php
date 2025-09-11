@@ -66,7 +66,7 @@ class FeeChangeUseCase {
 				return new FeeChangeResponse( false, $paymentViolations->getViolations() );
 			}
 
-			$feeChange->updateMembershipFee( $paymentCreationResponse->paymentId );
+			$feeChange->updateMembershipFee( $paymentCreationResponse->paymentId, $feeChangeRequest->memberName );
 			$this->feeChangeRepository->storeFeeChange( $feeChange );
 			return new FeeChangeResponse( true );
 		} catch ( FeeChangeException $e ) {

@@ -15,9 +15,10 @@ class FeeChangeTest extends TestCase {
 	public function testUpgradeMembershipUpgradesMembership(): void {
 		$feeChange = FeeChanges::newNewFeeChange( FeeChanges::UUID_1 );
 
-		$feeChange->updateMembershipFee( 12 );
+		$feeChange->updateMembershipFee( 12, FeeChanges::MEMBER_NAME );
 
 		$this->assertEquals( 12, $feeChange->getPaymentId() );
+		$this->assertEquals( FeeChanges::MEMBER_NAME, $feeChange->getMemberName() );
 		$this->assertEquals( FeeChangeState::FILLED, $feeChange->getState() );
 	}
 

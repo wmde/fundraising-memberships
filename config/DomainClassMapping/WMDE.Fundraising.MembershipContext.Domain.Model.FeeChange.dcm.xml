@@ -6,6 +6,7 @@
     </id>
     <field name="uuid" type="string" column="uuid" length="36" unique="true"/>
     <field name="externalMemberId" type="integer" column="external_member_id"/>
+    <field name="memberName" type="string" length="255" column="member_name"/>
     <field name="currentAmountInCents" type="integer" column="current_amount_in_cents"/>
     <field name="suggestedAmountInCents" type="integer" column="suggested_amount_in_cents"/>
     <field name="currentInterval" type="integer" column="current_interval"/>

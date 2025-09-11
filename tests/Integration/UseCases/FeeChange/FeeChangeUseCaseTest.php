@@ -105,7 +105,7 @@ class FeeChangeUseCaseTest extends TestCase {
 
 		$this->assertEquals(
 			new FeeChangeResponse( true ),
-			$useCase->changeFee( new FeeChangeRequest( self::UUID_NEW_FEE_CHANGE, FeeChanges::AMOUNT, FeeChanges::PAYMENT_TYPE ) )
+			$useCase->changeFee( new FeeChangeRequest( self::UUID_NEW_FEE_CHANGE, FeeChanges::MEMBER_NAME, FeeChanges::AMOUNT, FeeChanges::PAYMENT_TYPE ) )
 		);
 
 		/** @var FeeChange $storedFeeChange */
@@ -136,6 +136,7 @@ class FeeChangeUseCaseTest extends TestCase {
 			new FeeChangeResponse( true ),
 			$useCase->changeFee( new FeeChangeRequest(
 				self::UUID_NEW_FEE_CHANGE,
+				FeeChanges::MEMBER_NAME,
 				FeeChanges::AMOUNT,
 				PaymentType::DirectDebit->value,
 				'DE02120300000000202051',
@@ -154,7 +155,7 @@ class FeeChangeUseCaseTest extends TestCase {
 
 		$this->assertEquals(
 			new FeeChangeResponse( false, [ 'exception' => 'Could not find FeeChange with uuid ' . self::UUID_MISSING_FEE_CHANGE ] ),
-			$useCase->changeFee( new FeeChangeRequest( self::UUID_MISSING_FEE_CHANGE, FeeChanges::AMOUNT, FeeChanges::PAYMENT_TYPE ) )
+			$useCase->changeFee( new FeeChangeRequest( self::UUID_MISSING_FEE_CHANGE, FeeChanges::MEMBER_NAME, FeeChanges::AMOUNT, FeeChanges::PAYMENT_TYPE ) )
 		);
 	}
 
@@ -163,7 +164,7 @@ class FeeChangeUseCaseTest extends TestCase {
 
 		$this->assertEquals(
 			new FeeChangeResponse( false, [ 'payment' => 'Payment did a fail' ] ),
-			$useCase->changeFee( new FeeChangeRequest( self::UUID_NEW_FEE_CHANGE, FeeChanges::AMOUNT, FeeChanges::PAYMENT_TYPE ) )
+			$useCase->changeFee( new FeeChangeRequest( self::UUID_NEW_FEE_CHANGE, FeeChanges::MEMBER_NAME, FeeChanges::AMOUNT, FeeChanges::PAYMENT_TYPE ) )
 		);
 	}
 
@@ -181,7 +182,7 @@ class FeeChangeUseCaseTest extends TestCase {
 
 		$this->assertEquals(
 			new FeeChangeResponse( false, [ 'fee_change_already_submitted' => "This fee change ({$feeChangeUUID}) was already submitted" ] ),
-			$useCase->changeFee( new FeeChangeRequest( $feeChangeUUID, FeeChanges::AMOUNT, FeeChanges::PAYMENT_TYPE ) )
+			$useCase->changeFee( new FeeChangeRequest( $feeChangeUUID, FeeChanges::MEMBER_NAME, FeeChanges::AMOUNT, FeeChanges::PAYMENT_TYPE ) )
 		);
 	}
 

@@ -5,16 +5,15 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
 class FeeChange {
-	/**
-	 * This is set by Doctrine
-	 * @phpstan-ignore-next-line
-	 */
+	// This is set by Doctrine
+	// @phpstan-ignore-next-line
 	private ?int $id;
 
 	public function __construct(
 		private readonly string $uuid,
 		private int $paymentId,
 		private int $externalMemberId,
+		private string $memberName,
 		private int $currentAmountInCents,
 		private int $suggestedAmountInCents,
 		private int $currentInterval,
@@ -39,6 +38,10 @@ class FeeChange {
 		return $this->externalMemberId;
 	}
 
+	public function getMemberName(): string {
+		return $this->memberName;
+	}
+
 	public function getCurrentAmountInCents(): int {
 		return $this->currentAmountInCents;
 	}
@@ -59,7 +62,8 @@ class FeeChange {
 		return $this->exportDate;
 	}
 
-	public function updateMembershipFee( int $paymentId ): void {
+	public function updateMembershipFee( int $paymentId, string $memberName ): void {
+		$this->memberName = $memberName;
 		$this->paymentId = $paymentId;
 		$this->state = FeeChangeState::FILLED;
 	}
