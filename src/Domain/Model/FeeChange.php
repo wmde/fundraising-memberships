@@ -7,8 +7,8 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 class FeeChange {
 	/**
 	 * This is set by Doctrine
-	 * @phpstan-ignore-next-line
 	 */
+	// @phpstan-ignore-next-line
 	private ?int $id;
 
 	public function __construct(
