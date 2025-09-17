@@ -3096,16 +3096,16 @@
         },
         {
             "name": "wmde/fundraising-payments",
-            "version": "v8.2.1",
+            "version": "v8.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/fundraising-payments",
-                "reference": "a2a90b99bbfa856af72e8db129977d3173e65b56"
+                "reference": "ec187366215070a2ef2da9c32c94c2f0ae67414c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/fundraising-payments/zipball/a2a90b99bbfa856af72e8db129977d3173e65b56",
-                "reference": "a2a90b99bbfa856af72e8db129977d3173e65b56",
+                "url": "https://api.github.com/repos/wmde/fundraising-payments/zipball/ec187366215070a2ef2da9c32c94c2f0ae67414c",
+                "reference": "ec187366215070a2ef2da9c32c94c2f0ae67414c",
                 "shasum": ""
             },
             "require": {
@@ -3134,7 +3134,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "7.0.x-dev"
+                    "dev-main": "8.2.x-dev"
                 }
             },
             "autoload": {
@@ -3151,7 +3151,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Bounded Context for the Wikimedia Deutschland fundraising payment subdomain",
-            "time": "2025-09-12T13:26:18+00:00"
+            "time": "2025-09-17T11:00:20+00:00"
         }
     ],
     "packages-dev": [
