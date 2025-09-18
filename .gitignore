@@ -11,3 +11,5 @@ vendor/
 .phpunit.cache
 
 coverage
+
+.env

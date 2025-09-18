@@ -12,14 +12,12 @@
     <field name="currentInterval" type="integer" column="current_interval"/>
     <field name="state" column="state" enum-type="FeeChangeState"/>
     <field name="exportDate" type="datetime" column="export_date" nullable="true"/>
-    <field name="paymentId" type="integer" column="payment_id" nullable="true">
+    <field name="paymentId" type="integer" column="payment_id" nullable="true" >
       <options>
         <option name="unsigned">true</option>
-        <option name="default">0</option>
       </options>
     </field>
     <indexes>
-      <index name="m_fc_identifier" columns="uuid"/>
       <index name="m_fc_payment_id" columns="payment_id"/>
     </indexes>
   </entity>
