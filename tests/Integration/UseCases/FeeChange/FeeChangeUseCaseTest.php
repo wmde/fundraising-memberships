@@ -159,6 +159,15 @@ class FeeChangeUseCaseTest extends TestCase {
 		);
 	}
 
+	public function testHandlesEmptyMemberName(): void {
+		$useCase = $this->newFeeChangeUseCase();
+
+		$this->assertEquals(
+			new FeeChangeResponse( false, [ 'member_name_required' => 'Member name is required' ] ),
+			$useCase->changeFee( new FeeChangeRequest( self::UUID_NEW_FEE_CHANGE, '', FeeChanges::AMOUNT, FeeChanges::PAYMENT_TYPE ) )
+		);
+	}
+
 	public function testHandlesPaymentCreationFailure(): void {
 		$useCase = $this->newFeeChangeUseCase( createPaymentUseCase: $this->newFailingCreatePaymentUseCase( 'Payment did a fail' ) );
 

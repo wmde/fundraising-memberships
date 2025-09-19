@@ -19,6 +19,11 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentParameters;
 
 class FeeChangeUseCase {
 
+	/**
+	 * A dummy payment ID to indicate failure
+	 */
+	private const int FAILED_PAYMENT_ID = -1;
+
 	public function __construct(
 		private readonly FeeChangeRepository $feeChangeRepository,
 		private readonly PaymentServiceFactory $paymentServiceFactory,
@@ -56,17 +61,30 @@ class FeeChangeUseCase {
 				return new FeeChangeResponse( false, [ 'fee_change_already_submitted' => "This fee change ({$feeChangeRequest->uuid}) was already submitted" ] );
 			}
 
+			$errors = [];
+
+			if ( $feeChangeRequest->memberName == "" ) {
+				$errors[ 'member_name_required' ] = 'Member name is required';
+			}
+
 			$paymentCreationRequest = $this->newPaymentCreationRequest( $feeChangeRequest, $feeChange, $this->urlAuthenticator );
 			$paymentCreationResponse = $this->paymentServiceFactory->getCreatePaymentUseCase()->createPayment( $paymentCreationRequest );
 
+			$paymentId = self::FAILED_PAYMENT_ID;
 			if ( $paymentCreationResponse instanceof FailureResponse ) {
-				$paymentViolations = new ApplicationValidationResult(
+				$errors = array_merge(
+					$errors,
 					[ ApplicationValidationResult::SOURCE_PAYMENT => $paymentCreationResponse->errorMessage ]
 				);
-				return new FeeChangeResponse( false, $paymentViolations->getViolations() );
+			} else {
+				$paymentId = $paymentCreationResponse->paymentId;
 			}
 
-			$feeChange->updateMembershipFee( $paymentCreationResponse->paymentId, $feeChangeRequest->memberName );
+			if ( count( $errors ) > 0 || $paymentId === self::FAILED_PAYMENT_ID ) {
+				return new FeeChangeResponse( false, $errors );
+			}
+
+			$feeChange->updateMembershipFee( $paymentId, $feeChangeRequest->memberName );
 			$this->feeChangeRepository->storeFeeChange( $feeChange );
 			return new FeeChangeResponse( true );
 		} catch ( FeeChangeException $e ) {

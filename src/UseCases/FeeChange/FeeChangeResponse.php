@@ -8,7 +8,7 @@ class FeeChangeResponse {
 
 	/**
 	 * @param bool $success
-	 * @param array<string,string> $validationResult Source name and error message pairs. Rarely more than one pair
+	 * @param array<string,string> $validationResult Source name and error message pairs.
 	 */
 	public function __construct(
 		public readonly bool $success,
