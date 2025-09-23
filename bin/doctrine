@@ -1,0 +1,42 @@
+#!/usr/bin/env php
+<?php
+
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Tools\DsnParser;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\ORMSetup;
+use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
+use Symfony\Component\Dotenv\Dotenv;
+use WMDE\Fundraising\MembershipContext\MembershipContextFactory;
+
+require __DIR__.'/../vendor/autoload.php';
+
+$dotenv = new Dotenv();
+$dotenv->load( __DIR__ . '/../.env' );
+
+function createEntityManager(): EntityManager {
+	if (empty( $_ENV['DB_DSN'] ) ) {
+		echo "You must set the database connection string in 'DB_DSN'\n";
+		exit(1);
+	}
+	$dsnParser = new DsnParser(['mysql' => 'pdo_mysql']);
+	$connectionParams = $dsnParser
+		->parse( $_ENV['DB_DSN'] );
+	$connection = DriverManager::getConnection( $connectionParams );
+
+	$contextFactory = new MembershipContextFactory();
+	$contextFactory->registerCustomTypes( $connection );
+	$doctrineConfig = ORMSetup::createXMLMetadataConfiguration(
+		$contextFactory->getDoctrineMappingPaths(),
+		true
+	);
+
+	return new EntityManager( $connection, $doctrineConfig );
+}
+
+
+ConsoleRunner::run(
+    new SingleManagerProvider(createEntityManager()),
+	[]
+);
