@@ -116,6 +116,7 @@ class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 					strval( MembershipApplication::STATUS_CANCELLED_MODERATION )
 				] )
 			) );
+		$queryBuilder->andWhere( 'is_scrubbed = 0' );
 		return $queryBuilder;
 	}
 
@@ -125,6 +126,7 @@ class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 		foreach ( self::TABLE_FIELDS as $field => $value ) {
 			$queryBuilder->set( $field, $queryBuilder->createNamedParameter( $value ) );
 		}
+		$queryBuilder->set( 'is_scrubbed', '1' );
 		return $queryBuilder;
 	}
 

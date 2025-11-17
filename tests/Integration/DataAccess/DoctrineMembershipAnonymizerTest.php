@@ -135,6 +135,23 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 		$this->assertMembershipIsAnonymized( self::ANOTHER_MEMBERSHIP_ID );
 	}
 
+	public function testAnonymizeAllDoesNotAnonymizeAgain(): void {
+		// We create a data entry that pretends to be scrubbed while still containing the full personal data
+		// In production, such entries should not exist
+		$membership = $this->newMembershipRecord( self::MEMBERSHIP_ID );
+		$membership['is_scrubbed'] = 1;
+		$membership['export'] = date( 'Y-m-d H:i:s' );
+		$this->conn->insert( 'request', $membership );
+		$anonymizer = new DoctrineMembershipAnonymizer( $this->conn );
+		$expectedMembership = $membership;
+		// assertMembershipIsUnAnonymized does not check export field
+		unset( $expectedMembership['export'] );
+
+		$anonymizer->anonymizeAll();
+
+		$this->assertMembershipIsUnAnonymized( $expectedMembership );
+	}
+
 	private function givenThrowingDatabaseConnection(): Connection {
 		$queryBuilderStub = $this->createStub( QueryBuilder::class );
 		$queryBuilderStub->method( 'executeStatement' )
@@ -186,12 +203,13 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 			'status' => MembershipApplication::STATUS_NEUTRAL,
 			'backup' => $nowString,
 			'timestamp' => $creationString,
+			'is_scrubbed' => 0
 		];
 	}
 
 	private function assertMembershipIsAnonymized( int $membershipId ): void {
 		$result = $this->conn->executeQuery(
-			'SELECT anrede, firma, titel, name, vorname, nachname, strasse, plz, ort, email, iban, bic, dob FROM request WHERE id = :id',
+			'SELECT anrede, firma, titel, name, vorname, nachname, strasse, plz, ort, email, iban, bic, dob, is_scrubbed FROM request WHERE id = :id',
 			[ 'id' => $membershipId ]
 		);
 		$row = $result->fetchAssociative();
@@ -209,6 +227,7 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 			'iban' => '',
 			'bic' => '',
 			'dob' => null,
+			'is_scrubbed' => 1
 		], $row );
 	}
 
@@ -220,7 +239,7 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 	private function assertMembershipIsUnAnonymized( array $expectedMembership ): void {
 		unset( $expectedMembership['backup'] );
 		$result = $this->conn->executeQuery(
-			'SELECT id, anrede, firma, titel, name, vorname, nachname, strasse, plz, ort, email, iban, bic, dob, status, timestamp FROM request WHERE id = :id',
+			'SELECT id, anrede, firma, titel, name, vorname, nachname, strasse, plz, ort, email, iban, bic, dob, status, timestamp, is_scrubbed FROM request WHERE id = :id',
 			[ 'id' => $expectedMembership['id'] ]
 		);
 		$row = $result->fetchAssociative();

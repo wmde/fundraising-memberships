@@ -10,8 +10,8 @@ use Traversable;
 
 class MembershipApplication {
 
-	public const ACTIVE_MEMBERSHIP = 'active';
-	public const SUSTAINING_MEMBERSHIP = 'sustaining';
+	public const string ACTIVE_MEMBERSHIP = 'active';
+	public const string SUSTAINING_MEMBERSHIP = 'sustaining';
 
 	/**
 	 * @var ModerationReason[]
