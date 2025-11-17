@@ -6,17 +6,19 @@ namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
-use WMDE\Clock\Clock;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\AnonymizationException;
 use WMDE\Fundraising\MembershipContext\Domain\MembershipAnonymizer;
 
 class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 
-	private const TABLE_NAME = 'request';
+	private const string TABLE_NAME = 'request';
 
-	private const TABLE_FIELDS = [
+	/**
+	 * @const array<string,string>
+	 */
+	private const array TABLE_FIELDS = [
 		'anrede' => '',
 		'firma' => '',
 		'titel' => '',
@@ -37,15 +39,27 @@ class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 	];
 
 	private Connection $conn;
-	private Clock $clock;
-	private \DateInterval $gracePeriodForUnexportedData;
 
-	public function __construct( Connection $conn, Clock $clock, \DateInterval $gracePeriodForUnexportedData ) {
+	public function __construct( Connection $conn ) {
 		$this->conn = $conn;
-		$this->clock = $clock;
-		$this->gracePeriodForUnexportedData = $gracePeriodForUnexportedData;
 	}
 
+	public function anonymizeAll(): int {
+		$this->conn->beginTransaction();
+		$queryBuilder = $this->newUpdateQueryBuilder();
+		$this->addConditionsForExportState( $queryBuilder );
+		try {
+			$rowCount = $queryBuilder->executeStatement();
+			$this->conn->commit();
+		} catch ( \Exception $e ) {
+			throw new AnonymizationException( 'Could not update memberships.', 0, $e );
+		}
+		return intval( $rowCount );
+	}
+
+	/**
+	 * @deprecated Use {@see self::anonymizeAll()} instead
+	 */
 	public function anonymizeAt( \DateTimeImmutable $timestamp ): int {
 		$this->conn->beginTransaction();
 		$queryBuilder = $this->newUpdateQueryBuilder();
@@ -61,9 +75,8 @@ class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 	}
 
 	public function anonymizeWithIds( int ...$membershipIds ): void {
-		$gracePeriodCutoffDate = $this->clock->now()->sub( $this->gracePeriodForUnexportedData )->format( 'Y-m-d H:i:s' );
 		$countQuery = $this->conn->createQueryBuilder()->select( "COUNT(id)" )->from( self::TABLE_NAME );
-		$countQuery = $this->addConditionsForIdsAndExportState( $countQuery, $gracePeriodCutoffDate, ...$membershipIds );
+		$countQuery = $this->addConditionsForIdsAndExportState( $countQuery, ...$membershipIds );
 		$count = $countQuery->executeQuery()->fetchOne();
 		if ( !is_scalar( $count ) || intval( $count ) !== count( $membershipIds ) ) {
 			throw new AnonymizationException( sprintf(
@@ -73,7 +86,7 @@ class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 		}
 
 		$queryBuilder = $this->newUpdateQueryBuilder();
-		$queryBuilder = $this->addConditionsForIdsAndExportState( $queryBuilder, $gracePeriodCutoffDate, ...$membershipIds );
+		$queryBuilder = $this->addConditionsForIdsAndExportState( $queryBuilder, ...$membershipIds );
 
 		try {
 			$queryBuilder->executeStatement();
@@ -82,14 +95,27 @@ class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 		}
 	}
 
-	private function addConditionsForIdsAndExportState( QueryBuilder $queryBuilder, string $gracePeriodCutoffDate, int ...$membershipIds ): QueryBuilder {
-		$queryBuilder->where( 'id IN (:membershipIds)' )
-			->andWhere( $queryBuilder->expr()->or(
+	private function addConditionsForIdsAndExportState( QueryBuilder $queryBuilder, int ...$membershipIds ): QueryBuilder {
+		$queryBuilder->andWhere( 'id IN (:membershipIds)' )
+			->setParameter( 'membershipIds', $membershipIds, ArrayParameterType::INTEGER );
+		return $this->addConditionsForExportState( $queryBuilder );
+	}
+
+	/**
+	 * Add conditions to select the memberships that *can* be scrubbed and protect the memberships that should not be scrubbed.
+	 *
+	 * The "rules" for selecting are
+	 * - Exported Memberships
+	 * - Deleted Memberships
+	 */
+	private function addConditionsForExportState( QueryBuilder $queryBuilder ): QueryBuilder {
+		$queryBuilder->andWhere( $queryBuilder->expr()->or(
 				$queryBuilder->expr()->isNotNull( 'export' ),
-				$queryBuilder->expr()->lte( 'timestamp', ':creationTime' )
-			) )
-			->setParameter( 'membershipIds', $membershipIds, ArrayParameterType::INTEGER )
-			->setParameter( 'creationTime', $gracePeriodCutoffDate, ParameterType::STRING );
+				$queryBuilder->expr()->in( 'status', [
+					strval( MembershipApplication::STATUS_CANCELED ),
+					strval( MembershipApplication::STATUS_CANCELLED_MODERATION )
+				] )
+			) );
 		return $queryBuilder;
 	}
 
@@ -101,4 +127,5 @@ class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 		}
 		return $queryBuilder;
 	}
+
 }
