@@ -50,6 +50,7 @@ class TestMembershipContextFactory {
 			$this->factory->getDoctrineMappingPaths(),
 			$paymentContext->getDoctrineMappingPaths()
 		) );
+		$doctrineConfig->enableNativeLazyObjects( true );
 
 		$entityManager = new EntityManager( $this->getConnection(), $doctrineConfig );
 
