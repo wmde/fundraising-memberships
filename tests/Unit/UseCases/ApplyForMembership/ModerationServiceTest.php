@@ -33,9 +33,10 @@ class ModerationServiceTest extends TestCase {
 	}
 
 	private function newSucceedingTextPolicyValidator(): TextPolicyValidator {
-		$textPolicyValidator = $this->createMock( TextPolicyValidator::class );
-		$textPolicyValidator->method( 'textIsHarmless' )->willReturn( true );
-		return $textPolicyValidator;
+		return $this->createConfiguredStub(
+			TextPolicyValidator::class,
+			[ 'textIsHarmless' => true ]
+		);
 	}
 
 	public function testGivenYearlyAmountTooHigh_MembershipApplicationNeedsModeration(): void {

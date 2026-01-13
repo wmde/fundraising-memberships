@@ -97,8 +97,10 @@ class ValidateMembershipFeeUseCaseTest extends TestCase {
 	public function testGivenLargeInteger_validationFailsWhenConstructingEuroClass(): void {
 		$fakePaymentValidator = $this->createMock( MembershipPaymentValidator::class );
 		$fakePaymentValidator->expects( $this->never() )->method( $this->anything() );
-		$stubbedFactory = $this->createStub( PaymentServiceFactory::class );
-		$stubbedFactory->method( 'newPaymentValidator' )->willReturn( $fakePaymentValidator );
+		$stubbedFactory = $this->createConfiguredStub(
+			PaymentServiceFactory::class,
+			[ 'newPaymentValidator' => $fakePaymentValidator ]
+		);
 		$useCase = new ValidateMembershipFeeUseCase( $stubbedFactory );
 
 		$result = $useCase->validate( PHP_INT_MAX, 12, ApplicantType::PERSON_APPLICANT->value, "BEZ" );

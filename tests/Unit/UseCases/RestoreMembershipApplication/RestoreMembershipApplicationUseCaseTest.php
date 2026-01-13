@@ -132,16 +132,16 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 	}
 
 	private function givenSucceedingCancelPaymentUseCase( bool $paymentIsCompleted = false ): CancelPaymentUseCase {
-		$useCase = $this->createMock( CancelPaymentUseCase::class );
-		$useCase->method( 'restorePayment' )
-			->willReturn( new SuccessResponse( $paymentIsCompleted ) );
-		return $useCase;
+		return $this->createConfiguredStub(
+			CancelPaymentUseCase::class,
+			[ 'restorePayment' => new SuccessResponse( $paymentIsCompleted ) ]
+		);
 	}
 
 	private function givenFailingCancelPaymentUseCase(): CancelPaymentUseCase {
-		$useCase = $this->createMock( CancelPaymentUseCase::class );
-		$useCase->method( 'restorePayment' )
-			->willReturn( new FailureResponse( 'This payment is already cancelled' ) );
-		return $useCase;
+		return $this->createConfiguredStub(
+			CancelPaymentUseCase::class,
+			[ 'restorePayment' => new FailureResponse( 'This payment is already cancelled' ) ]
+		);
 	}
 }

@@ -12,14 +12,14 @@ use RuntimeException;
 trait ThrowingEntityManagerTrait {
 
 	public function getThrowingEntityManager(): EntityManager {
-		$entityManager = $this->getMockBuilder( EntityManager::class )
-			->disableOriginalConstructor()->getMock();
+		$exception = new class( 'This is a test exception from ' . self::class )
+			extends RuntimeException implements ORMException {
+		};
 
-		$entityManager->expects( $this->any() )
-			->method( $this->anything() )
-			->willThrowException( new class( 'This is a test exception from ' . self::class )
-				extends RuntimeException implements ORMException {
-			} );
+		$entityManager = $this->createStub( EntityManager::class );
+
+		$entityManager->method( $this->anything() )
+			->willThrowException( $exception );
 
 		return $entityManager;
 	}

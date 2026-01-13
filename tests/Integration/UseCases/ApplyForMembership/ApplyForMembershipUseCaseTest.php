@@ -53,47 +53,51 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	private const PAYMENT_PROVIDER_URL = 'https://paypal.example.com/';
 
 	private function newSucceedingValidator(): MembershipApplicationValidator {
-		$validator = $this->getMockBuilder( MembershipApplicationValidator::class )
-			->disableOriginalConstructor()->getMock();
-
-		$validator->expects( $this->any() )
-			->method( 'validate' )
-			->willReturn( new ApplicationValidationResult() );
-
-		return $validator;
+		return $this->createConfiguredStub(
+			MembershipApplicationValidator::class,
+			[ 'validate' => new ApplicationValidationResult() ]
+		);
 	}
 
 	private function newSucceedingCreatePaymentUseCase(): CreatePaymentUseCase {
-		$useCaseMock = $this->createMock( CreatePaymentUseCase::class );
-
 		$successResponse = new SuccessResponse(
 			ValidMembershipApplication::PAYMENT_ID,
 			'',
 			true
 		);
 
-		$useCaseMock->method( 'createPayment' )->willReturn( $successResponse );
-		return $useCaseMock;
+		return $this->createConfiguredStub(
+			CreatePaymentUseCase::class,
+			[
+				'createPayment' => $successResponse,
+			]
+		);
 	}
 
 	private function newSucceedingUnconfirmedCreatePaymentUseCase(): CreatePaymentUseCase {
-		$useCaseMock = $this->createMock( CreatePaymentUseCase::class );
-
 		$successResponse = new SuccessResponse(
 			ValidMembershipApplication::PAYMENT_ID,
 			'',
 			false
 		);
 
-		$useCaseMock->method( 'createPayment' )->willReturn( $successResponse );
-		return $useCaseMock;
+		return $this->createConfiguredStub(
+			CreatePaymentUseCase::class,
+			[
+				'createPayment' => $successResponse,
+			]
+		);
 	}
 
 	private function newFailingCreatePaymentUseCase(): CreatePaymentUseCase {
-		$useCaseMock = $this->createMock( CreatePaymentUseCase::class );
-		$responseMock = new FailureResponse( "the payment was not successfull for some reason" );
-		$useCaseMock->method( 'createPayment' )->willReturn( $responseMock );
-		return $useCaseMock;
+		$responseStub = new FailureResponse( "the payment was not successfull for some reason" );
+
+		return $this->createConfiguredStub(
+			CreatePaymentUseCase::class,
+			[
+				'createPayment' => $responseStub,
+			]
+		);
 	}
 
 	public function testGivenValidRequest_applicationSucceeds(): void {
@@ -162,24 +166,17 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	}
 
 	private function newFailingValidator(): MembershipApplicationValidator {
-		$validator = $this->getMockBuilder( MembershipApplicationValidator::class )
-			->disableOriginalConstructor()->getMock();
-
-		$validator->expects( $this->any() )
-			->method( 'validate' )
-			->willReturn( $this->newInvalidValidationResult() );
-
-		return $validator;
+		return $this->createConfiguredStub(
+			MembershipApplicationValidator::class,
+			[ 'validate' => $this->newInvalidValidationResult() ]
+		);
 	}
 
 	private function newInvalidValidationResult(): ApplicationValidationResult {
-		$invalidResult = $this->createMock( ApplicationValidationResult::class );
-
-		$invalidResult->expects( $this->any() )
-			->method( 'isSuccessful' )
-			->willReturn( false );
-
-		return $invalidResult;
+		return $this->createConfiguredStub(
+			ApplicationValidationResult::class,
+			[ 'isSuccessful' => false ]
+		);
 	}
 
 	public function testGivenValidRequest_moderationIsNotNeeded(): void {
@@ -190,23 +187,27 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	}
 
 	public function testGivenFailingPolicyValidator_moderationIsNeeded(): void {
-		$response = $this->makeUseCase( policyValidator: $this->getFailingPolicyValidatorMock() )->applyForMembership( $this->newValidRequest() );
+		$response = $this->makeUseCase( policyValidator: $this->getFailingPolicyValidatorStub() )->applyForMembership( $this->newValidRequest() );
 		$this->assertNotNull( $response->getMembershipApplication() );
 		$this->assertTrue( $response->getMembershipApplication()->isMarkedForModeration() );
 	}
 
-	private function getSucceedingPolicyValidatorMock(): ModerationService {
-		$validator = $this->createStub( ModerationService::class );
-		$validator->method( 'moderateMembershipApplicationRequest' )->willReturn( new ModerationResult() );
-		return $validator;
+	private function getSucceedingPolicyValidatorStub(): ModerationService {
+		return $this->createConfiguredStub(
+			ModerationService::class,
+			[
+				'moderateMembershipApplicationRequest' => new ModerationResult(),
+			]
+		);
 	}
 
-	private function getFailingPolicyValidatorMock(): ModerationService {
-		$validator = $this->createStub( ModerationService::class );
+	private function getFailingPolicyValidatorStub(): ModerationService {
 		$moderationResult = new ModerationResult();
 		$moderationResult->addModerationReason( new ModerationReason( ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH ) );
-		$validator->method( 'moderateMembershipApplicationRequest' )->willReturn( $moderationResult );
-		return $validator;
+		return $this->createConfiguredStub(
+			ModerationService::class,
+			[ 'moderateMembershipApplicationRequest' => $moderationResult ]
+		);
 	}
 
 	public function testWhenApplicationIsUnconfirmed_confirmationEmailIsNotSent(): void {
@@ -299,9 +300,9 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 			$membershipAuthorizer ?? $this->makeMembershipAuthorizer(),
 			$mailNotifier ?? $this->makeMailNotifier(),
 			$validator ?? $this->newSucceedingValidator(),
-			$policyValidator ?? $this->getSucceedingPolicyValidatorMock(),
-			$trackingRepository ?? $this->createMock( MembershipTrackingRepository::class ),
-			$eventEmitter ?? $this->createMock( EventEmitter::class ),
+			$policyValidator ?? $this->getSucceedingPolicyValidatorStub(),
+			$trackingRepository ?? $this->createStub( MembershipTrackingRepository::class ),
+			$eventEmitter ?? $this->createStub( EventEmitter::class ),
 			$incentiveFinder ?? new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] ),
 			new PaymentServiceFactory(
 				$createPaymentUseCase ?? $this->newSucceedingCreatePaymentUseCase(),
@@ -323,18 +324,20 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	}
 
 	private function makeMailNotifier(): MembershipNotifier {
-		return $this->createMock( MembershipNotifier::class );
+		return $this->createStub( MembershipNotifier::class );
 	}
 
 	private function makePaymentRetriever(): GetPaymentUseCase {
-		$mock = $this->createMock( GetPaymentUseCase::class );
-		$mock->method( 'getPaymentDataArray' )
-			->willReturn( [
-				'amount' => 1000,
-				'interval' => ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS,
-				'paymentType' => ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT
-			] );
-		return $mock;
+		return $this->createConfiguredStub(
+			GetPaymentUseCase::class,
+			[
+				'getPaymentDataArray' => [
+					'amount' => 1000,
+					'interval' => ValidMembershipApplication::PAYMENT_PERIOD_IN_MONTHS,
+					'paymentType' => ValidMembershipApplication::PAYMENT_TYPE_DIRECT_DEBIT,
+				],
+			]
+		);
 	}
 
 	private function makeMembershipAuthorizer( ?URLAuthenticator $authenticator = null ): MembershipAuthorizer {

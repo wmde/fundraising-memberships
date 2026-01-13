@@ -149,12 +149,14 @@ class MembershipApplicationValidatorTest extends TestCase {
 	}
 
 	private function newFailingEmailValidator( string $violationType ): EmailValidator {
-		$feeValidator = $this->createMock( EmailValidator::class );
-		$feeValidator->method( 'validate' )
-			->willReturn(
-				new ValidationResult( new ConstraintViolation( 'this is not a valid email', $violationType ) )
-			);
-		return $feeValidator;
+		return $this->createConfiguredStub(
+			EmailValidator::class,
+			[
+				'validate' => new ValidationResult(
+					new ConstraintViolation( 'this is not a valid email', $violationType )
+				),
+			]
+		);
 	}
 
 	public function testWhenCompanyIsMissingFromCompanyApplication_validationFails(): void {

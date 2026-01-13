@@ -53,9 +53,11 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 		$getPaymentUseCase = $this->createStub( GetPaymentUseCase::class );
 		$getPaymentUseCase->method( 'getPaymentDataArray' )->willReturn( self::PAYMENT_DATA );
 
-		$tracking = $this->createMock( MembershipTrackingRepository::class );
-		$tracking->method( 'getTracking' )->willReturn(
-			new MembershipTracking( self::TRACKING_CAMPAIGN, self::TRACKING_KEYWORD )
+		$tracking = $this->createConfiguredStub(
+			MembershipTrackingRepository::class,
+			[
+				'getTracking' => new MembershipTracking( self::TRACKING_CAMPAIGN, self::TRACKING_KEYWORD ),
+			]
 		);
 
 		return new ShowApplicationConfirmationUseCase(
