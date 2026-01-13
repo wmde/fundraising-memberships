@@ -273,13 +273,16 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	}
 
 	private function makeSuccessfulPaymentServiceWithUrl(): CreatePaymentUseCase {
-		$paymentService = $this->createStub( CreatePaymentUseCase::class );
-		$paymentService->method( 'createPayment' )->willReturn( new SuccessResponse(
-			1,
-			self::PAYMENT_PROVIDER_URL,
-			true
-		) );
-		return $paymentService;
+		return $this->createConfiguredStub(
+			CreatePaymentUseCase::class,
+			[
+				'createPayment' => new SuccessResponse(
+					1,
+					self::PAYMENT_PROVIDER_URL,
+					true
+				),
+			]
+		);
 	}
 
 	private function makeUseCase(
@@ -316,11 +319,12 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	}
 
 	private function newPolicyValidatorWithEmailModeration(): ModerationService {
-		$policyValidator = $this->createStub( ModerationService::class );
 		$moderationResult = new ModerationResult();
 		$moderationResult->addModerationReason( new ModerationReason( ModerationIdentifier::EMAIL_BLOCKED ) );
-		$policyValidator->method( 'moderateMembershipApplicationRequest' )->willReturn( $moderationResult );
-		return $policyValidator;
+		return $this->createConfiguredStub(
+			ModerationService::class,
+			[ 'moderateMembershipApplicationRequest' => $moderationResult ]
+		);
 	}
 
 	private function makeMailNotifier(): MembershipNotifier {
@@ -341,9 +345,10 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 	}
 
 	private function makeMembershipAuthorizer( ?URLAuthenticator $authenticator = null ): MembershipAuthorizer {
-		$authorizer = $this->createStub( MembershipAuthorizer::class );
-		$authorizer->method( 'authorizeMembershipAccess' )->willReturn( $authenticator ?? $this->makeUrlAuthenticator() );
-		return $authorizer;
+		return $this->createConfiguredStub(
+			MembershipAuthorizer::class,
+			[ 'authorizeMembershipAccess' => $authenticator ?? $this->makeUrlAuthenticator() ]
+		);
 	}
 
 	private function makeUrlAuthenticator(): URLAuthenticator {

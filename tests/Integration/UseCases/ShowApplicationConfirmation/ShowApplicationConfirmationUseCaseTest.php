@@ -50,8 +50,10 @@ class ShowApplicationConfirmationUseCaseTest extends TestCase {
 	}
 
 	private function newUseCase(): ShowApplicationConfirmationUseCase {
-		$getPaymentUseCase = $this->createStub( GetPaymentUseCase::class );
-		$getPaymentUseCase->method( 'getPaymentDataArray' )->willReturn( self::PAYMENT_DATA );
+		$getPaymentUseCase = $this->createConfiguredStub(
+			GetPaymentUseCase::class,
+			[ 'getPaymentDataArray' => self::PAYMENT_DATA ]
+		);
 
 		$tracking = $this->createConfiguredStub(
 			MembershipTrackingRepository::class,

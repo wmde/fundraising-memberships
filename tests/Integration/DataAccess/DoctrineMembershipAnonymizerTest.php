@@ -156,9 +156,11 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 		$queryBuilderStub = $this->createStub( QueryBuilder::class );
 		$queryBuilderStub->method( 'executeStatement' )
 			->willThrowException( new \RuntimeException( 'Database Exception, thrown by test double' ) );
-		$conn = $this->createStub( Connection::class );
-		$conn->method( 'createQueryBuilder' )->willReturn( $queryBuilderStub );
-		return $conn;
+
+		return $this->createConfiguredStub(
+			Connection::class,
+			[ 'createQueryBuilder' => $queryBuilderStub ]
+		);
 	}
 
 	private function insertMembership( int $id = self::MEMBERSHIP_ID, ?\DateTime $creationDate = null ): void {

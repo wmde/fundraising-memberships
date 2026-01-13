@@ -44,10 +44,10 @@ class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 	}
 
 	public function testWhenPersistFails_domainExceptionIsThrown(): void {
-		$entityManager = $this->createStub( EntityManager::class );
-
-		$entityManager->method( 'find' )
-			->willReturn( new MembershipApplication() );
+		$entityManager = $this->createConfiguredStub(
+			EntityManager::class,
+			[ 'find' => new MembershipApplication() ]
+		);
 
 		$entityManager->method( 'persist' )
 			->willThrowException( new class( 'This is a test exception' ) extends RuntimeException implements ORMException {

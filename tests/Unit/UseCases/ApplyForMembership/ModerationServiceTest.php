@@ -55,8 +55,10 @@ class ModerationServiceTest extends TestCase {
 	}
 
 	public function testFailingTextPolicyValidation_MembershipApplicationNeedsModeration(): void {
-		$textPolicyValidator = $this->createStub( TextPolicyValidator::class );
-		$textPolicyValidator->method( 'textIsHarmless' )->willReturn( false );
+		$textPolicyValidator = $this->createConfiguredStub(
+			TextPolicyValidator::class,
+			[ 'textIsHarmless' => false ]
+		);
 		$policyValidator = new ModerationService( $textPolicyValidator );
 
 		$moderationResult = $policyValidator->moderateMembershipApplicationRequest( ValidMembershipApplication::newDomainEntity(), 2500, PaymentInterval::Yearly->value );
