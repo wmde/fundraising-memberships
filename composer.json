@@ -37,7 +37,7 @@
 		"symfony/cache": "^6.1|^7.0",
 		"phpstan/phpstan": "~2.1.11",
 		"wmde/clock": "^2.0",
-		"wmde/fundraising-phpcs": "~13.0",
+		"wmde/fundraising-phpcs": "~14.0",
 		"wmde/psr-log-test-doubles": "~3.0",
 		"phpstan/phpstan-phpunit": "^2.0",
 		"phpstan/phpstan-doctrine": "~2.0.2"
