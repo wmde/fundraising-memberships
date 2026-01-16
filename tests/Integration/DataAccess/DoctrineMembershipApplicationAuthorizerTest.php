@@ -124,9 +124,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	}
 
 	private function getThrowingEntityManager(): EntityManager {
-		$entityManager = $this->getMockBuilder( EntityManager::class )
-			->disableOriginalConstructor()->getMock();
-
+		$entityManager = $this->createStub( EntityManager::class );
 		$entityManager->method( $this->anything() )
 			->willThrowException( new class() extends RuntimeException  implements ORMException {
 			} );

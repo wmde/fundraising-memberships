@@ -152,17 +152,17 @@ class CancelMembershipApplicationUseCaseTest extends TestCase {
 	}
 
 	private function givenSucceedingCancelPaymentUseCase(): CancelPaymentUseCase {
-		$useCase = $this->createMock( CancelPaymentUseCase::class );
-		$useCase->method( 'cancelPayment' )
-			->willReturn( new SuccessResponse( true ) );
-		return $useCase;
+		return $this->createConfiguredStub(
+			CancelPaymentUseCase::class,
+			[ 'cancelPayment' => new SuccessResponse( true ) ]
+		);
 	}
 
 	private function givenFailingCancelPaymentUseCase(): CancelPaymentUseCase {
-		$useCase = $this->createMock( CancelPaymentUseCase::class );
-		$useCase->method( 'cancelPayment' )
-			->willReturn( new FailureResponse( 'This payment is already cancelled' ) );
-		return $useCase;
+		return $this->createConfiguredStub(
+			CancelPaymentUseCase::class,
+			[ 'cancelPayment' => new FailureResponse( 'This payment is already cancelled' ) ]
+		);
 	}
 
 	private function expectLoggerToBeCalledOnceWithMessage( MembershipApplicationEventLoggerSpy $logger, string $message ): void {

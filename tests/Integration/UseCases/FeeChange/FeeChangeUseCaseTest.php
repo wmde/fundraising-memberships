@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\FeeChang
 use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineFeeChangeRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Model\FeeChange;
@@ -88,7 +88,9 @@ class FeeChangeUseCaseTest extends TestCase {
 	}
 
 	public function testChangeExistingFeeUpdatesFeeChange(): void {
-		$createPaymentUseCase = $this->newSucceedingCreatePaymentUseCase();
+		$createPaymentUseCase = $this->createMock( CreatePaymentUseCase::class );
+		$createPaymentUseCase->method( 'createPayment' )->willReturn( new SuccessResponse( FeeChanges::PAYMENT_ID, '', true ) );
+
 		$useCase = $this->newFeeChangeUseCase( createPaymentUseCase:  $createPaymentUseCase );
 
 		$createPaymentUseCase->expects( $this->once() )->method( 'createPayment' )->willReturnCallback( function ( PaymentCreationRequest $request ) {
@@ -115,7 +117,8 @@ class FeeChangeUseCaseTest extends TestCase {
 	}
 
 	public function testChangeExistingFeeUpdatesFeeChangeWithIBAN(): void {
-		$createPaymentUseCase = $this->newSucceedingCreatePaymentUseCase();
+		$createPaymentUseCase = $this->createMock( CreatePaymentUseCase::class );
+		$createPaymentUseCase->method( 'createPayment' )->willReturn( new SuccessResponse( FeeChanges::PAYMENT_ID, '', true ) );
 		$useCase = $this->newFeeChangeUseCase( createPaymentUseCase:  $createPaymentUseCase );
 
 		$createPaymentUseCase->expects( $this->once() )->method( 'createPayment' )->willReturnCallback( function ( PaymentCreationRequest $request ) {
@@ -195,26 +198,30 @@ class FeeChangeUseCaseTest extends TestCase {
 		);
 	}
 
-	private function newSucceedingCreatePaymentUseCase(): CreatePaymentUseCase&MockObject {
-		$useCaseMock = $this->createMock( CreatePaymentUseCase::class );
-
+	private function newSucceedingCreatePaymentUseCase(): CreatePaymentUseCase&Stub {
 		$successResponse = new SuccessResponse(
 			FeeChanges::PAYMENT_ID,
 			'',
 			true
 		);
 
-		$useCaseMock->method( 'createPayment' )->willReturn( $successResponse );
-		return $useCaseMock;
+		return $this->createConfiguredStub(
+			CreatePaymentUseCase::class,
+			[
+				'createPayment' => $successResponse
+			]
+		);
 	}
 
-	private function newFailingCreatePaymentUseCase( string $message ): CreatePaymentUseCase&MockObject {
-		$useCaseMock = $this->createMock( CreatePaymentUseCase::class );
-
+	private function newFailingCreatePaymentUseCase( string $message ): CreatePaymentUseCase&Stub {
 		$successResponse = new FailureResponse( $message );
 
-		$useCaseMock->method( 'createPayment' )->willReturn( $successResponse );
-		return $useCaseMock;
+		return $this->createConfiguredStub(
+			CreatePaymentUseCase::class,
+			[
+				'createPayment' => new FailureResponse( $message )
+			]
+		);
 	}
 
 	private function newUrlAuthenticator(): URLAuthenticator {

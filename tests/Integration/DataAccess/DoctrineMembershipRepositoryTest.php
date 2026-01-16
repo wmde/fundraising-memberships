@@ -217,9 +217,10 @@ class DoctrineMembershipRepositoryTest extends TestCase {
 	}
 
 	private function givenGetPaymentUseCaseStub(): GetPaymentUseCase {
-		$stub = $this->createStub( GetPaymentUseCase::class );
-		$stub->method( 'getLegacyPaymentDataObject' )->willReturn( ValidPayments::newDirectDebitLegacyData() );
-		return $stub;
+		return $this->createConfiguredStub(
+			GetPaymentUseCase::class,
+			[ 'getLegacyPaymentDataObject' => ValidPayments::newDirectDebitLegacyData() ]
+		);
 	}
 
 	private function getApplicationFromDatabase( int $id ): DoctrineApplication {

@@ -26,9 +26,11 @@ class SerializedDataHandlingTest extends TestCase {
 	#[DataProvider( 'encodedMembershipDataProvider' )]
 	public function testDataFieldOfMembershipApplicationIsInteractedWithCorrectly( array $data ): void {
 		$entityManager = TestEnvironment::newInstance()->getEntityManager();
-		$getPaymentUseCase = $this->createStub( GetPaymentUseCase::class );
-		$getPaymentUseCase->method( 'getLegacyPaymentDataObject' )->willReturn(
-			new LegacyPaymentData( 100, 0, 'MCP', [] )
+		$getPaymentUseCase = $this->createConfiguredStub(
+			GetPaymentUseCase::class,
+			[
+				'getLegacyPaymentDataObject' => new LegacyPaymentData( 100, 0, 'MCP', [] ),
+			]
 		);
 
 		$repository = new DoctrineMembershipRepository(
