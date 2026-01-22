@@ -22,7 +22,7 @@ class InMemoryMembershipRepository implements MembershipRepository {
 		return array_key_exists( $id, $this->applications ) ? $this->applications[$id] : null;
 	}
 
-	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication {
+	public function getUnexportedAndUnscrubbedMembershipApplicationById( int $id ): ?MembershipApplication {
 		return $this->getMembershipApplicationById( $id );
 	}
 }

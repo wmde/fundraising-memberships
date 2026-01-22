@@ -21,7 +21,7 @@ class RestoreMembershipApplicationUseCase {
 	}
 
 	public function restoreApplication( int $membershipApplicationId, string $authorizedUser ): RestoreMembershipApplicationResponse {
-		$membershipApplication = $this->applicationRepository->getUnexportedMembershipApplicationById( $membershipApplicationId );
+		$membershipApplication = $this->applicationRepository->getUnexportedAndUnscrubbedMembershipApplicationById( $membershipApplicationId );
 
 		if ( $membershipApplication === null ) {
 			return RestoreMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );

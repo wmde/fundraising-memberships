@@ -54,8 +54,8 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 
 		$useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
 
-		$this->assertNotNull( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 ) );
-		$this->assertFalse( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 )->isCancelled() );
+		$this->assertNotNull( $this->applicationRepository->getUnexportedAndUnscrubbedMembershipApplicationById( 1 ) );
+		$this->assertFalse( $this->applicationRepository->getUnexportedAndUnscrubbedMembershipApplicationById( 1 )->isCancelled() );
 	}
 
 	public function testOnRestoreMembershipApplication_returnsMembershipApplicationId(): void {
@@ -96,8 +96,8 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 		$useCase = $this->newUseCase( $application, $this->givenSucceedingCancelPaymentUseCase( paymentIsCompleted: false ) );
 		$useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
 
-		$this->assertNotNull( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 ) );
-		$this->assertFalse( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 )->isConfirmed() );
+		$this->assertNotNull( $this->applicationRepository->getUnexportedAndUnscrubbedMembershipApplicationById( 1 ) );
+		$this->assertFalse( $this->applicationRepository->getUnexportedAndUnscrubbedMembershipApplicationById( 1 )->isConfirmed() );
 	}
 
 	public function testOnRestoreMembershipApplication_andPaymentIsCompleted_confirmsMembership(): void {
@@ -106,8 +106,8 @@ class RestoreMembershipApplicationUseCaseTest extends TestCase {
 		$useCase = $this->newUseCase( $application, $this->givenSucceedingCancelPaymentUseCase( paymentIsCompleted: true ) );
 		$useCase->restoreApplication( $application->getId(), self::AUTH_USER_NAME );
 
-		$this->assertNotNull( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 ) );
-		$this->assertTrue( $this->applicationRepository->getUnexportedMembershipApplicationById( 1 )->isConfirmed() );
+		$this->assertNotNull( $this->applicationRepository->getUnexportedAndUnscrubbedMembershipApplicationById( 1 ) );
+		$this->assertTrue( $this->applicationRepository->getUnexportedAndUnscrubbedMembershipApplicationById( 1 )->isConfirmed() );
 	}
 
 	public function testWhenPaymentRestorationFails_restorationFails(): void {

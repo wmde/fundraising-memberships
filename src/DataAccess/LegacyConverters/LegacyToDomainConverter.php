@@ -45,6 +45,10 @@ class LegacyToDomainConverter {
 			$application->setExported();
 		}
 
+		if ( $doctrineApplication->getBackup() != null ) {
+			$application->setBackup();
+		}
+
 		foreach ( $doctrineApplication->getIncentives() as $incentive ) {
 			$application->addIncentive( $incentive );
 		}

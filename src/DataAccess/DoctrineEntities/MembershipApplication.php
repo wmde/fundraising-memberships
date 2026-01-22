@@ -142,13 +142,6 @@ class MembershipApplication {
 	 */
 	private Collection|ArrayCollection $incentives;
 
-	/**
-	 * This property is currently only for creating the column in the table for {@see DoctrineMembershipAnonymizer},
-	 * the domain model doesn't use it. It might some day, as part of https://phabricator.wikimedia.org/T326200
-	 * for memberships (avoiding errors when showing membership confirmation page for scrubbed members)
-	 * @var bool
-	 */
-	// @phpstan-ignore-next-line
 	private bool $isScrubbed = false;
 
 	private int $paymentId;
@@ -738,5 +731,13 @@ class MembershipApplication {
 	 */
 	public function getModerationReasons(): Collection {
 		return $this->moderationReasons;
+	}
+
+	public function isAnonymized(): bool {
+		return $this->isScrubbed;
+	}
+
+	public function scrub(): void {
+		$this->isScrubbed = true;
 	}
 }

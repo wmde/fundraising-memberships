@@ -59,14 +59,20 @@ class DoctrineMembershipRepository implements MembershipRepository {
 		return $application === null ? null : $this->convertMembershipApplication( $application );
 	}
 
-	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication {
+	/**
+	 * @param int $id
+	 *
+	 * @return MembershipApplication|null which was not exported (and thus not anonymized) yet, so it can still be
+	 * altered, e.g. setting moderation status
+	 */
+	public function getUnexportedAndUnscrubbedMembershipApplicationById( int $id ): ?MembershipApplication {
 		$application = $this->table->getApplicationOrNullById( $id );
 
 		if ( $application === null ) {
 			return null;
 		}
 
-		if ( $application->getBackup() !== null ) {
+		if ( $application->getExport() !== null || $application->isAnonymized() ) {
 			throw new ApplicationAnonymizedException();
 		}
 

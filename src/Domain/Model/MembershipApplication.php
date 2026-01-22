@@ -18,6 +18,7 @@ class MembershipApplication {
 	 */
 	private array $moderationReasons;
 	private bool $cancelled = false;
+	private bool $backedUp = false;
 	private bool $confirmed = false;
 	private bool $exported = false;
 
@@ -127,6 +128,14 @@ class MembershipApplication {
 
 	public function isExported(): bool {
 		return $this->exported;
+	}
+
+	public function setBackup(): void {
+		$this->backedUp = true;
+	}
+
+	public function isBackedUp(): bool {
+		return $this->backedUp;
 	}
 
 	public function addIncentive( Incentive $incentive ): void {

@@ -26,6 +26,6 @@ interface MembershipRepository {
 	 *
 	 * @throws GetMembershipApplicationException
 	 */
-	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication;
+	public function getUnexportedAndUnscrubbedMembershipApplicationById( int $id ): ?MembershipApplication;
 
 }
