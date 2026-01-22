@@ -115,6 +115,18 @@ class ModerateMembershipApplicationUseCaseTest extends TestCase {
 		$this->assertFalse( $response->isSuccess() );
 	}
 
+	public function testSetModerateOnBackedUpMembershipApplication_actionSucceeds(): void {
+		//TODO figure out what kind of test setup we need here (backed up membership or exported membership?)
+		$application = ValidMembershipApplication::newDomainEntity();
+
+		
+		$useCase = $this->newUseCase( $application );
+
+		$response = $useCase->markMembershipApplicationAsModerated( 1, self::AUTH_USER_NAME );
+
+		$this->assertTrue( $response->isSuccess() );
+	}
+
 	public function testApproveMembershipApplication_removesModeratedStatus(): void {
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->markForModeration( $this->makeGenericModerationReason() );
