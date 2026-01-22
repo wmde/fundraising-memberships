@@ -252,6 +252,17 @@ class MembershipApplicationValidatorTest extends TestCase {
 		$this->assertTrue( $this->newValidator()->validate( $request )->isSuccessful() );
 	}
 
+	public function testDateOfBirthIsUnixTimeZero_validationDoesNotFail(): void {
+		$timezone = date_default_timezone_get();
+		date_default_timezone_set( 'UTC' );
+
+		$request = $this->newPrivateRequest( applicantDateOfBirth: '1970-01-01' );
+
+		$this->assertTrue( $this->newValidator()->validate( $request )->isSuccessful() );
+
+		date_default_timezone_set( $timezone );
+	}
+
 	public function testPersonalInfoWithLongFields_validationFails(): void {
 		$longText = str_repeat( 'Cats ', 500 );
 		$request = $this->newPrivateRequest(
