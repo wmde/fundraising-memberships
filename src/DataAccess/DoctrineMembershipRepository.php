@@ -66,7 +66,7 @@ class DoctrineMembershipRepository implements MembershipRepository {
 			return null;
 		}
 
-		if ( $application->getBackup() !== null ) {
+		if ( $application->getExport() !== null ) {
 			throw new ApplicationAnonymizedException();
 		}
 
