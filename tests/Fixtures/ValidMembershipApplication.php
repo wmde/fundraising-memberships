@@ -219,6 +219,8 @@ class ValidMembershipApplication {
 
 	public static function newAnonymizedDoctrineEntity( int $id = self::DEFAULT_ID, ?DateTime $backupTime = null ): DoctrineMembershipApplication {
 		$application = self::newDoctrineEntity( $id );
+		//is backing up === anonymization?
+		//I assumed exporting means anonymization/scrubbing
 		$application->setBackup( $backupTime ?? new DateTime() );
 		return $application;
 	}
