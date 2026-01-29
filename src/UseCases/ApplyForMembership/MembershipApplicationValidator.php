@@ -58,7 +58,7 @@ class MembershipApplicationValidator {
 	private function validateApplicantDateOfBirth(): void {
 		$dob = $this->request->applicantDateOfBirth;
 
-		if ( $dob !== '' && !strtotime( $dob ) ) {
+		if ( $dob !== '' && strtotime( $dob ) === false ) {
 			$this->violations[Result::SOURCE_APPLICANT_DATE_OF_BIRTH] = Result::VIOLATION_NOT_DATE;
 		}
 	}
