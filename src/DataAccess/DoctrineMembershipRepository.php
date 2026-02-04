@@ -59,14 +59,14 @@ class DoctrineMembershipRepository implements MembershipRepository {
 		return $application === null ? null : $this->convertMembershipApplication( $application );
 	}
 
-	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication {
+	public function getUnScrubbedAndUnexportedMembershipApplicationById( int $id ): ?MembershipApplication {
 		$application = $this->table->getApplicationOrNullById( $id );
 
 		if ( $application === null ) {
 			return null;
 		}
 
-		if ( $application->getExport() !== null ) {
+		if ( $application->isAnonymized() || $application->getExport() !== null ) {
 			throw new ApplicationAnonymizedException();
 		}
 

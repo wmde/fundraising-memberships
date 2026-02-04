@@ -24,7 +24,7 @@ class ModerateMembershipApplicationUseCase {
 	}
 
 	public function markMembershipApplicationAsModerated( int $membershipApplicationId, string $authorizedUser ): ModerateMembershipApplicationResponse {
-		$membershipApplication = $this->applicationRepository->getUnexportedMembershipApplicationById( $membershipApplicationId );
+		$membershipApplication = $this->applicationRepository->getUnScrubbedAndUnexportedMembershipApplicationById( $membershipApplicationId );
 
 		if ( $membershipApplication === null ) {
 			return ModerateMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
@@ -50,7 +50,7 @@ class ModerateMembershipApplicationUseCase {
 	}
 
 	public function approveMembershipApplication( int $membershipApplicationId, string $authorizedUser ): ModerateMembershipApplicationResponse {
-		$membershipApplication = $this->applicationRepository->getUnexportedMembershipApplicationById( $membershipApplicationId );
+		$membershipApplication = $this->applicationRepository->getUnScrubbedAndUnexportedMembershipApplicationById( $membershipApplicationId );
 
 		if ( $membershipApplication === null ) {
 			return ModerateMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
