@@ -139,7 +139,7 @@ class DoctrineMembershipRepositoryTest extends TestCase {
 	}
 
 	public function testGetMembershipApplicationById_ReadingAnonymizedApplication_itIsReturnedAsMatchingDomainEntity(): void {
-		$this->storeDoctrineApplication( ValidMembershipApplication::newAnonymizedDoctrineEntity() );
+		$this->storeDoctrineApplication( ValidMembershipApplication::newBackUppedButUnexportedDoctrineEntity() );
 
 		$expected = ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID );
 
@@ -156,19 +156,19 @@ class DoctrineMembershipRepositoryTest extends TestCase {
 
 		$this->assertEquals(
 			$expected,
-			$this->givenApplicationRepository()->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )
+			$this->givenApplicationRepository()->getUnScrubbedAndUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )
 		);
 	}
 
 	public function testGetUnexportedMembershipApplicationById_WhenEntityDoesNotExist_getEntityReturnsNull(): void {
-		$this->assertNull( $this->givenApplicationRepository()->getUnexportedMembershipApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB ) );
+		$this->assertNull( $this->givenApplicationRepository()->getUnScrubbedAndUnexportedMembershipApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB ) );
 	}
 
 	public function testGetUnexportedMembershipApplicationById_WhenReadFails_domainExceptionIsThrown(): void {
 		$repository = $this->givenApplicationRepository( $this->getThrowingEntityManager() );
 
 		$this->expectException( GetMembershipApplicationException::class );
-		$repository->getUnexportedMembershipApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB );
+		$repository->getUnScrubbedAndUnexportedMembershipApplicationById( self::ID_OF_APPLICATION_NOT_IN_DB );
 	}
 
 	public function testGetUnexportedMembershipApplicationById_ReadingAnonymizedApplication_anonymizedExceptionIsThrown(): void {
@@ -176,7 +176,7 @@ class DoctrineMembershipRepositoryTest extends TestCase {
 
 		$this->expectException( ApplicationAnonymizedException::class );
 
-		$this->givenApplicationRepository()->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID );
+		$this->givenApplicationRepository()->getUnScrubbedAndUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID );
 	}
 
 	public function testWhenApplicationAlreadyExists_persistingCausesUpdate(): void {

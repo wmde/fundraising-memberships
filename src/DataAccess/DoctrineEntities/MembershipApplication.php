@@ -739,4 +739,12 @@ class MembershipApplication {
 	public function getModerationReasons(): Collection {
 		return $this->moderationReasons;
 	}
+
+	public function isAnonymized(): bool {
+		return $this->isScrubbed;
+	}
+
+	public function setAnonymizedStatus( bool $isScrubbed ): void {
+		$this->isScrubbed = $isScrubbed;
+	}
 }
