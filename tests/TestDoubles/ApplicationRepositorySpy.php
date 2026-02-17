@@ -44,9 +44,9 @@ class ApplicationRepositorySpy extends FakeMembershipRepository {
 	 * @return MembershipApplication|null
 	 * @throws GetMembershipApplicationException
 	 */
-	public function getUnexportedMembershipApplicationById( int $id ): ?MembershipApplication {
+	public function getUnexportedAndUnscrubbedMembershipApplicationById( int $id ): ?MembershipApplication {
 		$this->getApplicationCalls[] = $id;
-		return parent::getUnexportedMembershipApplicationById( $id );
+		return parent::getUnexportedAndUnscrubbedMembershipApplicationById( $id );
 	}
 
 	/**

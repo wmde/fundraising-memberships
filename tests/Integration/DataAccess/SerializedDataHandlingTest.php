@@ -40,7 +40,7 @@ class SerializedDataHandlingTest extends TestCase {
 		);
 		$this->storeMembershipApplication( $entityManager, $data );
 
-		$membershipApplication = $repository->getUnexportedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID );
+		$membershipApplication = $repository->getUnexportedAndUnscrubbedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID );
 		$this->assertNotNull( $membershipApplication );
 		$repository->storeApplication( $membershipApplication );
 

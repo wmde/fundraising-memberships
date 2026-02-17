@@ -13,8 +13,8 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 
 class ModerateMembershipApplicationUseCase {
 
-	public const LOG_MESSAGE_MARKED_FOR_MODERATION = 'marked for moderation by user: %s';
-	public const LOG_MESSAGE_MARKED_AS_APPROVED = 'marked as approved by user: %s';
+	public const string LOG_MESSAGE_MARKED_FOR_MODERATION = 'marked for moderation by user: %s';
+	public const string LOG_MESSAGE_MARKED_AS_APPROVED = 'marked as approved by user: %s';
 
 	public function __construct(
 		private readonly MembershipRepository $applicationRepository,
@@ -24,7 +24,7 @@ class ModerateMembershipApplicationUseCase {
 	}
 
 	public function markMembershipApplicationAsModerated( int $membershipApplicationId, string $authorizedUser ): ModerateMembershipApplicationResponse {
-		$membershipApplication = $this->applicationRepository->getUnexportedMembershipApplicationById( $membershipApplicationId );
+		$membershipApplication = $this->applicationRepository->getUnexportedAndUnscrubbedMembershipApplicationById( $membershipApplicationId );
 
 		if ( $membershipApplication === null ) {
 			return ModerateMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );
@@ -50,7 +50,7 @@ class ModerateMembershipApplicationUseCase {
 	}
 
 	public function approveMembershipApplication( int $membershipApplicationId, string $authorizedUser ): ModerateMembershipApplicationResponse {
-		$membershipApplication = $this->applicationRepository->getUnexportedMembershipApplicationById( $membershipApplicationId );
+		$membershipApplication = $this->applicationRepository->getUnexportedAndUnscrubbedMembershipApplicationById( $membershipApplicationId );
 
 		if ( $membershipApplication === null ) {
 			return ModerateMembershipApplicationResponse::newFailureResponse( $membershipApplicationId );

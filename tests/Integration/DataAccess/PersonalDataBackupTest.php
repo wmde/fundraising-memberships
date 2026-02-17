@@ -80,8 +80,8 @@ class PersonalDataBackupTest extends TestCase {
 		$entityManager->persist( ValidMembershipApplication::newDoctrineCompanyEntity( 3 ) );
 		$entityManager->persist( ValidMembershipApplication::newDoctrineCompanyEntity( 4 ) );
 
-		$entityManager->persist( ValidMembershipApplication::newAnonymizedDoctrineEntity( 10, new \DateTime( '2025-03-03 0:00:00' ) ) );
-		$entityManager->persist( ValidMembershipApplication::newAnonymizedDoctrineEntity( 11, new \DateTime() ) );
+		$entityManager->persist( ValidMembershipApplication::newBackedUpButUnexportedDoctrineEntity( 10, new \DateTime( '2025-03-03 0:00:00' ) ) );
+		$entityManager->persist( ValidMembershipApplication::newBackedUpButUnexportedDoctrineEntity( 11, new \DateTime() ) );
 
 		$entityManager->flush();
 	}

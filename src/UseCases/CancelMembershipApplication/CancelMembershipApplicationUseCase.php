@@ -62,7 +62,7 @@ class CancelMembershipApplicationUseCase {
 
 	private function getApplicationById( int $id ): ?MembershipApplication {
 		try {
-			return $this->repository->getUnexportedMembershipApplicationById( $id );
+			return $this->repository->getUnexportedAndUnscrubbedMembershipApplicationById( $id );
 		} catch ( GetMembershipApplicationException $ex ) {
 			return null;
 		}
