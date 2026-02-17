@@ -10,4 +10,6 @@ interface ShowFeeChangePresenter {
 	public function showFeeChangeError(): void;
 
 	public function showFeeChangeAlreadyFilled(): void;
+
+	public function showFeeChangeInactive(): void;
 }

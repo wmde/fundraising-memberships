@@ -45,13 +45,24 @@ class FeeChangeUseCaseTest extends TestCase {
 
 	public function newFeeChangeUseCase(
 		?CreatePaymentUseCase $createPaymentUseCase = null,
-		?URLAuthenticator $urlAuthenticator = null
+		?URLAuthenticator $urlAuthenticator = null,
+		bool $isActive = true
 	): FeeChangeUseCase {
 		return new FeeChangeUseCase(
 			new DoctrineFeeChangeRepository( $this->entityManager ),
 				new PaymentServiceFactory( $createPaymentUseCase ?? $this->newSucceedingCreatePaymentUseCase(), [ PaymentType::DirectDebit, PaymentType::FeeChange ] ),
-				$urlAuthenticator ?? $this->newUrlAuthenticator()
+				$urlAuthenticator ?? $this->newUrlAuthenticator(),
+			$isActive
 		);
+	}
+
+	public function testShowsInactive(): void {
+		$presenter = $this->createMock( ShowFeeChangePresenter::class );
+		$useCase = $this->newFeeChangeUseCase( isActive: false );
+
+		$presenter->expects( $this->once() )->method( 'showFeeChangeInactive' );
+
+		$useCase->showFeeChange( self::UUID_NEW_FEE_CHANGE, $presenter );
 	}
 
 	public function testShowsFeeChange(): void {
@@ -151,6 +162,15 @@ class FeeChangeUseCaseTest extends TestCase {
 		$storedFeeChange = $this->entityManager->find( FeeChange::class, 1 );
 
 		$this->assertEquals( FeeChangeState::FILLED, $storedFeeChange->getState() );
+	}
+
+	public function testChangeWhenInactiveReturnsFailureResponse(): void {
+		$useCase = $this->newFeeChangeUseCase( isActive: false );
+
+		$this->assertEquals(
+			new FeeChangeResponse( false, [ 'fee_change_inactive' => 'This fee change (' . self::UUID_MISSING_FEE_CHANGE . ') could not be changed because the fee change is inavtive' ] ),
+			$useCase->changeFee( new FeeChangeRequest( self::UUID_MISSING_FEE_CHANGE, FeeChanges::MEMBER_NAME, FeeChanges::AMOUNT, FeeChanges::PAYMENT_TYPE ) )
+		);
 	}
 
 	public function testChangeNonExistingFeeReturnsFailureResponse(): void {

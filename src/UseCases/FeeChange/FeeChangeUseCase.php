@@ -27,11 +27,17 @@ class FeeChangeUseCase {
 	public function __construct(
 		private readonly FeeChangeRepository $feeChangeRepository,
 		private readonly PaymentServiceFactory $paymentServiceFactory,
-		private readonly URLAuthenticator $urlAuthenticator
+		private readonly URLAuthenticator $urlAuthenticator,
+		private readonly bool $isActive
 	) {
 	}
 
 	public function showFeeChange( string $uuid, ShowFeeChangePresenter $presenter ): void {
+		if ( !$this->isActive ) {
+			$presenter->showFeeChangeInactive();
+			return;
+		}
+
 		if ( !$this->feeChangeRepository->feeChangeExists( $uuid ) ) {
 			$presenter->showFeeChangeError();
 			return;
@@ -55,6 +61,10 @@ class FeeChangeUseCase {
 
 	public function changeFee( FeeChangeRequest $feeChangeRequest ): FeeChangeResponse {
 		try {
+			if ( !$this->isActive ) {
+				return new FeeChangeResponse( false, [ 'fee_change_inactive' => "This fee change ({$feeChangeRequest->uuid}) could not be changed because the fee change is inavtive" ] );
+			}
+
 			$feeChange = $this->getFeeChange( $feeChangeRequest->uuid );
 
 			if ( $feeChange->getState() !== FeeChangeState::NEW ) {
