@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use WMDE\Clock\StubClock;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineFeeChangeRepository;
 use WMDE\Fundraising\MembershipContext\Domain\Model\FeeChange;
 use WMDE\Fundraising\MembershipContext\Domain\Model\FeeChangeState;
@@ -49,10 +50,11 @@ class FeeChangeUseCaseTest extends TestCase {
 		bool $isActive = true
 	): FeeChangeUseCase {
 		return new FeeChangeUseCase(
-			new DoctrineFeeChangeRepository( $this->entityManager ),
-				new PaymentServiceFactory( $createPaymentUseCase ?? $this->newSucceedingCreatePaymentUseCase(), [ PaymentType::DirectDebit, PaymentType::FeeChange ] ),
-				$urlAuthenticator ?? $this->newUrlAuthenticator(),
-			$isActive
+			feeChangeRepository: new DoctrineFeeChangeRepository( $this->entityManager ),
+			paymentServiceFactory: new PaymentServiceFactory( $createPaymentUseCase ?? $this->newSucceedingCreatePaymentUseCase(), [ PaymentType::DirectDebit, PaymentType::FeeChange ] ),
+			urlAuthenticator: $urlAuthenticator ?? $this->newUrlAuthenticator(),
+			isActive: $isActive,
+			clock: new StubClock( new \DateTimeImmutable() )
 		);
 	}
 
