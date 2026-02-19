@@ -15,11 +15,18 @@ class FeeChangeTest extends TestCase {
 	public function testUpgradeMembershipUpgradesMembership(): void {
 		$feeChange = FeeChanges::newNewFeeChange( FeeChanges::UUID_1 );
 
-		$feeChange->updateMembershipFee( 12, FeeChanges::MEMBER_NAME );
+		$filledOnTimestamp = new \DateTimeImmutable( '12:12:12' );
+
+		$feeChange->updateMembershipFee(
+			12,
+			FeeChanges::MEMBER_NAME,
+			filledOn: $filledOnTimestamp
+		);
 
 		$this->assertEquals( 12, $feeChange->getPaymentId() );
 		$this->assertEquals( FeeChanges::MEMBER_NAME, $feeChange->getMemberName() );
 		$this->assertEquals( FeeChangeState::FILLED, $feeChange->getState() );
+		$this->assertEquals( $filledOnTimestamp, $feeChange->getFilledOnDate() );
 	}
 
 	public function testExportExports(): void {

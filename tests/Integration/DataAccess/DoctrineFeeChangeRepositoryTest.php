@@ -53,7 +53,11 @@ class DoctrineFeeChangeRepositoryTest extends TestCase {
 		$feeChange = FeeChanges::newNewFeeChange( FeeChanges::UUID_1 );
 		$this->insertFeeChanges( $feeChange );
 
-		$feeChange->updateMembershipFee( 88, FeeChanges::MEMBER_NAME );
+		$feeChange->updateMembershipFee(
+			88,
+			FeeChanges::MEMBER_NAME,
+			new \DateTimeImmutable()
+		);
 		$exportDate = new \DateTime( FeeChanges::EXPORT_DATE );
 		$feeChange->export( $exportDate );
 

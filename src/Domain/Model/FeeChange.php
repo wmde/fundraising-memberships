@@ -18,7 +18,9 @@ class FeeChange {
 		private int $suggestedAmountInCents,
 		private int $currentInterval,
 		private FeeChangeState $state,
-		private ?\DateTime $exportDate
+		private ?\DateTime $exportDate,
+		/** @var \DateTime|null timestamp to mark when a user has filled out and successfully submitted a membership fee change */
+		private ?\DateTime $filledOn
 	) {
 	}
 
@@ -62,10 +64,20 @@ class FeeChange {
 		return $this->exportDate;
 	}
 
-	public function updateMembershipFee( int $paymentId, string $memberName ): void {
+	public function getFilledOnDate(): ?\DateTime {
+		return $this->filledOn;
+	}
+
+	/**
+	 * @param int $paymentId
+	 * @param string $memberName
+	 * @param \DateTimeImmutable $filledOn timestamp that indicates a user successfully filled out and submitted their membership fee/payment info change
+	 */
+	public function updateMembershipFee( int $paymentId, string $memberName, \DateTimeImmutable $filledOn ): void {
 		$this->memberName = $memberName;
 		$this->paymentId = $paymentId;
 		$this->state = FeeChangeState::FILLED;
+		$this->filledOn = \DateTime::createFromImmutable( $filledOn );
 	}
 
 	public function export( \DateTime $exportDate ): void {

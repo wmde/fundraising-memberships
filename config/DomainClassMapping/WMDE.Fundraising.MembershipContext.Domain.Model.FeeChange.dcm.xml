@@ -12,6 +12,7 @@
     <field name="currentInterval" type="integer" column="current_interval"/>
     <field name="state" column="state" enum-type="FeeChangeState"/>
     <field name="exportDate" type="datetime" column="export_date" nullable="true"/>
+    <field name="filledOn" type="datetime" column="filled_on" nullable="true"/>
     <field name="paymentId" type="integer" column="payment_id" nullable="true" >
       <options>
         <option name="unsigned">true</option>

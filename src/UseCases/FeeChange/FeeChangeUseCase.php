@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\FeeChange;
 
+use WMDE\Clock\Clock;
 use WMDE\Fundraising\MembershipContext\Domain\FeeChangeException;
 use WMDE\Fundraising\MembershipContext\Domain\Model\FeeChange;
 use WMDE\Fundraising\MembershipContext\Domain\Model\FeeChangeState;
@@ -28,7 +29,8 @@ class FeeChangeUseCase {
 		private readonly FeeChangeRepository $feeChangeRepository,
 		private readonly PaymentServiceFactory $paymentServiceFactory,
 		private readonly URLAuthenticator $urlAuthenticator,
-		private readonly bool $isActive
+		private readonly bool $isActive,
+		private readonly Clock $clock
 	) {
 	}
 
@@ -94,7 +96,10 @@ class FeeChangeUseCase {
 				return new FeeChangeResponse( false, $errors );
 			}
 
-			$feeChange->updateMembershipFee( $paymentId, $feeChangeRequest->memberName );
+			$feeChange->updateMembershipFee(
+				paymentId: $paymentId,
+				memberName: $feeChangeRequest->memberName,
+				filledOn: $this->clock->now() );
 			$this->feeChangeRepository->storeFeeChange( $feeChange );
 			return new FeeChangeResponse( true );
 		} catch ( FeeChangeException $e ) {

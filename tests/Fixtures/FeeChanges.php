@@ -20,6 +20,7 @@ class FeeChanges {
 	public const int INTERVAL = 12;
 	public const string PAYMENT_TYPE = 'FCH';
 	public const string EXPORT_DATE = '2025-04-03 1:02:00';
+	public const string FILLED_ON_DATE = '2025-03-03 01:15:00';
 
 	public static function newNewFeeChange( string $uuid ): FeeChange {
 		return new FeeChange(
@@ -31,7 +32,8 @@ class FeeChanges {
 			self::SUGGESTED_AMOUNT,
 			self::INTERVAL,
 			FeeChangeState::NEW,
-			null
+			null,
+			filledOn: null
 		);
 	}
 
@@ -45,7 +47,8 @@ class FeeChanges {
 			self::SUGGESTED_AMOUNT,
 			self::INTERVAL,
 			FeeChangeState::FILLED,
-			null
+			null,
+			filledOn: new \DateTime( self::FILLED_ON_DATE )
 		);
 	}
 
@@ -59,7 +62,8 @@ class FeeChanges {
 			self::SUGGESTED_AMOUNT,
 			self::INTERVAL,
 			FeeChangeState::EXPORTED,
-			new \DateTime( self::EXPORT_DATE )
+			new \DateTime( self::EXPORT_DATE ),
+			filledOn: new \DateTime( self::FILLED_ON_DATE )
 		);
 	}
 }
