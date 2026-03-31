@@ -59,9 +59,12 @@ class DoctrineMembershipAnonymizationMonitorTest extends TestCase {
 			creationTime: $this->now->sub( new \DateInterval( 'P1Y' ) )
 		);
 		// create older moderated membership that got already exported and scrubbed (status, ...)
-		$this->newScrubbedMembershipRecord(
-			id: 4,
-			creationDate: $this->now->sub( new \DateInterval( 'P1Y' ) )
+		$this->conn->insert(
+			'request',
+			$this->newScrubbedMembershipRecord(
+				id: 4,
+				creationDate: $this->now->sub( new \DateInterval( 'P1Y' ) )
+			)
 		);
 		$this->assertMembershipIsAnonymized( 4 );
 		// expect report to contain 1
