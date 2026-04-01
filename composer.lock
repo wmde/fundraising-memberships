@@ -3877,11 +3877,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.40",
+            "version": "2.1.46",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9b2c7aeb83a75d8680ea5e7c9b7fca88052b766b",
-                "reference": "9b2c7aeb83a75d8680ea5e7c9b7fca88052b766b",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/a193923fc2d6325ef4e741cf3af8c3e8f54dbf25",
+                "reference": "a193923fc2d6325ef4e741cf3af8c3e8f54dbf25",
                 "shasum": ""
             },
             "require": {
@@ -3926,20 +3926,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-23T15:04:35+00:00"
+            "time": "2026-04-01T09:25:14+00:00"
         },
         {
             "name": "phpstan/phpstan-doctrine",
-            "version": "2.0.18",
+            "version": "2.0.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-doctrine.git",
-                "reference": "44a216a5cd9fe52be489dcf1e2d565c473daa1ca"
+                "reference": "72f4f7a02d6c98d9101e8616e0488bc0a785196d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-doctrine/zipball/44a216a5cd9fe52be489dcf1e2d565c473daa1ca",
-                "reference": "44a216a5cd9fe52be489dcf1e2d565c473daa1ca",
+                "url": "https://api.github.com/repos/phpstan/phpstan-doctrine/zipball/72f4f7a02d6c98d9101e8616e0488bc0a785196d",
+                "reference": "72f4f7a02d6c98d9101e8616e0488bc0a785196d",
                 "shasum": ""
             },
             "require": {
@@ -4000,9 +4000,9 @@
             ],
             "support": {
                 "issues": "https://github.com/phpstan/phpstan-doctrine/issues",
-                "source": "https://github.com/phpstan/phpstan-doctrine/tree/2.0.18"
+                "source": "https://github.com/phpstan/phpstan-doctrine/tree/2.0.20"
             },
-            "time": "2026-02-24T10:01:00+00:00"
+            "time": "2026-03-13T13:44:51+00:00"
         },
         {
             "name": "phpstan/phpstan-phpunit",
@@ -4408,16 +4408,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.14",
+            "version": "12.5.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "47283cfd98d553edcb1353591f4e255dc1bb61f0"
+                "reference": "aeb6899ffdbbf4b4ff5e6b6ebb77b35c51bb6d9a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/47283cfd98d553edcb1353591f4e255dc1bb61f0",
-                "reference": "47283cfd98d553edcb1353591f4e255dc1bb61f0",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/aeb6899ffdbbf4b4ff5e6b6ebb77b35c51bb6d9a",
+                "reference": "aeb6899ffdbbf4b4ff5e6b6ebb77b35c51bb6d9a",
                 "shasum": ""
             },
             "require": {
@@ -4439,7 +4439,7 @@
                 "sebastian/cli-parser": "^4.2.0",
                 "sebastian/comparator": "^7.1.4",
                 "sebastian/diff": "^7.0.0",
-                "sebastian/environment": "^8.0.3",
+                "sebastian/environment": "^8.0.4",
                 "sebastian/exporter": "^7.0.2",
                 "sebastian/global-state": "^8.0.2",
                 "sebastian/object-enumerator": "^7.0.0",
@@ -4486,31 +4486,15 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.14"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.15"
             },
             "funding": [
                 {
-                    "url": "https://phpunit.de/sponsors.html",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/sebastianbergmann",
-                    "type": "github"
-                },
-                {
-                    "url": "https://liberapay.com/sebastianbergmann",
-                    "type": "liberapay"
-                },
-                {
-                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
-                    "type": "thanks_dev"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/phpunit/phpunit",
-                    "type": "tidelift"
+                    "url": "https://phpunit.de/sponsoring.html",
+                    "type": "other"
                 }
             ],
-            "time": "2026-02-18T12:38:40+00:00"
+            "time": "2026-03-31T06:41:33+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -4800,16 +4784,16 @@
         },
         {
             "name": "sebastian/environment",
-            "version": "8.0.3",
+            "version": "8.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/environment.git",
-                "reference": "24a711b5c916efc6d6e62aa65aa2ec98fef77f68"
+                "reference": "7b8842c2d8e85d0c3a5831236bf5869af6ab2a11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/24a711b5c916efc6d6e62aa65aa2ec98fef77f68",
-                "reference": "24a711b5c916efc6d6e62aa65aa2ec98fef77f68",
+                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/7b8842c2d8e85d0c3a5831236bf5869af6ab2a11",
+                "reference": "7b8842c2d8e85d0c3a5831236bf5869af6ab2a11",
                 "shasum": ""
             },
             "require": {
@@ -4852,7 +4836,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/environment/issues",
                 "security": "https://github.com/sebastianbergmann/environment/security/policy",
-                "source": "https://github.com/sebastianbergmann/environment/tree/8.0.3"
+                "source": "https://github.com/sebastianbergmann/environment/tree/8.0.4"
             },
             "funding": [
                 {
@@ -4872,7 +4856,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-08-12T14:11:56+00:00"
+            "time": "2026-03-15T07:05:40+00:00"
         },
         {
             "name": "sebastian/exporter",
@@ -5735,5 +5719,5 @@
         "php": ">=8.4"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
