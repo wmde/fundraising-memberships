@@ -10,7 +10,7 @@
 
 		"psr/log": "~3.0",
 
-		"wmde/fundraising-payments": "~8.0",
+		"wmde/fundraising-payments": "dev-anonymisation",
 		"wmde/euro": "~1.0",
 		"wmde/email-address": "~1.0",
 		"wmde/fun-validators": "~5.0"
@@ -34,7 +34,7 @@
 	],
 	"require-dev": {
 		"phpunit/phpunit": "~12.0",
-		"symfony/cache": "^6.1|^7.0",
+		"symfony/cache": "^8.0",
 		"phpstan/phpstan": "~2.1.11",
 		"wmde/clock": "^2.0",
 		"wmde/fundraising-phpcs": "~14.0",
