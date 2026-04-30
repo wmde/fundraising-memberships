@@ -130,7 +130,7 @@ class DoctrineMembershipAnonymizationMonitorTest extends TestCase {
 			'strasse' => '135 East 57th Street',
 			'plz' => '12345',
 			'ort' => 'New York City',
-			'dob' => '1966-03-13 13:13:13',
+			'dob' => '1966-03-13',
 			'iban' => 'DE02120300000000202051',
 			'bic' => 'BYLADEM1001',
 			'status' => MembershipApplication::STATUS_NEUTRAL,
