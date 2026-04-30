@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\Domain\Model;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
@@ -117,5 +118,62 @@ class MembershipApplicationTest extends TestCase {
 
 	private function makeGenericModerationReason(): ModerationReason {
 		return new ModerationReason( ModerationIdentifier::MANUALLY_FLAGGED_BY_ADMIN );
+	}
+
+	public function testDoesNotScrubsUnexportedOrUncancelledData(): void {
+		$application = ValidMembershipApplication::newApplication();
+
+		$this->expectException( \DomainException::class );
+
+		$application->scrubPersonalData();
+	}
+
+	public function testScrubsPersonalData(): void {
+		$application = ValidMembershipApplication::newApplication();
+		$application->setExported();
+
+		$application->scrubPersonalData();
+
+		$this->assertSame( '', $application->getApplicant()->getName()->firstName );
+		$this->assertSame( '', $application->getApplicant()->getName()->lastName );
+		$this->assertSame( ApplicantName::PERSON_SCRUBBED, $application->getApplicant()->getName()->personType );
+		$this->assertSame( '', $application->getApplicant()->getName()->title );
+		$this->assertSame( '', $application->getApplicant()->getName()->salutation );
+		$this->assertSame( '', $application->getApplicant()->getName()->companyName );
+		$this->assertSame( '', $application->getApplicant()->getPhysicalAddress()->city );
+		$this->assertSame( '', $application->getApplicant()->getPhysicalAddress()->countryCode );
+		$this->assertSame( '', $application->getApplicant()->getPhysicalAddress()->postalCode );
+		$this->assertSame( '', $application->getApplicant()->getPhysicalAddress()->streetAddress );
+		$this->assertSame( '', $application->getApplicant()->getEmailAddress()->getFullAddress() );
+		$this->assertSame( '', (string)$application->getApplicant()->getPhoneNumber() );
+	}
+
+	public function testScrubsCompanyData(): void {
+		$application = ValidMembershipApplication::newCompanyApplication();
+		$application->setExported();
+
+		$application->scrubPersonalData();
+
+		$this->assertSame( '', $application->getApplicant()->getName()->firstName );
+		$this->assertSame( '', $application->getApplicant()->getName()->lastName );
+		$this->assertSame( ApplicantName::PERSON_SCRUBBED, $application->getApplicant()->getName()->personType );
+		$this->assertSame( '', $application->getApplicant()->getName()->title );
+		$this->assertSame( '', $application->getApplicant()->getName()->salutation );
+		$this->assertSame( '', $application->getApplicant()->getName()->companyName );
+		$this->assertSame( '', $application->getApplicant()->getPhysicalAddress()->city );
+		$this->assertSame( '', $application->getApplicant()->getPhysicalAddress()->countryCode );
+		$this->assertSame( '', $application->getApplicant()->getPhysicalAddress()->postalCode );
+		$this->assertSame( '', $application->getApplicant()->getPhysicalAddress()->streetAddress );
+		$this->assertSame( '', $application->getApplicant()->getEmailAddress()->getFullAddress() );
+		$this->assertSame( '', (string)$application->getApplicant()->getPhoneNumber() );
+	}
+
+	public function testScrubsCancelledData(): void {
+		$application = ValidMembershipApplication::newApplication();
+		$application->cancel();
+
+		$application->scrubPersonalData();
+
+		$this->assertTrue( $application->isScrubbed() );
 	}
 }
