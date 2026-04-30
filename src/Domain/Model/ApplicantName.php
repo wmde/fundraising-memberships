@@ -6,9 +6,10 @@ namespace WMDE\Fundraising\MembershipContext\Domain\Model;
 
 class ApplicantName {
 
-	public const COMPANY_SALUTATION = 'Firma';
-	public const PERSON_PRIVATE = 'person';
-	public const PERSON_COMPANY = 'firma';
+	public const string COMPANY_SALUTATION = 'Firma';
+	public const string PERSON_PRIVATE = 'person';
+	public const string PERSON_COMPANY = 'firma';
+	public const string PERSON_SCRUBBED = 'scrubbed';
 
 	private function __construct(
 		public readonly string $personType = '',
@@ -43,6 +44,10 @@ class ApplicantName {
 			salutation: self::COMPANY_SALUTATION,
 			companyName: $companyName,
 		);
+	}
+
+	public static function newScrubbedName(): self {
+		return new self( personType: self::PERSON_SCRUBBED );
 	}
 
 	public function isPrivatePerson(): bool {

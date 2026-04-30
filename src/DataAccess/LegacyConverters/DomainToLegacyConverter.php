@@ -39,6 +39,9 @@ class DomainToLegacyConverter {
 
 		$doctrineStatus = $this->getDoctrineStatus( $application );
 		$doctrineApplication->setStatus( $doctrineStatus );
+		if ( $application->isScrubbed() ) {
+			$doctrineApplication->scrub();
+		}
 	}
 
 	/**
