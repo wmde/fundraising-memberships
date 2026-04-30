@@ -39,7 +39,9 @@ class DomainToLegacyConverter {
 
 		$doctrineStatus = $this->getDoctrineStatus( $application );
 		$doctrineApplication->setStatus( $doctrineStatus );
+
 		if ( $application->isScrubbed() ) {
+			$this->clearBankDataFields( $doctrineApplication );
 			$doctrineApplication->scrub();
 		}
 	}
@@ -124,6 +126,10 @@ class DomainToLegacyConverter {
 		$application->setPaymentBankName( $this->getStringValueFromArray( $paymentSpecificValues, 'bankname' ) );
 		$application->setPaymentBic( $this->getStringValueFromArray( $paymentSpecificValues, 'bic' ) );
 		$application->setPaymentIban( $this->getStringValueFromArray( $paymentSpecificValues, 'iban' ) );
+	}
+
+	private function clearBankDataFields( DoctrineApplication $application ): void {
+		$this->setBankDataFields( $application, [] );
 	}
 
 	/**
