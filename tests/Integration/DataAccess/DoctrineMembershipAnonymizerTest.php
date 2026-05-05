@@ -5,106 +5,101 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\MembershipContext\Tests\Integration\DataAccess;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipAnonymizer;
+use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipRepository;
+use WMDE\Fundraising\MembershipContext\DataAccess\ModerationReasonRepository;
 use WMDE\Fundraising\MembershipContext\Domain\AnonymizationException;
+use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FakePaymentAnonymizer;
+use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
 use WMDE\Fundraising\MembershipContext\Tests\TestEnvironment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentAnonymizer;
+use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
 #[CoversClass( DoctrineMembershipAnonymizer::class )]
 class DoctrineMembershipAnonymizerTest extends TestCase {
 
 	private Connection $conn;
+	private EntityManager $entityManager;
 
 	private \DateTimeImmutable $now;
 
 	private \DateTime $defaultExportTime;
 	private const int MEMBERSHIP_ID = 1;
+	private const int PAYMENT_ID = 42;
 	private const int ANOTHER_MEMBERSHIP_ID = 2;
 
 	public function setUp(): void {
-		$this->conn = TestEnvironment::newInstance()->getFactory()->getConnection();
+		$factory = TestEnvironment::newInstance()->getFactory();
+		$this->conn = $factory->getConnection();
+		$this->entityManager = $factory->getEntityManager();
 		$this->now = new \DateTimeImmutable();
 		$this->defaultExportTime = \DateTime::createFromImmutable( $this->now->sub( new \DateInterval( 'PT1H' ) ) );
 	}
 
-	public function testGivenOneMembership_anonymizeAtCleansUpFields(): void {
-		$this->insertExportedMembership( self::MEMBERSHIP_ID, $this->defaultExportTime );
-		$anonymizer = new DoctrineMembershipAnonymizer( $this->conn );
-
-		$anonymizer->anonymizeAt( $this->now );
-
-		$this->assertMembershipIsAnonymized( self::MEMBERSHIP_ID );
+	private function newDoctrineMembershipAnonymizer( ?DoctrineMembershipRepository $repository = null, ?PaymentAnonymizer $paymentAnonymizer = null ): DoctrineMembershipAnonymizer {
+		return new DoctrineMembershipAnonymizer(
+			$repository ?? new DoctrineMembershipRepository( $this->entityManager, $this->makeGetPaymentUseCaseStub(), new ModerationReasonRepository( $this->entityManager ) ),
+			$this->entityManager,
+			$paymentAnonymizer ?? new FakePaymentAnonymizer()
+		);
 	}
 
-	public function testGivenOneMembership_anonymizeCleansUpFields(): void {
+	public function testGivenOneMembership_anonymizeWithIdsCleansUpFields(): void {
 		$this->insertExportedMembership( self::MEMBERSHIP_ID, $this->defaultExportTime );
-		$anonymizer = new DoctrineMembershipAnonymizer( $this->conn );
+		$anonymizer = $this->newDoctrineMembershipAnonymizer();
 		$anonymizer->anonymizeWithIds( self::MEMBERSHIP_ID );
 
 		$this->assertMembershipIsAnonymized( self::MEMBERSHIP_ID );
 	}
 
-	public function testGivenDeletedMembership_anonymizeWillCleanUpFields(): void {
-		$oldDate = \DateTime::createFromImmutable( $this->now->sub( new \DateInterval( 'P2DT1M' ) ) );
+	public function testGivenDeletedMembership_anonymizeWithIdsWillCleanUpFields(): void {
 		$this->insertDeletedMembership( self::MEMBERSHIP_ID );
 
-		$anonymizer = new DoctrineMembershipAnonymizer( $this->conn );
+		$anonymizer = $this->newDoctrineMembershipAnonymizer();
 		$anonymizer->anonymizeWithIds( self::MEMBERSHIP_ID );
 
 		$this->assertMembershipIsAnonymized( self::MEMBERSHIP_ID );
 	}
 
-	public function testAnonymizeAtReturnsNumberOfAnonymizedMemberships(): void {
-		// Insert memberships with different IDs but the same date
-		$this->insertMembership( 1 );
-		$this->insertMembership( 5 );
-		$this->insertMembership( 9 );
-		$this->insertMembership( 10 );
-		$anonymizer = new DoctrineMembershipAnonymizer( $this->conn );
+	public function testAnonymizeWithIdsAnonymizesPayments(): void {
+		$paymentAnonymizer = new FakePaymentAnonymizer();
+		$this->insertExportedMembership( 1, $this->defaultExportTime );
+		$this->insertExportedMembership( 2, $this->defaultExportTime );
 
-		$this->assertSame( 4, $anonymizer->anonymizeAt( $this->now ) );
+		$anonymizer = $this->newDoctrineMembershipAnonymizer( paymentAnonymizer: $paymentAnonymizer );
+		$anonymizer->anonymizeWithIds( 1, 2 );
+
+		$this->assertSame( [ self::PAYMENT_ID, self::PAYMENT_ID ], $paymentAnonymizer->paymentIds );
 	}
 
-	public function testAnonymizeAtIgnoresExportSettingsAndGracePeriod(): void {
-		// Insert memberships with different IDs but the same date
-		$this->insertMembership( 1 );
-		$this->insertExportedMembership( 5, $this->defaultExportTime );
-		$this->insertMembership( 8 );
-		$anonymizer = new DoctrineMembershipAnonymizer( $this->conn );
-
-		$this->assertSame( 3, $anonymizer->anonymizeAt( $this->now ) );
-	}
-
-	public function testAnonymizeAtThrowsExceptionWhenIdDoesNotExist(): void {
-		$anonymizer = new DoctrineMembershipAnonymizer( $this->conn );
+	public function testAnonymizeWithIdsThrowsExceptionWhenIdDoesNotExist(): void {
+		$anonymizer = $this->newDoctrineMembershipAnonymizer();
 
 		$this->expectException( AnonymizationException::class );
 
 		$anonymizer->anonymizeWithIds( self::MEMBERSHIP_ID );
 	}
 
-	public function testAnonymizeAtTransformsDatabaseExceptions(): void {
-		$anonymizer = new DoctrineMembershipAnonymizer( $this->givenThrowingDatabaseConnection() );
-
-		$this->expectException( AnonymizationException::class );
-
-		$anonymizer->anonymizeAt( $this->now );
-	}
-
-	public function testAnonymizeTransformsDatabaseExceptions(): void {
-		$anonymizer = new DoctrineMembershipAnonymizer( $this->givenThrowingDatabaseConnection() );
+	public function testAnonymizeWithIdsTransformsDatabaseExceptions(): void {
+		$membershipRepository = $this->createMock( DoctrineMembershipRepository::class );
+		$membershipRepository->method( 'getMembershipApplicationById' )->willReturn( ValidMembershipApplication::newApplication() );
+		$membershipRepository->method( 'storeApplication' )->willThrowException( new StoreMembershipApplicationException( 'Could not store' ) );
+		$anonymizer = $this->newDoctrineMembershipAnonymizer( repository: $membershipRepository );
 
 		$this->expectException( AnonymizationException::class );
 
 		$anonymizer->anonymizeWithIds( self::MEMBERSHIP_ID );
 	}
 
-	public function testAnonymizeThrowsExceptionWhenEntryIsUnexportedAndInGracePeriod(): void {
+	public function testAnonymizeWithIdsThrowsExceptionWhenEntryIsUnexportedAndInGracePeriod(): void {
 		$this->insertMembership( self::MEMBERSHIP_ID );
-		$anonymizer = new DoctrineMembershipAnonymizer( $this->conn );
+		$anonymizer = $this->newDoctrineMembershipAnonymizer();
 
 		$this->expectException( AnonymizationException::class );
 
@@ -113,7 +108,7 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 
 	public function testAnonymizeAllAnonymizesExportedMemberships(): void {
 		$this->insertExportedMembership( self::MEMBERSHIP_ID, new \DateTime() );
-		$anonymizer = new DoctrineMembershipAnonymizer( $this->conn );
+		$anonymizer = $this->newDoctrineMembershipAnonymizer();
 
 		$anonymizer->anonymizeAll();
 
@@ -127,7 +122,7 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 		$membership2['status'] = MembershipApplication::STATUS_CANCELLED_MODERATION;
 		$this->conn->insert( 'request', $membership1 );
 		$this->conn->insert( 'request', $membership2 );
-		$anonymizer = new DoctrineMembershipAnonymizer( $this->conn );
+		$anonymizer = $this->newDoctrineMembershipAnonymizer();
 
 		$anonymizer->anonymizeAll();
 
@@ -142,7 +137,7 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 		$membership['is_scrubbed'] = 1;
 		$membership['export'] = date( 'Y-m-d H:i:s' );
 		$this->conn->insert( 'request', $membership );
-		$anonymizer = new DoctrineMembershipAnonymizer( $this->conn );
+		$anonymizer = $this->newDoctrineMembershipAnonymizer();
 		$expectedMembership = $membership;
 		// assertMembershipIsUnAnonymized does not check export field
 		unset( $expectedMembership['export'] );
@@ -152,15 +147,15 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 		$this->assertMembershipIsUnAnonymized( $expectedMembership );
 	}
 
-	private function givenThrowingDatabaseConnection(): Connection {
-		$queryBuilderStub = $this->createStub( QueryBuilder::class );
-		$queryBuilderStub->method( 'executeStatement' )
-			->willThrowException( new \RuntimeException( 'Database Exception, thrown by test double' ) );
+	public function testAnonymizeAllAnonymizesPayments(): void {
+		$paymentAnonymizer = new FakePaymentAnonymizer();
+		$this->insertExportedMembership( 1, $this->defaultExportTime );
+		$this->insertExportedMembership( 2, $this->defaultExportTime );
 
-		return $this->createConfiguredStub(
-			Connection::class,
-			[ 'createQueryBuilder' => $queryBuilderStub ]
-		);
+		$anonymizer = $this->newDoctrineMembershipAnonymizer( paymentAnonymizer: $paymentAnonymizer );
+		$anonymizer->anonymizeAll();
+
+		$this->assertSame( [ self::PAYMENT_ID, self::PAYMENT_ID ], $paymentAnonymizer->paymentIds );
 	}
 
 	private function insertMembership( int $id = self::MEMBERSHIP_ID, ?\DateTime $creationDate = null ): void {
@@ -199,19 +194,20 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 			'strasse' => '135 East 57th Street',
 			'plz' => '12345',
 			'ort' => 'New York City',
-			'dob' => '1966-03-13 13:13:13',
+			'dob' => '1966-03-13',
 			'iban' => 'DE02120300000000202051',
 			'bic' => 'BYLADEM1001',
 			'status' => MembershipApplication::STATUS_NEUTRAL,
 			'backup' => $nowString,
 			'timestamp' => $creationString,
-			'is_scrubbed' => 0
+			'is_scrubbed' => 0,
+			'payment_id' => self::PAYMENT_ID
 		];
 	}
 
 	private function assertMembershipIsAnonymized( int $membershipId ): void {
 		$result = $this->conn->executeQuery(
-			'SELECT anrede, firma, titel, name, vorname, nachname, strasse, plz, ort, email, iban, bic, dob, is_scrubbed FROM request WHERE id = :id',
+			'SELECT anrede, firma, titel, name, vorname, nachname, strasse, plz, ort, email, iban, bic, dob, is_scrubbed, payment_id FROM request WHERE id = :id',
 			[ 'id' => $membershipId ]
 		);
 		$row = $result->fetchAssociative();
@@ -229,7 +225,8 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 			'iban' => '',
 			'bic' => '',
 			'dob' => null,
-			'is_scrubbed' => 1
+			'is_scrubbed' => 1,
+			'payment_id' => self::PAYMENT_ID
 		], $row );
 	}
 
@@ -241,10 +238,30 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 	private function assertMembershipIsUnAnonymized( array $expectedMembership ): void {
 		unset( $expectedMembership['backup'] );
 		$result = $this->conn->executeQuery(
-			'SELECT id, anrede, firma, titel, name, vorname, nachname, strasse, plz, ort, email, iban, bic, dob, status, timestamp, is_scrubbed FROM request WHERE id = :id',
+			'SELECT id, anrede, firma, titel, name, vorname, nachname, strasse, plz, ort, email, iban, bic, dob, status, timestamp, is_scrubbed, payment_id FROM request WHERE id = :id',
 			[ 'id' => $expectedMembership['id'] ]
 		);
 		$row = $result->fetchAssociative();
 		$this->assertEquals( $expectedMembership, $row );
+	}
+
+	private function makeGetPaymentUseCaseStub(): GetPaymentUseCase {
+		return $this->createConfiguredStub(
+			GetPaymentUseCase::class,
+			[ 'getLegacyPaymentDataObject' => $this->createDefaultLegacyData() ]
+		);
+	}
+
+	private function createDefaultLegacyData(): LegacyPaymentData {
+		// Bogus data
+		return new LegacyPaymentData(
+			999999,
+			999,
+			'PPL',
+			[
+				'paymentValue' => 'almostInfinite',
+				'paid' => 'certainly'
+			],
+		);
 	}
 }
