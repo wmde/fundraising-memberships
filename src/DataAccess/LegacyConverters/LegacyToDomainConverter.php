@@ -49,6 +49,10 @@ class LegacyToDomainConverter {
 			$application->setBackup();
 		}
 
+		if ( $doctrineApplication->isAnonymized() ) {
+			$application->setScrubbed();
+		}
+
 		foreach ( $doctrineApplication->getIncentives() as $incentive ) {
 			$application->addIncentive( $incentive );
 		}

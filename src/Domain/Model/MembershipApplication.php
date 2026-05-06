@@ -21,6 +21,7 @@ class MembershipApplication {
 	private bool $backedUp = false;
 	private bool $confirmed = false;
 	private bool $exported = false;
+	private bool $scrubbed = false;
 
 	/** @var Incentive[] */
 	private array $incentives = [];
@@ -161,4 +162,45 @@ class MembershipApplication {
 		return true;
 	}
 
+	public function setScrubbed(): void {
+		$this->scrubbed = true;
+	}
+
+	public function isScrubbed(): bool {
+		return $this->scrubbed;
+	}
+
+	public function scrubPersonalData(): void {
+		if ( !$this->canBeScrubbed() ) {
+			throw new \DomainException(
+				sprintf(
+					"You can only anonymise exported or cancelled membership applications. (ID: %s, Exported: %s, Cancelled: %s)",
+					$this->getId(),
+					$this->isExported() ? 'true' : 'false',
+					$this->isCancelled() ? 'true' : 'false'
+				)
+			);
+		}
+
+		$this->applicant = new Applicant(
+			ApplicantName::newScrubbedName(),
+			new ApplicantAddress(),
+			new AnonymousEmailAddress(),
+			new PhoneNumber( '' )
+		);
+
+		$this->setScrubbed();
+	}
+
+	private function canBeScrubbed(): bool {
+		if ( $this->isExported() ) {
+			return true;
+		}
+
+		if ( $this->isCancelled() ) {
+			return true;
+		}
+
+		return false;
+	}
 }

@@ -160,4 +160,35 @@ class DomainToLegacyConverterTest extends TestCase {
 		$this->assertCount( 1, $doctrineIncentives );
 		$this->assertEquals( $incentive, $doctrineIncentives->get( 0 ) );
 	}
+
+	public function testWhenApplicationIsScrubbed_marksDomainApplicationAsAnonymized(): void {
+		$doctrineApplication = new DoctrineApplication();
+		$application = ValidMembershipApplication::newDomainEntity();
+		$application->setScrubbed();
+
+		$converter = new DomainToLegacyConverter();
+		$converter->convert(
+			$doctrineApplication,
+			$application,
+			new LegacyPaymentData( 1, 1, 'BEZ', [] ),
+			[]
+		);
+
+		$this->assertTrue( $doctrineApplication->isAnonymized() );
+	}
+
+	public function testWhenApplicationIsNotScrubbed_domainApplicationIsNotMarkedAsAnonymized(): void {
+		$doctrineApplication = new DoctrineApplication();
+		$application = ValidMembershipApplication::newDomainEntity();
+
+		$converter = new DomainToLegacyConverter();
+		$converter->convert(
+			$doctrineApplication,
+			$application,
+			new LegacyPaymentData( 1, 1, 'BEZ', [] ),
+			[]
+		);
+
+		$this->assertFalse( $doctrineApplication->isAnonymized() );
+	}
 }
