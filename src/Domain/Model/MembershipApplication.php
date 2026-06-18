@@ -166,6 +166,10 @@ class MembershipApplication {
 		$this->scrubbed = true;
 	}
 
+	public function setApplicant( Applicant $applicant ): void {
+		$this->applicant = $applicant;
+	}
+
 	public function isScrubbed(): bool {
 		return $this->scrubbed;
 	}
