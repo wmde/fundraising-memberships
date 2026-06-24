@@ -12,9 +12,10 @@ vendor/
 
 coverage
 
-# prevent accidental data uploads, we do not expect any sql files here except in the database folder
+# prevent accidental data uploads, we do not expect any sql or csv files here except in the database folder
 *.sql
 *.sql.gz
+*.csv
 
 /.docker/database/*
 !/.docker/database/01_memberships.sql
