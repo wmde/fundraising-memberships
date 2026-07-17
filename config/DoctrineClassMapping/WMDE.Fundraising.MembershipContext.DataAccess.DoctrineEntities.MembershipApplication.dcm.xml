@@ -19,7 +19,7 @@
       </options>
     </field>
     <field name="donationId" type="integer" column="donation_id" nullable="true"/>
-    <field name="creationTime" type="datetime" column="timestamp" nullable="false"/>
+    <field name="creationTime" type="datetime_immutable" column="timestamp" nullable="false"/>
     <field name="applicantSalutation" type="string" column="anrede" length="16" nullable="true"/>
     <field name="company" type="string" column="firma" length="100" nullable="true"/>
     <field name="applicantTitle" type="string" column="titel" length="16" nullable="true"/>

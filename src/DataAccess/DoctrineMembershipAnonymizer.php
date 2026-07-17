@@ -4,7 +4,9 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\DataAccess;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManager;
+use WMDE\Clock\Clock;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\LegacyToDomainConverter;
 use WMDE\Fundraising\MembershipContext\Domain\AnonymizationException;
@@ -19,11 +21,15 @@ class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 	public function __construct(
 		private readonly MembershipRepository $membershipRepository,
 		private readonly EntityManager $entityManager,
-		private readonly PaymentAnonymizer $paymentAnonymizer
+		private readonly PaymentAnonymizer $paymentAnonymizer,
+		private readonly Clock $clock,
+		private readonly \DateInterval $gracePeriod
 	) {
 	}
 
 	public function anonymizeAll(): int {
+		$cutoffDate = $this->clock->now()->sub( $this->gracePeriod );
+
 		$queryBuilder = $this->entityManager->createQueryBuilder();
 		$queryBuilder->select( 'm' )
 			->from( MembershipApplication::class, 'm' )
@@ -33,8 +39,10 @@ class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 				$queryBuilder->expr()->in( 'm.status', [
 					strval( MembershipApplication::STATUS_CANCELED ),
 					strval( MembershipApplication::STATUS_CANCELLED_MODERATION )
-				] )
-			) );
+				] ),
+				$queryBuilder->expr()->lte( 'm.creationTime', ':cutoffDate' )
+			) )
+			->setParameter( 'cutoffDate', $cutoffDate, Types::DATETIME_IMMUTABLE );
 
 		try {
 			/** @var iterable<MembershipApplication> $memberships */
@@ -45,7 +53,7 @@ class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 
 			foreach ( $memberships as $doctrineMembership ) {
 				$membership = $converter->createFromLegacyObject( $doctrineMembership );
-				$membership->scrubPersonalData();
+				$membership->scrubPersonalData( $cutoffDate );
 				$this->membershipRepository->storeApplication( $membership );
 				$paymentIds[] = $membership->getPaymentId();
 				$count++;
@@ -65,6 +73,8 @@ class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 	}
 
 	public function anonymizeWithIds( int ...$membershipIds ): void {
+		$cutoffDate = $this->clock->now()->sub( $this->gracePeriod );
+
 		$counter = 0;
 		$paymentIds = [];
 		foreach ( $membershipIds as $id ) {
@@ -75,7 +85,7 @@ class DoctrineMembershipAnonymizer implements MembershipAnonymizer {
 			}
 
 			try {
-				$membership->scrubPersonalData();
+				$membership->scrubPersonalData( $cutoffDate );
 				$this->membershipRepository->storeApplication( $membership );
 				$paymentIds[] = $membership->getPaymentId();
 

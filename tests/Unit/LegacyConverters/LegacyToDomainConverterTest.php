@@ -89,6 +89,15 @@ class LegacyToDomainConverterTest extends TestCase {
 		$this->assertEquals( $doctrineApplication->getApplicantTitle(), $application->getApplicant()->getName()->title );
 	}
 
+	public function testGivenDoctrineApplication_setsCreatedOnInDomain(): void {
+		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
+
+		$converter = new LegacyToDomainConverter();
+		$application = $converter->createFromLegacyObject( $doctrineApplication );
+
+		$this->assertSame( $doctrineApplication->getCreationTime(), $application->getCreatedOn() );
+	}
+
 	public function testGivenDoctrineApplicationThatNeedsModeration_setsNeedsModerationInDomain(): void {
 		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
 		$converter = new LegacyToDomainConverter();

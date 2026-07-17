@@ -133,7 +133,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	}
 
 	private function givenMembershipApplication(): MembershipApplication {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->setId( self::APPLICATION_ID );
 		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$application->modifyDataObject( static function ( MembershipApplicationData $data ): void {
@@ -153,7 +153,7 @@ class DoctrineMembershipApplicationAuthorizerTest extends TestCase {
 	}
 
 	private function storeMembershipApplication(): MembershipApplication {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->setId( self::APPLICATION_ID );
 		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$this->storeApplication( $application );

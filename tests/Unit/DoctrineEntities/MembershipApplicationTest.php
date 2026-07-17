@@ -14,14 +14,14 @@ use WMDE\Fundraising\MembershipContext\DataAccess\MembershipApplicationData;
 class MembershipApplicationTest extends TestCase {
 
 	public function testWhenSettingIdToAnInteger_getIdReturnsIt(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->setId( 1337 );
 
 		$this->assertSame( 1337, $application->getId() );
 	}
 
 	public function testWhenSettingIdToNull_getIdReturnsNull(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->setId( 1337 );
 		$application->setId( null );
 
@@ -29,13 +29,13 @@ class MembershipApplicationTest extends TestCase {
 	}
 
 	public function testWhenIdIsNotSet_getIdReturnsNull(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 
 		$this->assertNull( $application->getId() );
 	}
 
 	public function testGivenNoData_getDataObjectReturnsObjectWithNullValues(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 
 		$this->assertNull( $application->getDataObject()->getAccessToken() );
 		$this->assertNull( $application->getDataObject()->getUpdateToken() );
@@ -48,7 +48,7 @@ class MembershipApplicationTest extends TestCase {
 		$data->setUpdateToken( 'bar' );
 		$data->setPreservedStatus( 1337 );
 
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->setDataObject( $data );
 
 		$this->assertSame(
@@ -62,7 +62,7 @@ class MembershipApplicationTest extends TestCase {
 	}
 
 	public function testWhenProvidingNullData_setObjectDoesNotSetFields(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->setDataObject( new MembershipApplicationData() );
 
 		$this->assertSame(
@@ -72,7 +72,7 @@ class MembershipApplicationTest extends TestCase {
 	}
 
 	public function testWhenDataAlreadyExists_setDataObjectRetainsAndUpdatesData(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->encodeAndSetData( [
 			'nyan' => 'cat',
 			'token' => 'wee',
@@ -100,7 +100,7 @@ class MembershipApplicationTest extends TestCase {
 	 * @deprecated Remove when removing {@see MembershipApplication::modifyDataObject}
 	 */
 	public function testWhenModifyingTheDataObject_modificationsAreReflected(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->encodeAndSetData( [
 			'nyan' => 'cat',
 			'token' => 'wee',
@@ -124,20 +124,20 @@ class MembershipApplicationTest extends TestCase {
 	}
 
 	public function testGivenModerationStatus_needsModerationReturnsTrue(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->setStatus( MembershipApplication::STATUS_MODERATION );
 
 		$this->assertTrue( $application->needsModeration() );
 	}
 
 	public function testGivenDefaultStatus_needsModerationReturnsFalse(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 
 		$this->assertFalse( $application->needsModeration() );
 	}
 
 	public function testGivenModerationAndCancelledStatus_needsModerationReturnsTrue(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->setStatus(
 			MembershipApplication::STATUS_MODERATION + MembershipApplication::STATUS_CANCELED
 		);
@@ -146,20 +146,20 @@ class MembershipApplicationTest extends TestCase {
 	}
 
 	public function testGivenCancelledStatus_isCancelledReturnsTrue(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->setStatus( MembershipApplication::STATUS_CANCELED );
 
 		$this->assertTrue( $application->isCancelled() );
 	}
 
 	public function testGivenDefaultStatus_isCancelledReturnsFalse(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 
 		$this->assertFalse( $application->isCancelled() );
 	}
 
 	public function testGivenModerationAndCancelledStatus_isCancelledReturnsTrue(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->setStatus(
 			MembershipApplication::STATUS_MODERATION + MembershipApplication::STATUS_CANCELED
 		);
@@ -168,19 +168,19 @@ class MembershipApplicationTest extends TestCase {
 	}
 
 	public function testGivenDefaultStatus_isDeletedReturnsFalse(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 
 		$this->assertFalse( $application->isCancelled() );
 	}
 
 	public function testDefaultDonationReceiptValue_isNull(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 
 		$this->assertNull( $application->getDonationReceipt() );
 	}
 
 	public function testSetDonationReceiptValue_canBeRetrieved(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->setDonationReceipt( false );
 
 		$this->assertFalse( $application->getDonationReceipt() );

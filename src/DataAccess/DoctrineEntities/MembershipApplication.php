@@ -36,7 +36,7 @@ class MembershipApplication {
 	// @phpstan-ignore-next-line
 	private ?int $donationId = null;
 
-	private ?DateTime $creationTime = null;
+	private \DateTimeImmutable $creationTime;
 
 	private ?string $applicantSalutation = null;
 
@@ -151,10 +151,10 @@ class MembershipApplication {
 	 */
 	private Collection $moderationReasons;
 
-	public function __construct() {
+	public function __construct( \DateTimeImmutable $creationTime ) {
 		$this->incentives = new ArrayCollection();
 		$this->moderationReasons = new ArrayCollection();
-		$this->creationTime = new DateTime();
+		$this->creationTime = $creationTime;
 	}
 
 	public function getId(): ?int {
@@ -165,13 +165,13 @@ class MembershipApplication {
 		$this->id = $id;
 	}
 
-	public function setCreationTime( ?DateTime $creationTime ): self {
+	public function setCreationTime( \DateTimeImmutable $creationTime ): self {
 		$this->creationTime = $creationTime;
 
 		return $this;
 	}
 
-	public function getCreationTime(): ?DateTime {
+	public function getCreationTime(): \DateTimeImmutable {
 		return $this->creationTime;
 	}
 

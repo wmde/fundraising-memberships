@@ -74,7 +74,8 @@ class ValidMembershipApplication {
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			self::PAYMENT_ID,
-			self::OPTS_INTO_DONATION_RECEIPT
+			self::OPTS_INTO_DONATION_RECEIPT,
+			new \DateTimeImmutable()
 		);
 	}
 
@@ -85,7 +86,8 @@ class ValidMembershipApplication {
 			self::MEMBERSHIP_TYPE,
 			$self->newCompanyApplicant( $self->newCompanyApplicantName() ),
 			self::PAYMENT_ID,
-			self::OPTS_INTO_DONATION_RECEIPT
+			self::OPTS_INTO_DONATION_RECEIPT,
+			new \DateTimeImmutable()
 		);
 	}
 
@@ -96,7 +98,8 @@ class ValidMembershipApplication {
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			self::PAYMENT_ID,
-			self::OPTS_INTO_DONATION_RECEIPT
+			self::OPTS_INTO_DONATION_RECEIPT,
+			new \DateTimeImmutable()
 		);
 	}
 
@@ -126,7 +129,8 @@ class ValidMembershipApplication {
 			self::MEMBERSHIP_TYPE,
 			$self->newApplicantWithEmailAddress( $self->newPersonApplicantName(), $emailAddress ),
 			self::PAYMENT_ID,
-			self::OPTS_INTO_DONATION_RECEIPT
+			self::OPTS_INTO_DONATION_RECEIPT,
+			new \DateTimeImmutable()
 		);
 	}
 
@@ -176,7 +180,7 @@ class ValidMembershipApplication {
 	}
 
 	private static function createDoctrineApplicationWithoutApplicantName( int $id = self::DEFAULT_ID ): DoctrineMembershipApplication {
-		$application = new DoctrineMembershipApplication();
+		$application = new DoctrineMembershipApplication( new \DateTimeImmutable() );
 
 		$application->setId( $id );
 		$application->setStatus( DoctrineMembershipApplication::STATUS_NEUTRAL );
@@ -217,7 +221,7 @@ class ValidMembershipApplication {
 		return $application;
 	}
 
-	public static function newBackedUpButUnexportedDoctrineEntity( int $id = self::DEFAULT_ID, ?DateTime $backupTime = null ): DoctrineMembershipApplication {
+	public static function newBackedUpButUnexportedDoctrineEntity( int $id = self::DEFAULT_ID, ?DateTime $backupTime = null, ?\DateTimeImmutable $createdOn = null ): DoctrineMembershipApplication {
 		$application = self::newDoctrineEntity( $id );
 		$application->setBackup( $backupTime ?? new DateTime() );
 		return $application;

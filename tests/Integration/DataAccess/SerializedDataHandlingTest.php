@@ -96,7 +96,7 @@ class SerializedDataHandlingTest extends TestCase {
 	 * @return void
 	 */
 	private function storeMembershipApplication( EntityManager $entityManager, array $data ): void {
-		$membershipAppl = new MembershipApplication();
+		$membershipAppl = new MembershipApplication( new \DateTimeImmutable() );
 
 		$membershipAppl->setId( self::MEMBERSHIP_APPLICATION_ID );
 		$membershipAppl->setPaymentId( 1 );

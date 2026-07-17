@@ -18,7 +18,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 class DomainToLegacyConverterTest extends TestCase {
 
 	public function testWhenPersistingApplicationWithModerationFlag_doctrineApplicationHasFlag(): void {
-		$doctrineApplication = new DoctrineApplication();
+		$doctrineApplication = new DoctrineApplication( new \DateTimeImmutable() );
 		$moderationReasons = [
 			$this->makeGenericModerationReason(),
 			new ModerationReason( ModerationIdentifier::MEMBERSHIP_FEE_TOO_HIGH )
@@ -45,7 +45,7 @@ class DomainToLegacyConverterTest extends TestCase {
 	}
 
 	public function testWhenPersistingApplicationWithCancelledFlag_doctrineApplicationHasFlag(): void {
-		$doctrineApplication = new DoctrineApplication();
+		$doctrineApplication = new DoctrineApplication( new \DateTimeImmutable() );
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->cancel();
 
@@ -63,7 +63,7 @@ class DomainToLegacyConverterTest extends TestCase {
 	}
 
 	public function testWhenPersistingApplicationWithConfirmedFlag_doctrineApplicationHasFlag(): void {
-		$doctrineApplication = new DoctrineApplication();
+		$doctrineApplication = new DoctrineApplication( new \DateTimeImmutable() );
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->confirm();
 
@@ -81,7 +81,7 @@ class DomainToLegacyConverterTest extends TestCase {
 	}
 
 	public function testWhenPersistingNonConfirmedOrModeratedOrCancelledApplication_doctrineApplicationHasFlag(): void {
-		$doctrineApplication = new DoctrineApplication();
+		$doctrineApplication = new DoctrineApplication( new \DateTimeImmutable() );
 		$application = ValidMembershipApplication::newDomainEntity();
 
 		$converter = new DomainToLegacyConverter();
@@ -98,7 +98,7 @@ class DomainToLegacyConverterTest extends TestCase {
 	}
 
 	public function testWhenPersistingCancelledModerationApplication_doctrineApplicationHasFlags(): void {
-		$doctrineApplication = new DoctrineApplication();
+		$doctrineApplication = new DoctrineApplication( new \DateTimeImmutable() );
 		$application = ValidMembershipApplication::newDomainEntity();
 		$moderationReason = $this->makeGenericModerationReason();
 		$application->markForModeration( $moderationReason );
@@ -118,7 +118,7 @@ class DomainToLegacyConverterTest extends TestCase {
 	}
 
 	public function testWhenGivenPayment_setsInMembershipApplication(): void {
-		$doctrineApplication = new DoctrineApplication();
+		$doctrineApplication = new DoctrineApplication( new \DateTimeImmutable() );
 		$application = ValidMembershipApplication::newDomainEntity();
 
 		$paymentData = new LegacyPaymentData( 1, 1, 'UEB', [
@@ -143,7 +143,7 @@ class DomainToLegacyConverterTest extends TestCase {
 
 	public function testGivenApplicationWithIncentives_addsThemToDomainApplication(): void {
 		$incentive = new Incentive( 'PS5 and 3080 GPU and Blue Hearts album on vinyl and Analogue Pocket' );
-		$doctrineApplication = new DoctrineApplication();
+		$doctrineApplication = new DoctrineApplication( new \DateTimeImmutable() );
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->addIncentive( $incentive );
 
@@ -162,7 +162,7 @@ class DomainToLegacyConverterTest extends TestCase {
 	}
 
 	public function testWhenApplicationIsScrubbed_marksDomainApplicationAsAnonymized(): void {
-		$doctrineApplication = new DoctrineApplication();
+		$doctrineApplication = new DoctrineApplication( new \DateTimeImmutable() );
 		$application = ValidMembershipApplication::newDomainEntity();
 		$application->setScrubbed();
 
@@ -178,7 +178,7 @@ class DomainToLegacyConverterTest extends TestCase {
 	}
 
 	public function testWhenApplicationIsNotScrubbed_domainApplicationIsNotMarkedAsAnonymized(): void {
-		$doctrineApplication = new DoctrineApplication();
+		$doctrineApplication = new DoctrineApplication( new \DateTimeImmutable() );
 		$application = ValidMembershipApplication::newDomainEntity();
 
 		$converter = new DomainToLegacyConverter();

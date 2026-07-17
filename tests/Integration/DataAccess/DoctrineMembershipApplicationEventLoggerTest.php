@@ -46,7 +46,7 @@ class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 	public function testWhenPersistFails_domainExceptionIsThrown(): void {
 		$entityManager = $this->createConfiguredStub(
 			EntityManager::class,
-			[ 'find' => new MembershipApplication() ]
+			[ 'find' => new MembershipApplication( new \DateTimeImmutable() ) ]
 		);
 
 		$entityManager->method( 'persist' )
@@ -60,7 +60,7 @@ class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 	}
 
 	public function testGivenMessageAndNoLogExists_createsLog(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->setId( self::MEMBERSHIP_APPLICATION_ID );
 		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$this->entityManager->persist( $application );
@@ -78,7 +78,7 @@ class DoctrineMembershipApplicationEventLoggerTest extends TestCase {
 	}
 
 	public function testGivenMessageAndLogExists_addsRow(): void {
-		$application = new MembershipApplication();
+		$application = new MembershipApplication( new \DateTimeImmutable() );
 		$application->setId( self::MEMBERSHIP_APPLICATION_ID );
 		$application->setPaymentId( self::DUMMY_PAYMENT_ID );
 		$application->encodeAndSetData( [ 'log' => [ '2021-01-01 0:00:00' => 'We call her the log lady' ] ] );

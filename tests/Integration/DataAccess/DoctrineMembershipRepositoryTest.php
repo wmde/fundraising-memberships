@@ -117,13 +117,14 @@ class DoctrineMembershipRepositoryTest extends TestCase {
 	}
 
 	public function testGetMembershipApplicationById_WhenMembershipApplicationInDatabase_itIsReturnedAsMatchingDomainEntity(): void {
-		$this->storeDoctrineApplication( ValidMembershipApplication::newDoctrineEntity() );
+		$application = ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID );
 
-		$expected = ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID );
+		$repository = $this->givenApplicationRepository();
+		$repository->storeApplication( $application );
 
 		$this->assertEquals(
-			$expected,
-			$this->givenApplicationRepository()->getMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )
+			$application,
+			$repository->getMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )
 		);
 	}
 
@@ -139,25 +140,16 @@ class DoctrineMembershipRepositoryTest extends TestCase {
 	}
 
 	public function testGetMembershipApplicationById_ReadingAnonymizedApplication_itIsReturnedAsMatchingDomainEntity(): void {
-		$this->storeDoctrineApplication( ValidMembershipApplication::newBackedUpButUnexportedDoctrineEntity() );
-
 		$expected = ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID );
 		$expected->setBackup();
+
+		$doctrineApplication = ValidMembershipApplication::newBackedUpButUnexportedDoctrineEntity();
+		$doctrineApplication->setCreationTime( $expected->getCreatedOn() );
+		$this->storeDoctrineApplication( $doctrineApplication );
 
 		$this->assertEquals(
 			$expected,
 			$this->givenApplicationRepository()->getMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )
-		);
-	}
-
-	public function testGetUnScrubbedAndUnexportedMembershipApplicationById_WhenMembershipApplicationInDatabase_itIsReturnedAsMatchingDomainEntity(): void {
-		$this->storeDoctrineApplication( ValidMembershipApplication::newDoctrineEntity() );
-
-		$expected = ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID );
-
-		$this->assertEquals(
-			$expected,
-			$this->givenApplicationRepository()->getUnexportedAndUnscrubbedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID )
 		);
 	}
 

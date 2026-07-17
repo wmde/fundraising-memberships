@@ -125,14 +125,14 @@ class MembershipApplicationTest extends TestCase {
 
 		$this->expectException( \DomainException::class );
 
-		$application->scrubPersonalData();
+		$application->scrubPersonalData( ( new \DateTimeImmutable() )->sub( new \DateInterval( 'P1D' ) ) );
 	}
 
 	public function testScrubsPersonalData(): void {
 		$application = ValidMembershipApplication::newApplication();
 		$application->setExported();
 
-		$application->scrubPersonalData();
+		$application->scrubPersonalData( new \DateTimeImmutable() );
 
 		$this->assertSame( '', $application->getApplicant()->getName()->firstName );
 		$this->assertSame( '', $application->getApplicant()->getName()->lastName );
@@ -152,7 +152,7 @@ class MembershipApplicationTest extends TestCase {
 		$application = ValidMembershipApplication::newCompanyApplication();
 		$application->setExported();
 
-		$application->scrubPersonalData();
+		$application->scrubPersonalData( new \DateTimeImmutable() );
 
 		$this->assertSame( '', $application->getApplicant()->getName()->firstName );
 		$this->assertSame( '', $application->getApplicant()->getName()->lastName );
@@ -172,7 +172,7 @@ class MembershipApplicationTest extends TestCase {
 		$application = ValidMembershipApplication::newApplication();
 		$application->cancel();
 
-		$application->scrubPersonalData();
+		$application->scrubPersonalData( new \DateTimeImmutable() );
 
 		$this->assertTrue( $application->isScrubbed() );
 	}
