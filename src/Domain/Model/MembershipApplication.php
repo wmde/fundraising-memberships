@@ -31,7 +31,8 @@ class MembershipApplication {
 		private readonly string $type,
 		private Applicant $applicant,
 		private readonly int $paymentId,
-		private readonly ?bool $donationReceipt
+		private readonly ?bool $donationReceipt,
+		private readonly \DateTimeImmutable $createdOn
 	) {
 		$this->moderationReasons = [];
 	}
@@ -61,6 +62,10 @@ class MembershipApplication {
 
 	public function getDonationReceipt(): ?bool {
 		return $this->donationReceipt;
+	}
+
+	public function getCreatedOn(): \DateTimeImmutable {
+		return $this->createdOn;
 	}
 
 	/**
@@ -170,8 +175,8 @@ class MembershipApplication {
 		return $this->scrubbed;
 	}
 
-	public function scrubPersonalData(): void {
-		if ( !$this->canBeScrubbed() ) {
+	public function scrubPersonalData( \DateTimeImmutable $cutOffDate ): void {
+		if ( !$this->canBeScrubbed( $cutOffDate ) ) {
 			throw new \DomainException(
 				sprintf(
 					"You can only anonymise exported or cancelled membership applications. (ID: %s, Exported: %s, Cancelled: %s)",
@@ -192,12 +197,16 @@ class MembershipApplication {
 		$this->setScrubbed();
 	}
 
-	private function canBeScrubbed(): bool {
+	private function canBeScrubbed( \DateTimeImmutable $cutOffDate ): bool {
 		if ( $this->isExported() ) {
 			return true;
 		}
 
 		if ( $this->isCancelled() ) {
+			return true;
+		}
+
+		if ( $this->createdOn <= $cutOffDate ) {
 			return true;
 		}
 

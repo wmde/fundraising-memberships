@@ -144,11 +144,9 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 
 		$result = $this->makeUseCase( repository: $repository )->applyForMembership( $this->newValidRequest() );
 
-		$expectedApplication = ValidMembershipApplication::newDomainEntity( self::MEMBERSHIP_APPLICATION_ID );
-		$expectedApplication->confirm();
-		$application = $repository->getUnexportedAndUnscrubbedMembershipApplicationById( $expectedApplication->getId() );
+		$application = $repository->getUnexportedAndUnscrubbedMembershipApplicationById( self::MEMBERSHIP_APPLICATION_ID );
 		$this->assertNotNull( $application );
-		$this->assertEquals( $expectedApplication, $application );
+		$this->assertEquals( $result->getMembershipApplication(), $application );
 	}
 
 	public function testGivenValidRequest_confirmationEmailIsSent(): void {

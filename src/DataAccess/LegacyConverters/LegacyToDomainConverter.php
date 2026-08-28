@@ -26,7 +26,8 @@ class LegacyToDomainConverter {
 				$doctrineApplication->getApplicantDateOfBirth()
 			),
 			$doctrineApplication->getPaymentId(),
-			$doctrineApplication->getDonationReceipt()
+			$doctrineApplication->getDonationReceipt(),
+			$doctrineApplication->getCreationTime()
 		);
 
 		if ( !$doctrineApplication->getModerationReasons()->isEmpty() ) {

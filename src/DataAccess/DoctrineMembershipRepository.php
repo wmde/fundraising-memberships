@@ -34,7 +34,7 @@ class DoctrineMembershipRepository implements MembershipRepository {
 			...$application->getModerationReasons()
 		);
 
-		$doctrineApplication = $this->table->getApplicationOrNullById( $application->getId() ) ?? new DoctrineApplication();
+		$doctrineApplication = $this->table->getApplicationOrNullById( $application->getId() ) ?? new DoctrineApplication( $application->getCreatedOn() );
 		$this->updateDoctrineApplication( $doctrineApplication, $application, $existingModerationReasons );
 		$this->table->persistApplication( $doctrineApplication );
 	}

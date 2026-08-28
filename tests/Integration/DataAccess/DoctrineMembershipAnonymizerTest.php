@@ -8,6 +8,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use WMDE\Clock\Clock;
+use WMDE\Clock\StubClock;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipAnonymizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipRepository;
@@ -42,11 +44,18 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 		$this->defaultExportTime = \DateTime::createFromImmutable( $this->now->sub( new \DateInterval( 'PT1H' ) ) );
 	}
 
-	private function newDoctrineMembershipAnonymizer( ?DoctrineMembershipRepository $repository = null, ?PaymentAnonymizer $paymentAnonymizer = null ): DoctrineMembershipAnonymizer {
+	private function newDoctrineMembershipAnonymizer(
+		?DoctrineMembershipRepository $repository = null,
+		?PaymentAnonymizer $paymentAnonymizer = null,
+		?Clock $clock = null,
+		?\DateInterval $gracePeriod = null
+	): DoctrineMembershipAnonymizer {
 		return new DoctrineMembershipAnonymizer(
 			$repository ?? new DoctrineMembershipRepository( $this->entityManager, $this->makeGetPaymentUseCaseStub(), new ModerationReasonRepository( $this->entityManager ) ),
 			$this->entityManager,
-			$paymentAnonymizer ?? new FakePaymentAnonymizer()
+			$paymentAnonymizer ?? new FakePaymentAnonymizer(),
+				$clock ?? new StubClock( new \DateTimeImmutable() ),
+			$gracePeriod ?? new \DateInterval( 'P1D' )
 		);
 	}
 
@@ -99,7 +108,8 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 
 	public function testAnonymizeWithIdsThrowsExceptionWhenEntryIsUnexportedAndInGracePeriod(): void {
 		$this->insertMembership( self::MEMBERSHIP_ID );
-		$anonymizer = $this->newDoctrineMembershipAnonymizer();
+		// Add a very large grace period
+		$anonymizer = $this->newDoctrineMembershipAnonymizer( gracePeriod: new \DateInterval( 'P1Y' ) );
 
 		$this->expectException( AnonymizationException::class );
 
@@ -122,11 +132,29 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 		$membership2['status'] = MembershipApplication::STATUS_CANCELLED_MODERATION;
 		$this->conn->insert( 'request', $membership1 );
 		$this->conn->insert( 'request', $membership2 );
-		$anonymizer = $this->newDoctrineMembershipAnonymizer();
+		$anonymizer = $this->newDoctrineMembershipAnonymizer( gracePeriod: new \DateInterval( 'P1Y' ) );
 
 		$anonymizer->anonymizeAll();
 
 		$this->assertMembershipIsUnAnonymized( $membership1 );
+		$this->assertMembershipIsAnonymized( self::ANOTHER_MEMBERSHIP_ID );
+	}
+
+	public function testAnonymizeAllRemovesAllOldMemberships(): void {
+		$membership1 = $this->newMembershipRecord( self::MEMBERSHIP_ID );
+		$membership1['status'] = MembershipApplication::STATUS_MODERATION;
+		$membership2 = $this->newMembershipRecord( self::ANOTHER_MEMBERSHIP_ID );
+		$membership2['status'] = MembershipApplication::STATUS_CANCELLED_MODERATION;
+		$this->conn->insert( 'request', $membership1 );
+		$this->conn->insert( 'request', $membership2 );
+		$anonymizer = $this->newDoctrineMembershipAnonymizer(
+			clock: new StubClock( ( new \DateTimeImmutable() )->add( new \DateInterval( 'P1M' ) ) ),
+			gracePeriod: new \DateInterval( 'P1M' )
+		);
+
+		$anonymizer->anonymizeAll();
+
+		$this->assertMembershipIsAnonymized( self::MEMBERSHIP_ID );
 		$this->assertMembershipIsAnonymized( self::ANOTHER_MEMBERSHIP_ID );
 	}
 

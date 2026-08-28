@@ -27,7 +27,8 @@ class MembershipApplicationBuilder {
 			$request->membershipType,
 			$this->newApplicant( $request ),
 			$paymentId,
-			$request->optsIntoDonationReceipt
+			$request->optsIntoDonationReceipt,
+			new \DateTimeImmutable()
 		);
 		$this->addIncentives( $application, $request );
 		return $application;
