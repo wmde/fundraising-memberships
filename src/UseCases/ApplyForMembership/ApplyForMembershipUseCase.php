@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\MembershipContext\UseCases\ApplyForMembership;
 
+use WMDE\Clock\Clock;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
@@ -32,7 +33,8 @@ class ApplyForMembershipUseCase {
 		private readonly MembershipTrackingRepository $trackingRepository,
 		private readonly EventEmitter $eventEmitter,
 		private readonly IncentiveFinder $incentiveFinder,
-		private readonly PaymentServiceFactory $paymentServiceFactory
+		private readonly PaymentServiceFactory $paymentServiceFactory,
+		private readonly Clock $clock,
 	) {
 	}
 
@@ -93,7 +95,8 @@ class ApplyForMembershipUseCase {
 		return ( new MembershipApplicationBuilder( $this->incentiveFinder ) )->newApplicationFromRequest(
 			$request,
 			$membershipId,
-			$paymentId
+			$paymentId,
+			$this->clock->now()
 		);
 	}
 

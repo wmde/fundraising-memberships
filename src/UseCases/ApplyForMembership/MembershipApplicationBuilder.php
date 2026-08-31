@@ -21,14 +21,14 @@ class MembershipApplicationBuilder {
 	) {
 	}
 
-	public function newApplicationFromRequest( ApplyForMembershipRequest $request, int $membershipId, int $paymentId ): MembershipApplication {
+	public function newApplicationFromRequest( ApplyForMembershipRequest $request, int $membershipId, int $paymentId, \DateTimeImmutable $createdOn ): MembershipApplication {
 		$application = new MembershipApplication(
 			$membershipId,
 			$request->membershipType,
 			$this->newApplicant( $request ),
 			$paymentId,
 			$request->optsIntoDonationReceipt,
-			new \DateTimeImmutable()
+			$createdOn
 		);
 		$this->addIncentives( $application, $request );
 		return $application;

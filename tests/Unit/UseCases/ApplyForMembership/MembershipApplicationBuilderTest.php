@@ -30,7 +30,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 		$testIncentiveFinder = new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] );
 		$builder = new MembershipApplicationBuilder( $testIncentiveFinder );
 
-		$application = $builder->newApplicationFromRequest( $request, self::MEMBERSHIP_ID, self::PAYMENT_ID );
+		$application = $builder->newApplicationFromRequest( $request, self::MEMBERSHIP_ID, self::PAYMENT_ID, new \DateTimeImmutable() );
 
 		$this->assertIsExpectedCompanyPersonName( $application->getApplicant()->getName() );
 		$this->assertIsExpectedAddress( $application->getApplicant()->getPhysicalAddress() );
@@ -99,7 +99,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 		$testIncentiveFinder = new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] );
 		$builder = new MembershipApplicationBuilder( $testIncentiveFinder );
 
-		$application = $builder->newApplicationFromRequest( $request, self::MEMBERSHIP_ID, self::PAYMENT_ID );
+		$application = $builder->newApplicationFromRequest( $request, self::MEMBERSHIP_ID, self::PAYMENT_ID, new \DateTimeImmutable() );
 
 		$this->assertIsExpectedCompanyPersonName( $application->getApplicant()->getName() );
 		$this->assertIsExpectedAddress( $application->getApplicant()->getPhysicalAddress() );
@@ -110,7 +110,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 		$testIncentiveFinder = new TestIncentiveFinder( [ new Incentive( 'I AM INCENTIVE' ) ] );
 		$builder = new MembershipApplicationBuilder( $testIncentiveFinder );
 
-		$application = $builder->newApplicationFromRequest( $request, self::MEMBERSHIP_ID, self::PAYMENT_ID );
+		$application = $builder->newApplicationFromRequest( $request, self::MEMBERSHIP_ID, self::PAYMENT_ID, new \DateTimeImmutable() );
 
 		$this->assertSame( ApplicantName::COMPANY_SALUTATION, $application->getApplicant()->getName()->salutation );
 	}
@@ -127,7 +127,7 @@ class MembershipApplicationBuilderTest extends TestCase {
 		) );
 		$builder = new MembershipApplicationBuilder( $incentiveFinder );
 
-		$application = $builder->newApplicationFromRequest( $request, self::MEMBERSHIP_ID, self::PAYMENT_ID );
+		$application = $builder->newApplicationFromRequest( $request, self::MEMBERSHIP_ID, self::PAYMENT_ID, new \DateTimeImmutable() );
 		$applicationIncentives = iterator_to_array( $application->getIncentives() );
 
 		$this->assertCount( 2, $applicationIncentives );
