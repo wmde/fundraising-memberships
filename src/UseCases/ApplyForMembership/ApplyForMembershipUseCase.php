@@ -29,10 +29,10 @@ class ApplyForMembershipUseCase {
 		private readonly MembershipNotifier $notifier,
 		private readonly MembershipApplicationValidator $validator,
 		private readonly ModerationService $policyValidator,
-		private MembershipTrackingRepository $trackingRepository,
-		private EventEmitter $eventEmitter,
-		private IncentiveFinder $incentiveFinder,
-		private PaymentServiceFactory $paymentServiceFactory
+		private readonly MembershipTrackingRepository $trackingRepository,
+		private readonly EventEmitter $eventEmitter,
+		private readonly IncentiveFinder $incentiveFinder,
+		private readonly PaymentServiceFactory $paymentServiceFactory
 	) {
 	}
 
