@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Integration\UseCases\ApplyFor
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use WMDE\Clock\StubClock;
 use WMDE\Fundraising\MembershipContext\Authorization\MembershipAuthorizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\IncentiveFinder;
 use WMDE\Fundraising\MembershipContext\Domain\Event\MembershipCreatedEvent;
@@ -308,7 +309,8 @@ class ApplyForMembershipUseCaseTest extends TestCase {
 			new PaymentServiceFactory(
 				$createPaymentUseCase ?? $this->newSucceedingCreatePaymentUseCase(),
 				[ PaymentType::DirectDebit ]
-			)
+			),
+			new StubClock( new \DateTimeImmutable() ),
 		);
 	}
 
