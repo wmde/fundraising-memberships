@@ -96,7 +96,7 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 	}
 
 	public function testAnonymizeWithIdsTransformsDatabaseExceptions(): void {
-		$membershipRepository = $this->createMock( DoctrineMembershipRepository::class );
+		$membershipRepository = $this->createStub( DoctrineMembershipRepository::class );
 		$membershipRepository->method( 'getMembershipApplicationById' )->willReturn( ValidMembershipApplication::newApplication() );
 		$membershipRepository->method( 'storeApplication' )->willThrowException( new StoreMembershipApplicationException( 'Could not store' ) );
 		$anonymizer = $this->newDoctrineMembershipAnonymizer( repository: $membershipRepository );
