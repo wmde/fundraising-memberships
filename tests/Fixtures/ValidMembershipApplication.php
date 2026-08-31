@@ -67,7 +67,10 @@ class ValidMembershipApplication {
 	public const OPTS_INTO_DONATION_RECEIPT = true;
 	public const INCENTIVE_NAME = 'eternal_thankfulness';
 
-	public static function newDomainEntity( int $id = self::DEFAULT_ID ): MembershipApplication {
+	public static function newDomainEntity(
+		int $id = self::DEFAULT_ID,
+		\DateTimeImmutable $createdOn = new \DateTimeImmutable()
+	): MembershipApplication {
 		$self = ( new self() );
 		return new MembershipApplication(
 			$id,
@@ -75,11 +78,14 @@ class ValidMembershipApplication {
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			self::PAYMENT_ID,
 			self::OPTS_INTO_DONATION_RECEIPT,
-			new \DateTimeImmutable()
+			$createdOn
 		);
 	}
 
-	public static function newCompanyApplication( int $id = self::DEFAULT_ID ): MembershipApplication {
+	public static function newCompanyApplication(
+		int $id = self::DEFAULT_ID,
+		\DateTimeImmutable $createdOn = new \DateTimeImmutable()
+	): MembershipApplication {
 		$self = ( new self() );
 		return new MembershipApplication(
 			$id,
@@ -87,11 +93,14 @@ class ValidMembershipApplication {
 			$self->newCompanyApplicant( $self->newCompanyApplicantName() ),
 			self::PAYMENT_ID,
 			self::OPTS_INTO_DONATION_RECEIPT,
-			new \DateTimeImmutable()
+			$createdOn
 		);
 	}
 
-	public static function newApplication( int $id = self::DEFAULT_ID ): MembershipApplication {
+	public static function newApplication(
+		int $id = self::DEFAULT_ID,
+		\DateTimeImmutable $createdOn = new \DateTimeImmutable()
+	): MembershipApplication {
 		$self = ( new self() );
 		return new MembershipApplication(
 			$id,
@@ -99,7 +108,7 @@ class ValidMembershipApplication {
 			$self->newApplicant( $self->newPersonApplicantName() ),
 			self::PAYMENT_ID,
 			self::OPTS_INTO_DONATION_RECEIPT,
-			new \DateTimeImmutable()
+			$createdOn
 		);
 	}
 
