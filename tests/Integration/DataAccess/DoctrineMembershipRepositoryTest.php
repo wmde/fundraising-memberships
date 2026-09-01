@@ -12,6 +12,9 @@ use WMDE\EmailAddress\EmailAddress;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\ModerationReasonRepository;
+use WMDE\Fundraising\MembershipContext\Domain\Model\Applicant;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantAddress;
+use WMDE\Fundraising\MembershipContext\Domain\Model\ApplicantName;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationReason;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\ApplicationAnonymizedException;
@@ -187,6 +190,42 @@ class DoctrineMembershipRepositoryTest extends TestCase {
 		$doctrineApplication = $this->getApplicationFromDatabase( $newApplication->getId() );
 
 		$this->assertSame( 'chuck.norris@always.win', $doctrineApplication->getApplicantEmailAddress() );
+	}
+
+	public function testWhenApplicationAlreadyExists_applicantIsUpdated(): void {
+		$repository = $this->givenApplicationRepository();
+
+		$originalApplication = ValidMembershipApplication::newDomainEntity();
+		$repository->storeApplication( $originalApplication );
+
+		$updatedApplicant = new Applicant(
+			ApplicantName::newPrivatePersonName(
+				'Mr.',
+				'Dr.',
+				'Updated',
+				'Applicant'
+			),
+			new ApplicantAddress(
+				'Updated Street 123',
+				'12345',
+				'Updated City',
+				'DE'
+			),
+			new EmailAddress( 'updated@example.com' ),
+			$originalApplication->getApplicant()->getPhoneNumber(),
+			$originalApplication->getApplicant()->getDateOfBirth()
+			);
+
+		$originalApplication->updateApplicant( $updatedApplicant );
+
+		$repository->storeApplication( $originalApplication );
+
+		$this->entityManager->clear();
+
+		$actualApplication = $repository->getMembershipApplicationById( $originalApplication->getId() );
+
+		$this->assertNotNull( $actualApplication );
+		$this->assertEquals( $updatedApplicant, $actualApplication->getApplicant() );
 	}
 
 	public function testGivenCompanyApplication_companyNameIsPersisted(): void {
