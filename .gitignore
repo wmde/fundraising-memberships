@@ -24,3 +24,5 @@ coverage
 *.bak
 
 .env
+
+.DS_Store
