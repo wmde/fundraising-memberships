@@ -84,4 +84,11 @@ class FeeChange {
 		$this->exportDate = $exportDate;
 		$this->state = FeeChangeState::EXPORTED;
 	}
+
+	public function scrub(): void {
+		$this->memberName = '';
+		$this->state = FeeChangeState::NEW;
+		$this->exportDate = null;
+		$this->filledOn = null;
+	}
 }
