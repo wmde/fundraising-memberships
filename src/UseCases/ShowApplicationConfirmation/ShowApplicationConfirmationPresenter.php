@@ -22,4 +22,11 @@ interface ShowApplicationConfirmationPresenter {
 
 	public function presentTechnicalError( string $message ): void;
 
+	/**
+	 * @param array<string, mixed> $arguments
+	 *
+	 * @return void
+	 */
+	public function addPageArguments( array $arguments ): void;
+
 }
