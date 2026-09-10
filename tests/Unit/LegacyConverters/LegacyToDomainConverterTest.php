@@ -153,6 +153,7 @@ class LegacyToDomainConverterTest extends TestCase {
 	public function testGivenExportedDoctrineApplication_createsAnonymousEmailAddress(): void {
 		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
 		$doctrineApplication->setExport( new DateTime() );
+		$doctrineApplication->scrub();
 
 		$converter = new LegacyToDomainConverter();
 		$application = $converter->createFromLegacyObject( $doctrineApplication );
