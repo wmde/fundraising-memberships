@@ -38,4 +38,15 @@ class FeeChangeTest extends TestCase {
 		$this->assertEquals( $exportDate, $feeChange->getExportDate() );
 		$this->assertEquals( FeeChangeState::EXPORTED, $feeChange->getState() );
 	}
+
+	public function testScrubScrubs(): void {
+		$feeChange = FeeChanges::newExportedFeeChange( FeeChanges::UUID_1 );
+
+		$feeChange->scrub();
+
+		$this->assertEquals( FeeChangeState::NEW, $feeChange->getState() );
+		$this->assertSame( '', $feeChange->getMemberName() );
+		$this->assertNull( $feeChange->getExportDate() );
+		$this->assertNull( $feeChange->getFilledOnDate() );
+	}
 }
