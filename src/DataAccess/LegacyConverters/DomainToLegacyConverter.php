@@ -43,6 +43,7 @@ class DomainToLegacyConverter {
 		if ( $application->isScrubbed() ) {
 			$this->clearBankDataFields( $doctrineApplication );
 			$doctrineApplication->scrub();
+			DataBlobScrubber::scrubAllPersonalData( $doctrineApplication );
 		}
 	}
 
