@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\MembershipContext\Tests\Unit\LegacyConverters;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication as DoctrineApplication;
+use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\DataBlobScrubber;
 use WMDE\Fundraising\MembershipContext\DataAccess\LegacyConverters\DomainToLegacyConverter;
 use WMDE\Fundraising\MembershipContext\Domain\Model\Incentive;
 use WMDE\Fundraising\MembershipContext\Domain\Model\ModerationIdentifier;
@@ -15,6 +16,7 @@ use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 
 #[CoversClass( DomainToLegacyConverter::class )]
+#[CoversClass( DataBlobScrubber::class )]
 class DomainToLegacyConverterTest extends TestCase {
 
 	public function testWhenPersistingApplicationWithModerationFlag_doctrineApplicationHasFlag(): void {
@@ -190,5 +192,28 @@ class DomainToLegacyConverterTest extends TestCase {
 		);
 
 		$this->assertFalse( $doctrineApplication->isAnonymized() );
+	}
+
+	public function testWhenApplicationIsScrubbed_anonymisedDataBlob(): void {
+		$doctrineApplication = new DoctrineApplication( new \DateTimeImmutable() );
+		$doctrineApplication->encodeAndSetData( [
+			'old_status' => 'yellow alert',
+			'log' => [ 'did a thing' ],
+			'firstname' => 'Barney',
+			'lastname' => 'Rubble',
+			'qwerty' => 'qwertz',
+		] );
+		$application = ValidMembershipApplication::newDomainEntity();
+		$application->setScrubbed();
+
+		$converter = new DomainToLegacyConverter();
+		$converter->convert(
+			$doctrineApplication,
+			$application,
+			new LegacyPaymentData( 1, 1, 'BEZ', [] ),
+			[]
+		);
+
+		$this->assertEquals( [ 'old_status' => 'yellow alert', 'log' => [ 'did a thing' ] ], $doctrineApplication->getDecodedData() );
 	}
 }
