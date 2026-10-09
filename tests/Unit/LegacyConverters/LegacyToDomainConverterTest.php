@@ -150,9 +150,9 @@ class LegacyToDomainConverterTest extends TestCase {
 		$this->assertTrue( $application->isScrubbed() );
 	}
 
-	public function testGivenExportedDoctrineApplication_createsAnonymousEmailAddress(): void {
+	public function testGivenScrubbedDoctrineApplication_createsAnonymousEmailAddress(): void {
 		$doctrineApplication = ValidMembershipApplication::newDoctrineEntity();
-		$doctrineApplication->setExport( new DateTime() );
+		$doctrineApplication->scrub();
 
 		$converter = new LegacyToDomainConverter();
 		$application = $converter->createFromLegacyObject( $doctrineApplication );
