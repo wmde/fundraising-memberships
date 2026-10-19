@@ -10,7 +10,7 @@
 
 		"psr/log": "~3.0",
 
-		"wmde/fundraising-payments": "dev-improve-anonymisation-logging",
+		"wmde/fundraising-payments": "~9.0",
 		"wmde/clock": "^2.0",
 		"wmde/euro": "~1.0",
 		"wmde/email-address": "~1.0",
