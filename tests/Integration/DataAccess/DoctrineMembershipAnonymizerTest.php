@@ -8,13 +8,13 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Output\OutputInterface;
 use WMDE\Clock\Clock;
 use WMDE\Clock\StubClock;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineEntities\MembershipApplication;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipAnonymizer;
 use WMDE\Fundraising\MembershipContext\DataAccess\DoctrineMembershipRepository;
 use WMDE\Fundraising\MembershipContext\DataAccess\ModerationReasonRepository;
-use WMDE\Fundraising\MembershipContext\Domain\AnonymizationException;
 use WMDE\Fundraising\MembershipContext\Domain\Repositories\StoreMembershipApplicationException;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\FakePaymentAnonymizer;
 use WMDE\Fundraising\MembershipContext\Tests\Fixtures\ValidMembershipApplication;
@@ -48,14 +48,20 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 		?DoctrineMembershipRepository $repository = null,
 		?PaymentAnonymizer $paymentAnonymizer = null,
 		?Clock $clock = null,
-		?\DateInterval $gracePeriod = null
+		?\DateInterval $gracePeriod = null,
+		?OutputInterface $output = null
 	): DoctrineMembershipAnonymizer {
 		return new DoctrineMembershipAnonymizer(
-			$repository ?? new DoctrineMembershipRepository( $this->entityManager, $this->makeGetPaymentUseCaseStub(), new ModerationReasonRepository( $this->entityManager ) ),
+			$repository ?? new DoctrineMembershipRepository(
+				$this->entityManager,
+				$this->makeGetPaymentUseCaseStub(),
+				new ModerationReasonRepository( $this->entityManager )
+			),
 			$this->entityManager,
 			$paymentAnonymizer ?? new FakePaymentAnonymizer(),
 				$clock ?? new StubClock( new \DateTimeImmutable() ),
-			$gracePeriod ?? new \DateInterval( 'P1D' )
+			$gracePeriod ?? new \DateInterval( 'P1D' ),
+				$output ?? $this->createStub( OutputInterface::class )
 		);
 	}
 
@@ -87,31 +93,45 @@ class DoctrineMembershipAnonymizerTest extends TestCase {
 		$this->assertSame( [ self::PAYMENT_ID, self::PAYMENT_ID ], $paymentAnonymizer->paymentIds );
 	}
 
-	public function testAnonymizeWithIdsThrowsExceptionWhenIdDoesNotExist(): void {
-		$anonymizer = $this->newDoctrineMembershipAnonymizer();
+	public function testAnonymizeWithIdsLogsWhenIdDoesNotExist(): void {
+		$output = $this->createMock( OutputInterface::class );
+		$output->expects( $this->once() )->method( 'writeln' )
+			->with( 'Failed to find membership id: ' . self::MEMBERSHIP_ID );
 
-		$this->expectException( AnonymizationException::class );
+		$anonymizer = $this->newDoctrineMembershipAnonymizer( output: $output );
 
 		$anonymizer->anonymizeWithIds( self::MEMBERSHIP_ID );
 	}
 
-	public function testAnonymizeWithIdsTransformsDatabaseExceptions(): void {
-		$membershipRepository = $this->createStub( DoctrineMembershipRepository::class );
-		$membershipRepository->method( 'getMembershipApplicationById' )->willReturn( ValidMembershipApplication::newApplication() );
+	public function testAnonymizeWithIdsLogsDatabaseExceptions(): void {
+		$application = ValidMembershipApplication::newApplication();
+		$application->setExported();
+
+		$membershipRepository = $this->createMock( DoctrineMembershipRepository::class );
+		$membershipRepository->method( 'getMembershipApplicationById' )->willReturn( $application );
 		$membershipRepository->method( 'storeApplication' )->willThrowException( new StoreMembershipApplicationException( 'Could not store' ) );
-		$anonymizer = $this->newDoctrineMembershipAnonymizer( repository: $membershipRepository );
 
-		$this->expectException( AnonymizationException::class );
+		$output = $this->createMock( OutputInterface::class );
+		$output->expects( $this->exactly( 2 ) )->method( 'writeln' )
+			->withParameterSetsInOrder( 'Failed to anonymize membership id: ' . self::MEMBERSHIP_ID, 'Could not store' );
+
+		$anonymizer = $this->newDoctrineMembershipAnonymizer( repository: $membershipRepository, output: $output );
 
 		$anonymizer->anonymizeWithIds( self::MEMBERSHIP_ID );
 	}
 
-	public function testAnonymizeWithIdsThrowsExceptionWhenEntryIsUnexportedAndInGracePeriod(): void {
+	public function testAnonymizeWithIdsLogsWhenEntryIsNotExportedOrCancelled(): void {
 		$this->insertMembership( self::MEMBERSHIP_ID );
-		// Add a very large grace period
-		$anonymizer = $this->newDoctrineMembershipAnonymizer( gracePeriod: new \DateInterval( 'P1Y' ) );
 
-		$this->expectException( AnonymizationException::class );
+		$output = $this->createMock( OutputInterface::class );
+		$output->expects( $this->exactly( 2 ) )->method( 'writeln' )
+			->withParameterSetsInOrder(
+				'Failed to anonymize membership id: ' . self::MEMBERSHIP_ID,
+				'You can only anonymise exported or cancelled membership applications. (ID: ' . self::MEMBERSHIP_ID . ', Exported: false, Cancelled: false)'
+			);
+
+		// Add a very large grace period
+		$anonymizer = $this->newDoctrineMembershipAnonymizer( gracePeriod: new \DateInterval( 'P1Y' ), output: $output );
 
 		$anonymizer->anonymizeWithIds( self::MEMBERSHIP_ID );
 	}

@@ -85,7 +85,7 @@ class LegacyToDomainConverter {
 	}
 
 	private function newEmail( DoctrineApplication $application ): EmailAddress {
-		if ( $application->getExport() != null ) {
+		if ( $application->isAnonymized() ) {
 			return new AnonymousEmailAddress();
 		}
 
