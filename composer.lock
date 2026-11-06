@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "edb5a064d2feb61c60f5509c72a9acc5",
+    "content-hash": "a0e076000b21e8a34334de5721f540f4",
     "packages": [
         {
             "name": "doctrine/collections",
@@ -3407,16 +3407,16 @@
         },
         {
             "name": "wmde/fundraising-payments",
-            "version": "v9.0.0",
+            "version": "v10.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wmde/fundraising-payments",
-                "reference": "52d99b2294170c4f846c326374d7b7fe6df0618f"
+                "reference": "4b1a44800da10eda84bbe2788e4d63ec6185403d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wmde/fundraising-payments/zipball/52d99b2294170c4f846c326374d7b7fe6df0618f",
-                "reference": "52d99b2294170c4f846c326374d7b7fe6df0618f",
+                "url": "https://api.github.com/repos/wmde/fundraising-payments/zipball/4b1a44800da10eda84bbe2788e4d63ec6185403d",
+                "reference": "4b1a44800da10eda84bbe2788e4d63ec6185403d",
                 "shasum": ""
             },
             "require": {
@@ -3462,7 +3462,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Bounded Context for the Wikimedia Deutschland fundraising payment subdomain",
-            "time": "2026-10-19T07:33:53+00:00"
+            "time": "2026-11-12T15:12:46+00:00"
         }
     ],
     "packages-dev": [
@@ -6238,5 +6238,5 @@
         "php": ">=8.4"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
